@@ -1,0 +1,10 @@
+services:
+  wordvoya-site:
+    build: .
+    image: wordvoya-site:latest
+    container_name: wordvoya-site
+    restart: unless-stopped
+    ports:
+      # Yalnız yerelden: dışarıya host nginx (HTTPS) üzerinden açılır
+      - "127.0.0.1:8086:80"
+    mem_limit: 64m
