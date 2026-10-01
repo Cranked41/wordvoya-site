@@ -8,7 +8,6 @@ import {
   PATHS,
   SUPPORT_EMAIL,
   UI,
-  hasPage,
   isRtl,
   type Lang,
   type PageKey,
@@ -39,7 +38,7 @@ export function Document({ lang, title, description, page, og, noindex, children
         {noindex && <meta name="robots" content="noindex" />}
         {page && <link rel="canonical" href={ORIGIN + PATHS[lang][page]} />}
         {page &&
-          LANGS.filter((l) => hasPage(l, page)).map((l) => (
+          LANGS.map((l) => (
             <link key={l} rel="alternate" hrefLang={l} href={ORIGIN + PATHS[l][page]} />
           ))}
         {isHome && <link rel="alternate" hrefLang="x-default" href={ORIGIN + PATHS.en.home} />}
@@ -62,8 +61,8 @@ export function Document({ lang, title, description, page, og, noindex, children
   );
 }
 
-/** Bir dildeki aynı sayfa; o dilde yoksa o dilin ana sayfası (gizlilik ve şartlar yalnız tr/en). */
-const pageIn = (to: Lang, page: PageKey) => PATHS[to][hasPage(to, page) ? page : 'home'];
+/** Bir dildeki aynı sayfa. */
+const pageIn = (to: Lang, page: PageKey) => PATHS[to][page];
 
 /** Dil menüsü: JavaScript'siz açılır liste (CSP script-src 'none'), dil adları kendi dillerinde. */
 function LangMenu({ lang, page }: { lang: Lang; page: PageKey }) {

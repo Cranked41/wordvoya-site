@@ -1,7 +1,20 @@
 // Kullanım şartları.
 // JSX'te satır sonu ile etiket arasındaki boşluk düşer: metinle bağlantıyı aynı satırda tut.
 import { DocPage, Mail } from '../Layout';
-import { PATHS, type DocLang } from '../site';
+import { PATHS, type Lang } from '../site';
+import * as de from './legal/de';
+import * as fr from './legal/fr';
+import * as es from './legal/es';
+import * as it from './legal/it';
+import * as pt from './legal/pt';
+import * as ru from './legal/ru';
+import * as nl from './legal/nl';
+import * as pl from './legal/pl';
+import * as ja from './legal/ja';
+import * as ko from './legal/ko';
+import * as ar from './legal/ar';
+import * as fa from './legal/fa';
+import * as hi from './legal/hi';
 
 function TermsTr() {
   return (
@@ -27,10 +40,10 @@ function TermsTr() {
       <h2>Kelime İçeriği ve Kaynaklar</h2>
       <ul>
         <li>
-          Kelime anlamları, <a href="https://tr.wiktionary.org/">Vikisözlük</a> (Türkçe ve İngilizce) katkıcılarının çalışmasından <a href="https://kaikki.org/">kaikki.org</a> çıkarımı aracılığıyla uyarlanmıştır.
+          Kelime anlamları, <a href="https://www.wiktionary.org/">Vikisözlük</a> katkıcılarının çalışmasından uyarlanmıştır: her bulmaca dilinin kendi Vikisözlük'ü ve İngilizce Vikisözlük, büyük ölçüde <a href="https://kaikki.org/">kaikki.org</a> çıkarımı aracılığıyla.
         </li>
         <li>
-          Kelime sıklıkları <a href="https://github.com/hermitdave/FrequencyWords">FrequencyWords</a> (OpenSubtitles 2018) listesinden alınmıştır.
+          Kelime sıklıkları <a href="https://github.com/hermitdave/FrequencyWords">FrequencyWords</a> (OpenSubtitles) ve <a href="https://github.com/rspeer/wordfreq">wordfreq</a> listelerinden alınmıştır.
         </li>
         <li>
           Bu kaynaklardan türetilen kelime listeleri ve bölüm paketleri <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.tr">CC BY-SA 4.0</a> lisansıyla sunulur. Uygulamanın kodu, tasarımı ve Wordvoya adı bu lisansa tabi değildir.
@@ -134,10 +147,10 @@ function TermsEn() {
       <h2>Word Content and Sources</h2>
       <ul>
         <li>
-          Word meanings are adapted from the work of <a href="https://en.wiktionary.org/">Wiktionary</a> (Turkish and English) contributors, via the <a href="https://kaikki.org/">kaikki.org</a> extraction.
+          Word meanings are adapted from the work of <a href="https://www.wiktionary.org/">Wiktionary</a> contributors: each puzzle language's own Wiktionary and the English Wiktionary, mostly via the <a href="https://kaikki.org/">kaikki.org</a> extraction.
         </li>
         <li>
-          Word frequencies come from the <a href="https://github.com/hermitdave/FrequencyWords">FrequencyWords</a> list (OpenSubtitles 2018).
+          Word frequencies come from the <a href="https://github.com/hermitdave/FrequencyWords">FrequencyWords</a> (OpenSubtitles) and <a href="https://github.com/rspeer/wordfreq">wordfreq</a> lists.
         </li>
         <li>
           The word lists and level packs derived from these sources are provided under <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>. The app's code, design and the Wordvoya name are not covered by that license.
@@ -217,6 +230,12 @@ function TermsEn() {
   );
 }
 
-export default function Terms({ lang }: { lang: DocLang }) {
-  return lang === 'tr' ? <TermsTr /> : <TermsEn />;
+// tr/en asıl metin; öbür diller çeviri (legal/<dil>.tsx, başında "farklılıkta İngilizcesi geçerli" notu)
+const CEVIRI = { de, fr, es, it, pt, ru, nl, pl, ja, ko, ar, fa, hi };
+
+export default function Terms({ lang }: { lang: Lang }) {
+  if (lang === 'tr') return <TermsTr />;
+  if (lang === 'en') return <TermsEn />;
+  const Ceviri = CEVIRI[lang].Terms;
+  return <Ceviri />;
 }

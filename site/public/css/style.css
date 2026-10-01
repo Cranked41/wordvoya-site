@@ -104,8 +104,10 @@ section.shots { padding: 40px 0; }
 .doc .date { color: var(--muted); margin: 0 0 20px; font-size: .95rem; }
 .doc .lead { background: var(--sea); border-radius: var(--radius); padding: 16px 20px; margin: 0 0 8px; }
 .doc h2 { font-size: 1.25rem; margin: 32px 0 8px; }
-.doc ul { padding-left: 1.2em; }
+.doc ul { padding-inline-start: 1.2em; }
 .doc li { margin: 6px 0; }
+/* Çeviri notu (gizlilik/şartların tr/en dışındaki dilleri): farklılıkta İngilizcesi geçerli */
+.doc .note { background: var(--surface-2); border-radius: 12px; padding: 10px 14px; margin: 0 0 20px; color: var(--muted); font-size: .92rem; }
 .lang-switch { font-size: .95rem; margin: 0 0 16px; }
 
 /* Alt bilgi */

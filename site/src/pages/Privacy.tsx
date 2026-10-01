@@ -1,7 +1,20 @@
 // Gizlilik politikası (uygulamanın Ayarlar ekranı bu sayfaya bağlanır).
 // JSX'te satır sonu ile etiket arasındaki boşluk düşer: metinle bağlantıyı aynı satırda tut.
 import { DocPage, Mail } from '../Layout';
-import type { DocLang } from '../site';
+import type { Lang } from '../site';
+import * as de from './legal/de';
+import * as fr from './legal/fr';
+import * as es from './legal/es';
+import * as it from './legal/it';
+import * as pt from './legal/pt';
+import * as ru from './legal/ru';
+import * as nl from './legal/nl';
+import * as pl from './legal/pl';
+import * as ja from './legal/ja';
+import * as ko from './legal/ko';
+import * as ar from './legal/ar';
+import * as fa from './legal/fa';
+import * as hi from './legal/hi';
 
 function PrivacyTr() {
   return (
@@ -240,6 +253,12 @@ function PrivacyEn() {
   );
 }
 
-export default function Privacy({ lang }: { lang: DocLang }) {
-  return lang === 'tr' ? <PrivacyTr /> : <PrivacyEn />;
+// tr/en asıl metin; öbür diller çeviri (legal/<dil>.tsx, başında "farklılıkta İngilizcesi geçerli" notu)
+const CEVIRI = { de, fr, es, it, pt, ru, nl, pl, ja, ko, ar, fa, hi };
+
+export default function Privacy({ lang }: { lang: Lang }) {
+  if (lang === 'tr') return <PrivacyTr />;
+  if (lang === 'en') return <PrivacyEn />;
+  const Ceviri = CEVIRI[lang].Privacy;
+  return <Ceviri />;
 }
