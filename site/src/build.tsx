@@ -17,7 +17,7 @@ const out = join(root, 'dist');
 const PAGES: Record<PageKey, { render: (lang: Lang) => ReactElement; lastmod: string }> = {
   home: { render: (lang) => <Home lang={lang} />, lastmod: '2026-09-28' },
   privacy: { render: (lang) => <Privacy lang={lang} />, lastmod: '2026-09-30' },
-  terms: { render: (lang) => <Terms lang={lang} />, lastmod: '2026-09-29' },
+  terms: { render: (lang) => <Terms lang={lang} />, lastmod: '2026-10-01' },
 };
 
 /** "/" → index.html, "/en/" → en/index.html, "/gizlilik.html" → gizlilik.html */

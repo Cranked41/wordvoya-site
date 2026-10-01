@@ -9,7 +9,7 @@ function TermsTr() {
       lang="tr"
       page="terms"
       title="Kullanım Şartları"
-      updated="29 Eylül 2026"
+      updated="1 Ekim 2026"
       description="Wordvoya: Kelime Bulmacası uygulamasının kullanım şartları."
     >
       <p>
@@ -44,7 +44,7 @@ function TermsTr() {
       <h2>Elmaslar</h2>
       <p>
         Elmaslar yalnızca oyun içinde ipucu ve süreli bölümlerde ek süre almak için kullanılan sanal öğelerdir. Oynayarak
-        (bölüm ve bonus kelime ödülleri) ya da Google Play üzerinden satın alarak edinilir; reklam izleyerek elmas
+        (bonus kelime ödülleri; bölüm bitirmek elmas değil puan verir) ya da Google Play üzerinden satın alarak edinilir; reklam izleyerek elmas
         kazanılmaz. Parasal değerleri yoktur, nakde çevrilemez, iade edilemez (yasaların zorunlu kıldığı durumlar ve
         Google Play'in iade kuralları saklıdır) ve başkasına devredilemez.
       </p>
@@ -117,7 +117,7 @@ function TermsEn() {
       lang="en"
       page="terms"
       title="Terms of Use"
-      updated="29 September 2026"
+      updated="1 October 2026"
       description="Terms of use for the Wordvoya: Word Puzzle app."
     >
       <p>
@@ -151,7 +151,7 @@ function TermsEn() {
       <h2>Diamonds</h2>
       <p>
         Diamonds are virtual items used only in the game, for hints and for extra time in timed levels. You get them by
-        playing (level and bonus word rewards) or by buying them through Google Play; ads do not give diamonds. They have
+        playing (bonus word rewards; finishing a level earns points, not diamonds) or by buying them through Google Play; ads do not give diamonds. They have
         no monetary value, cannot be exchanged for cash, are non-refundable (except where the law requires otherwise and
         subject to Google Play's refund policies) and cannot be transferred to anyone else.
       </p>
