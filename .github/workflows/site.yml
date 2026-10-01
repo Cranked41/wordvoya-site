@@ -36,6 +36,18 @@ jobs:
 
       - uses: actions/checkout@v5
 
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      # Tip hatası ya da bozuk sayfa sunucuya gitmeden burada yakalanır; asıl derleme imajda yapılır
+      - name: Derleme denetimi
+        working-directory: site
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+          rm -rf node_modules dist
+
       - name: Site dosyalarını sunucuya kopyala
         uses: appleboy/scp-action@v0.1.7
         with:
