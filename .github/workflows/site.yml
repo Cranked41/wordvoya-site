@@ -1,0 +1,80 @@
+# wordvoya.com tanıtım sitesi: master'a push'ta (site/ değiştiyse) ya da elle sunucuya dağıtılır.
+# Sunucuda /root/wordvoya-site, konteyner 127.0.0.1:8086; önünde host nginx + HTTPS (certbot).
+# Secret'lar (Wordvoya ve zikirmatik-panel depolarındakilerle aynı değerler): DEPLOY_HOST, DEPLOY_PORT,
+# DEPLOY_USER, DEPLOY_PASSWORD.
+name: Siteyi yayınla
+
+on:
+  push:
+    branches: [master]
+    paths: ['site/**', '.github/workflows/site.yml']
+  workflow_dispatch:
+
+concurrency:
+  group: site
+  cancel-in-progress: false
+
+env:
+  DEPLOY_DIR: /root/wordvoya-site
+  APP_PORT: "8086"
+
+jobs:
+  deploy:
+    name: Sunucuya dağıt
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Secret kontrolü
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PASSWORD: ${{ secrets.DEPLOY_PASSWORD }}
+        run: |
+          if [ -z "$DEPLOY_HOST" ] || [ -z "$DEPLOY_PASSWORD" ]; then
+            echo "::error::DEPLOY_* secret'ları tanımlı değil (Settings > Secrets and variables > Actions)."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v5
+
+      - name: Site dosyalarını sunucuya kopyala
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          port: ${{ secrets.DEPLOY_PORT }}
+          username: ${{ secrets.DEPLOY_USER }}
+          password: ${{ secrets.DEPLOY_PASSWORD }}
+          source: "site"
+          target: ${{ env.DEPLOY_DIR }}/
+          strip_components: 1
+
+      - name: Konteyneri kur ve doğrula
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          port: ${{ secrets.DEPLOY_PORT }}
+          username: ${{ secrets.DEPLOY_USER }}
+          password: ${{ secrets.DEPLOY_PASSWORD }}
+          script: |
+            set -e
+            cd "${{ env.DEPLOY_DIR }}"
+            # Geri alma için mevcut imajı yedek etiketle
+            docker tag wordvoya-site:latest wordvoya-site:previous 2>/dev/null || true
+            docker compose build
+            docker compose up -d
+            ok=""
+            for i in $(seq 1 15); do
+              sleep 2
+              if curl -sf -o /dev/null "http://127.0.0.1:${{ env.APP_PORT }}/"; then ok=1; echo "Site $((i*2)). saniyede cevap verdi."; break; fi
+            done
+            if [ -n "$ok" ]; then
+              echo "Dağıtım başarılı."
+              docker image prune -f >/dev/null
+            else
+              echo "Site ayağa kalkmadı, önceki imaja dönülüyor!"
+              docker logs --tail 50 wordvoya-site || true
+              if docker image inspect wordvoya-site:previous >/dev/null 2>&1; then
+                docker tag wordvoya-site:previous wordvoya-site:latest
+                docker compose up -d --no-build
+              fi
+              exit 1
+            fi
