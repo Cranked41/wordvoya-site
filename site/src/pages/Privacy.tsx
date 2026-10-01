@@ -1,7 +1,7 @@
 // Gizlilik politikası (uygulamanın Ayarlar ekranı bu sayfaya bağlanır).
 // JSX'te satır sonu ile etiket arasındaki boşluk düşer: metinle bağlantıyı aynı satırda tut.
 import { DocPage, Mail } from '../Layout';
-import type { Lang } from '../site';
+import type { DocLang } from '../site';
 
 function PrivacyTr() {
   return (
@@ -240,6 +240,6 @@ function PrivacyEn() {
   );
 }
 
-export default function Privacy({ lang }: { lang: Lang }) {
+export default function Privacy({ lang }: { lang: DocLang }) {
   return lang === 'tr' ? <PrivacyTr /> : <PrivacyEn />;
 }

@@ -1,7 +1,7 @@
 // Kullanım şartları.
 // JSX'te satır sonu ile etiket arasındaki boşluk düşer: metinle bağlantıyı aynı satırda tut.
 import { DocPage, Mail } from '../Layout';
-import { PATHS, type Lang } from '../site';
+import { PATHS, type DocLang } from '../site';
 
 function TermsTr() {
   return (
@@ -217,6 +217,6 @@ function TermsEn() {
   );
 }
 
-export default function Terms({ lang }: { lang: Lang }) {
+export default function Terms({ lang }: { lang: DocLang }) {
   return lang === 'tr' ? <TermsTr /> : <TermsEn />;
 }

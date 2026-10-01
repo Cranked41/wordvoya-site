@@ -6,12 +6,13 @@ ve nginx ile servis edilir; tarayıcıya JavaScript gitmez (CSP `script-src 'non
 
 | Yol | İçerik |
 |---|---|
-| `site/src/pages/Home.tsx` | Ana sayfa (`/` Türkçe, `/en/` İngilizce) |
+| `site/src/pages/Home.tsx` | Ana sayfa, 15 dil: `/` Türkçe, `/en/` İngilizce, öbürleri `/<dil>/` (metinleri `src/i18n.tsx`) |
 | `site/src/pages/Privacy.tsx` | Gizlilik politikası: `/gizlilik.html`, `/en/privacy.html` (uygulama Ayarlar'dan bağlanır) |
 | `site/src/pages/Terms.tsx` | Kullanım şartları: `/kullanim-sartlari.html`, `/en/terms.html` |
 | `site/src/pages/NotFound.tsx` | 404 sayfası |
 | `site/src/Layout.tsx` | `<head>` etiketleri, üst çubuk, alt bilgi, metin sayfası iskeleti |
-| `site/src/site.ts` | Sayfa yolları, AdSense hesabı, iki dilin arayüz metinleri |
+| `site/src/site.ts` | Diller (`LANGS`), sayfa yolları, AdSense hesabı, arayüz metinleri (tr/en; öbürleri `i18n.tsx`) |
+| `site/src/i18n.tsx` | Ana sayfa ve arayüz metinleri: tr/en dışındaki 13 dil. Gizlilik ve şartlar yalnız tr/en; öbür dillerin bağlantıları İngilizcesine gider (`hasPage`). Dil menüsü `<details>` ile, JavaScript'siz |
 | `site/src/build.tsx` | Derleyici: sayfaları ve `sitemap.xml`'i `site/dist/`'e yazar |
 | `site/public/` | Olduğu gibi kopyalanan dosyalar: `css/`, `img/`, `favicon.ico`, `robots.txt`, `app-ads.txt` (AdMob, kökte olmalı) |
 | `site/Dockerfile`, `site/docker-compose.yml`, `site/nginx.conf` | Konteyner (sunucuda 127.0.0.1:8086) |

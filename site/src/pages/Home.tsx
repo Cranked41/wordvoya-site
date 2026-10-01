@@ -1,9 +1,10 @@
-// Ana sayfa (Türkçe: /, İngilizce: /en/).
+// Ana sayfa: 15 dil (Türkçe /, İngilizce /en/, öbürleri /<dil>/; tr/en dışındakiler i18n.tsx'te).
 import type { ReactNode } from 'react';
 import { Document, Footer, Header } from '../Layout';
+import { HOME_EXTRA } from '../i18n';
 import { UI, type Lang } from '../site';
 
-interface HomeText {
+export interface HomeText {
   title: string;
   description: string;
   og: { title: string; description: string; image: string };
@@ -20,6 +21,7 @@ interface HomeText {
 }
 
 const TEXT: Record<Lang, HomeText> = {
+  ...HOME_EXTRA,
   tr: {
     title: 'Wordvoya — Kelime Bulmacası',
     description:
@@ -41,11 +43,11 @@ const TEXT: Record<Lang, HomeText> = {
       ['∞', 'Dünya harikaları', "Pamukkale'den Tac Mahal'e her durak bir dünya harikası. Her sefer on yeni yer; yolculuk hiç bitmez, bulmacalar büyür."],
       ['★', 'Bonus kelimeler', 'Harflerde saklı fazladan kelimeleri bul, elmas kazan; takıldığında ipucuyla bir harf aç.'],
       ['A', 'Merak ettiğin kelime', 'Bulduğun kelimeye dokun, anlamı açılsın. Bulmacadaki her kelime elle incelendi.'],
-      ['14', '14 dilde bulmaca', 'Türkçe, İngilizce, Almanca, Japonca, Korece, Arapça ve daha fazlası; ilerleme her dil için ayrı tutulur.'],
+      ['15', '15 dilde bulmaca', 'Türkçe, İngilizce, Almanca, Japonca, Hintçe, Arapça ve daha fazlası; ilerleme her dil için ayrı tutulur.'],
       ['✓', 'Hesap gerekmez', 'Oyun kayıt istemez, hemen başlarsın. İlerlemen yalnızca cihazında kalır.'],
     ],
     shotsTitle: 'Oyundan kareler',
-    shots: ['Harf adalarını birleştir', 'Bölüm tamam: elmas ve günlük hedef', 'Bonus kelimeler', 'Yedi harfli büyük bir bulmaca'],
+    shots: ['Harf adalarını birleştir', 'Bölüm tamam: etap puanı ve günlük hedef', 'Bonus kelimeler', 'Yedi harfli büyük bir bulmaca'],
     attribution: (
       <>
         Kelime anlamları <a href="https://tr.wiktionary.org/">Vikisözlük</a> katkıcılarının çalışmasından uyarlanmıştır (
@@ -74,11 +76,11 @@ const TEXT: Record<Lang, HomeText> = {
       ['∞', 'Wonders of the world', 'From Pamukkale to the Taj Mahal, every stop is a world wonder. Each voyage visits ten new places; the journey never ends and the puzzles keep growing.'],
       ['★', 'Bonus words', "Find the extra words hidden in the letters to earn diamonds, and reveal a letter with a hint when you're stuck."],
       ['A', 'Curious about a word?', 'Tap a word you found to see its meaning. Every puzzle word was checked by hand.'],
-      ['14', 'Puzzles in 14 languages', 'English, Turkish, German, Japanese, Korean, Arabic and more; progress is kept separately for each language.'],
+      ['15', 'Puzzles in 15 languages', 'English, Turkish, German, Japanese, Hindi, Arabic and more; progress is kept separately for each language.'],
       ['✓', 'No account needed', 'The game needs no sign-up, so you can start right away. Your progress stays on your device.'],
     ],
     shotsTitle: 'Screenshots',
-    shots: ['Connect the letter islands', 'Level complete: diamonds and daily goal', 'Bonus words', 'A bigger seven-letter puzzle'],
+    shots: ['Connect the letter islands', 'Level complete: stop points and daily goal', 'Bonus words', 'A bigger seven-letter puzzle'],
     attribution: (
       <>
         Word meanings are adapted from the work of <a href="https://en.wiktionary.org/">Wiktionary</a> contributors (

@@ -1,12 +1,24 @@
 // Her sayfanın iskeleti: <head> etiketleri, üst çubuk ve alt bilgi.
 import type { ReactNode } from 'react';
-import { ADSENSE_ACCOUNT, CSS_VERSION, ORIGIN, PATHS, SUPPORT_EMAIL, UI, other, type Lang, type PageKey } from './site';
+import {
+  ADSENSE_ACCOUNT,
+  CSS_VERSION,
+  LANGS,
+  ORIGIN,
+  PATHS,
+  SUPPORT_EMAIL,
+  UI,
+  hasPage,
+  isRtl,
+  type Lang,
+  type PageKey,
+} from './site';
 
 interface DocumentProps {
   lang: Lang;
   title: string;
   description?: string;
-  /** Sayfanın kendi yolu ve iki dildeki karşılıkları (canonical + hreflang). */
+  /** Sayfanın kendi yolu ve öbür dillerdeki karşılıkları (canonical + hreflang). */
   page?: PageKey;
   og?: { title: string; description: string; image: string };
   noindex?: boolean;
@@ -16,7 +28,7 @@ interface DocumentProps {
 export function Document({ lang, title, description, page, og, noindex, children }: DocumentProps) {
   const isHome = page === 'home';
   return (
-    <html lang={lang}>
+    <html lang={lang} dir={isRtl(lang) ? 'rtl' : undefined}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -26,8 +38,10 @@ export function Document({ lang, title, description, page, og, noindex, children
         {description && <meta name="description" content={description} />}
         {noindex && <meta name="robots" content="noindex" />}
         {page && <link rel="canonical" href={ORIGIN + PATHS[lang][page]} />}
-        {page && <link rel="alternate" hrefLang="tr" href={ORIGIN + PATHS.tr[page]} />}
-        {page && <link rel="alternate" hrefLang="en" href={ORIGIN + PATHS.en[page]} />}
+        {page &&
+          LANGS.filter((l) => hasPage(l, page)).map((l) => (
+            <link key={l} rel="alternate" hrefLang={l} href={ORIGIN + PATHS[l][page]} />
+          ))}
         {isHome && <link rel="alternate" hrefLang="x-default" href={ORIGIN + PATHS.en.home} />}
         {og && (
           <>
@@ -48,13 +62,24 @@ export function Document({ lang, title, description, page, og, noindex, children
   );
 }
 
-/** Öbür dildeki aynı sayfaya bağlantı. */
-function LangLink({ lang, page }: { lang: Lang; page: PageKey }) {
-  const to = other(lang);
+/** Bir dildeki aynı sayfa; o dilde yoksa o dilin ana sayfası (gizlilik ve şartlar yalnız tr/en). */
+const pageIn = (to: Lang, page: PageKey) => PATHS[to][hasPage(to, page) ? page : 'home'];
+
+/** Dil menüsü: JavaScript'siz açılır liste (CSP script-src 'none'), dil adları kendi dillerinde. */
+function LangMenu({ lang, page }: { lang: Lang; page: PageKey }) {
   return (
-    <a href={PATHS[to][page]} hrefLang={to} lang={to}>
-      {UI[to].langName}
-    </a>
+    <details className="langmenu">
+      <summary aria-label={UI[lang].languages}>{UI[lang].langName}</summary>
+      <ul>
+        {LANGS.map((to) => (
+          <li key={to}>
+            <a href={pageIn(to, page)} hrefLang={to} lang={to} aria-current={to === lang ? 'true' : undefined}>
+              {UI[to].langName}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </details>
   );
 }
 
@@ -73,7 +98,7 @@ export function Header({ lang, page }: { lang: Lang; page: PageKey }) {
           {page === 'home' ? <a href={`#${t.featuresId}`}>{t.features}</a> : <a href={p.home}>{t.home}</a>}
           <a href={p.privacy} aria-current={current('privacy')}>{t.privacy}</a>
           <a href={p.terms} aria-current={current('terms')}>{t.terms}</a>
-          <LangLink lang={lang} page={page} />
+          <LangMenu lang={lang} page={page} />
         </nav>
       </div>
     </header>
@@ -91,7 +116,13 @@ export function Footer({ lang, page, children }: { lang: Lang; page: PageKey; ch
           {page !== 'privacy' && <a href={p.privacy}>{t.privacyLong}</a>}
           {page !== 'terms' && <a href={p.terms}>{t.terms}</a>}
           {page === 'home' && <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>}
-          <LangLink lang={lang} page={page} />
+        </div>
+        <div className="links langs">
+          {LANGS.filter((to) => to !== lang).map((to) => (
+            <a key={to} href={pageIn(to, page)} hrefLang={to} lang={to}>
+              {UI[to].langName}
+            </a>
+          ))}
         </div>
         {children}
         <p>© 2026 Wordvoya</p>

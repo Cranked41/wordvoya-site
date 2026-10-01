@@ -50,6 +50,24 @@ img { max-width: 100%; height: auto; display: block; }
 .nav a { text-decoration: none; color: var(--muted); font-weight: 600; }
 .nav a:hover, .nav a[aria-current="page"] { color: var(--primary); }
 
+/* Dil menüsü: <details> ile JavaScript'siz açılır liste (dar ekranda üst çubuğun altına yayılır) */
+.top .wrap { position: relative; }
+.langmenu { position: relative; }
+.langmenu summary { list-style: none; cursor: pointer; color: var(--muted); font-weight: 600; }
+.langmenu summary::-webkit-details-marker { display: none; }
+.langmenu summary::before { content: "🌐\FE0E"; margin-inline-end: 6px; }
+.langmenu summary::after { content: "▾"; margin-inline-start: 4px; font-size: .8em; }
+.langmenu[open] summary, .langmenu summary:hover { color: var(--primary); }
+.langmenu ul {
+  position: absolute; inset-inline-end: 0; top: calc(100% + 10px); z-index: 10;
+  display: grid; grid-template-columns: repeat(3, max-content); gap: 2px 8px;
+  margin: 0; padding: 10px; list-style: none;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, .14);
+}
+.langmenu li a { display: block; padding: 6px 10px; border-radius: 8px; color: var(--fg); font-weight: 600; white-space: nowrap; }
+.langmenu li a:hover { background: var(--surface-2); color: var(--primary); }
+.langmenu li a[aria-current="true"] { color: var(--primary); background: var(--surface-2); }
+
 /* Giriş */
 .hero { padding: 56px 0 40px; }
 .hero .wrap { display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: center; }
@@ -96,6 +114,8 @@ footer .links { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 10px; 
 footer .links a { color: var(--muted); font-weight: 600; text-decoration: none; }
 footer .links a:hover { color: var(--primary); }
 footer p { margin: 6px 0; }
+footer .langs { gap: 6px 14px; font-size: .88rem; }
+footer .langs a { font-weight: 500; }
 
 @media (max-width: 820px) {
   .hero .wrap { grid-template-columns: 1fr; }
@@ -110,5 +130,7 @@ footer p { margin: 6px 0; }
   .top { position: static; }
   .top .wrap { flex-wrap: wrap; padding-top: 12px; padding-bottom: 12px; row-gap: 8px; }
   .nav { width: 100%; gap: 16px; font-size: .92rem; }
+  .langmenu { position: static; }
+  .langmenu ul { inset-inline: 16px; grid-template-columns: repeat(2, 1fr); }
   .hero { padding-top: 32px; }
 }
