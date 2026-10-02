@@ -135,7 +135,7 @@ export function Terms() {
       lang="pl"
       page="terms"
       title="Warunki korzystania"
-      updated="1 października 2026"
+      updated="2 października 2026"
       description="Warunki korzystania z aplikacji Wordvoya: Łamigłówka słowna."
     >
       <p className="note">
@@ -172,7 +172,9 @@ export function Terms() {
       <h2>Diamenty</h2>
       <p>
         Diamenty to wirtualne przedmioty używane wyłącznie w grze: do podpowiedzi i do uzyskiwania dodatkowego czasu na
-        poziomach z limitem czasu. Zdobywa się je, grając (nagrody za słowa dodatkowe; ukończenie poziomu daje punkty, a nie diamenty), lub kupując przez Google Play; reklamy nie dają diamentów. Nie mają
+        poziomach z limitem czasu. Zdobywa się je, kupując przez Google Play, a nowi gracze zaczynają z 100
+        diamentami; granie (znajdowanie słów i ukończenie poziomów) daje punkty, a nie diamenty, i reklamy nie dają
+        diamentów. Nie mają
         wartości pieniężnej, nie można ich wymienić na gotówkę, nie podlegają zwrotowi (z wyjątkiem sytuacji, w których
         wymaga tego prawo, i z zastrzeżeniem zasad zwrotów Google Play) i nie mogą być przekazywane innym osobom.
       </p>

@@ -139,7 +139,7 @@ export function Terms() {
       lang="fr"
       page="terms"
       title="Conditions d’utilisation"
-      updated="1er octobre 2026"
+      updated="2 octobre 2026"
       description="Conditions d’utilisation de l’application Wordvoya — Jeu de mots."
     >
       <p className="note">
@@ -177,9 +177,10 @@ export function Terms() {
       <h2>Diamants</h2>
       <p>
         Les diamants sont des objets virtuels utilisés uniquement dans le jeu, pour les indices et pour obtenir du temps
-        supplémentaire dans les niveaux chronométrés. Vous les obtenez en jouant (récompenses des mots bonus ; terminer un
-        niveau rapporte des points, pas des diamants) ou en les achetant via Google Play ; les publicités ne donnent pas de
-        diamants. Ils n’ont aucune valeur monétaire, ne peuvent pas être échangés contre de l’argent, ne sont pas
+        supplémentaire dans les niveaux chronométrés. Vous les obtenez en les achetant via Google Play, et les
+        nouveaux joueurs commencent avec 100 diamants ; jouer (trouver des mots et terminer des niveaux) rapporte des
+        points, pas des diamants, et les publicités ne donnent pas de diamants. Ils n’ont aucune valeur monétaire, ne
+        peuvent pas être échangés contre de l’argent, ne sont pas
         remboursables (sauf lorsque la loi en dispose autrement et sous réserve des politiques de remboursement de Google
         Play) et ne peuvent être transférés à personne d’autre.
       </p>

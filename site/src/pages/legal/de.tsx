@@ -135,7 +135,7 @@ export function Terms() {
       lang="de"
       page="terms"
       title="Nutzungsbedingungen"
-      updated="1. Oktober 2026"
+      updated="2. Oktober 2026"
       description="Nutzungsbedingungen für die App Wordvoya — Worträtsel."
     >
       <p className="note">
@@ -174,8 +174,9 @@ export function Terms() {
       <h2>Diamanten</h2>
       <p>
         Diamanten sind virtuelle Gegenstände, die ausschließlich im Spiel verwendet werden, für Tipps und für zusätzliche
-        Zeit in Levels mit Zeitlimit. Sie erhalten sie durch Spielen (Belohnungen für Bonuswörter; das Beenden eines Levels
-        bringt Punkte, keine Diamanten) oder durch Kauf über Google Play; Werbung bringt keine Diamanten. Sie haben keinen
+        Zeit in Levels mit Zeitlimit. Sie erhalten sie durch Kauf über Google Play, und neue Spieler beginnen mit 100
+        Diamanten; Spielen (Wörter finden und Levels beenden) bringt Punkte, keine Diamanten, und Werbung bringt keine
+        Diamanten. Sie haben keinen
         Geldwert, können nicht gegen Bargeld eingetauscht werden, sind nicht erstattungsfähig (soweit das Gesetz nichts
         anderes vorschreibt und vorbehaltlich der Erstattungsrichtlinien von Google Play) und können nicht auf andere
         Personen übertragen werden.

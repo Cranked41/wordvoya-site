@@ -135,7 +135,7 @@ export function Terms() {
       lang="es"
       page="terms"
       title="Términos de uso"
-      updated="1 de octubre de 2026"
+      updated="2 de octubre de 2026"
       description="Términos de uso de la aplicación Wordvoya — Puzle de palabras."
     >
       <p className="note">
@@ -173,8 +173,9 @@ export function Terms() {
       <h2>Diamantes</h2>
       <p>
         Los diamantes son objetos virtuales que se utilizan únicamente en el juego, para pistas y para conseguir tiempo extra
-        en los niveles con tiempo. Se obtienen jugando (recompensas por palabras extra; terminar un nivel da puntos, no
-        diamantes) o comprándolos a través de Google Play; los anuncios no dan diamantes. No tienen valor monetario, no pueden
+        en los niveles con tiempo. Se obtienen comprándolos a través de Google Play, y los jugadores nuevos empiezan
+        con 100 diamantes; jugar (encontrar palabras y terminar niveles) da puntos, no diamantes, y los anuncios no
+        dan diamantes. No tienen valor monetario, no pueden
         canjearse por dinero en efectivo, no son reembolsables (salvo que la ley disponga lo contrario y con sujeción a las
         políticas de reembolso de Google Play) y no pueden transferirse a nadie más.
       </p>

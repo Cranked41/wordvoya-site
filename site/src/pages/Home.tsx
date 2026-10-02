@@ -41,7 +41,7 @@ const TEXT: Record<Lang, HomeText> = {
     features: [
       ['~', 'Harf adaları', 'Harfler çemberde değil, denizdeki adalarda. Parmağını kaydır, rotan kelimeyi yazsın.'],
       ['∞', 'Dünya harikaları', "Pamukkale'den Tac Mahal'e her durak bir dünya harikası. Her sefer on yeni yer; yolculuk hiç bitmez, bulmacalar büyür."],
-      ['★', 'Bonus kelimeler', 'Harflerde saklı fazladan kelimeleri bul, elmas kazan; takıldığında ipucuyla bir harf aç.'],
+      ['★', 'Bonus kelimeler', 'Harflerde saklı fazladan kelimeleri bul, puan kazan; takıldığında ipucuyla bir harf aç.'],
       ['A', 'Merak ettiğin kelime', 'Bulduğun kelimeye dokun, anlamı açılsın. Bulmacadaki her kelime elle incelendi.'],
       ['15', '15 dilde bulmaca', 'Türkçe, İngilizce, Almanca, Japonca, Hintçe, Arapça ve daha fazlası; ilerleme her dil için ayrı tutulur.'],
       ['✓', 'Hesap gerekmez', 'Oyun kayıt istemez, hemen başlarsın. İlerlemen yalnızca cihazında kalır.'],
@@ -74,7 +74,7 @@ const TEXT: Record<Lang, HomeText> = {
     features: [
       ['~', 'Letter islands', 'No wheel: the letters sit on islands in the sea. Slide your finger and your route spells the word.'],
       ['∞', 'Wonders of the world', 'From Pamukkale to the Taj Mahal, every stop is a world wonder. Each voyage visits ten new places; the journey never ends and the puzzles keep growing.'],
-      ['★', 'Bonus words', "Find the extra words hidden in the letters to earn diamonds, and reveal a letter with a hint when you're stuck."],
+      ['★', 'Bonus words', "Find the extra words hidden in the letters to earn points, and reveal a letter with a hint when you're stuck."],
       ['A', 'Curious about a word?', 'Tap a word you found to see its meaning. Every puzzle word was checked by hand.'],
       ['15', 'Puzzles in 15 languages', 'English, Turkish, German, Japanese, Hindi, Arabic and more; progress is kept separately for each language.'],
       ['✓', 'No account needed', 'The game needs no sign-up, so you can start right away. Your progress stays on your device.'],

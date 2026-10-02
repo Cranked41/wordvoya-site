@@ -138,7 +138,7 @@ export function Terms() {
       lang="nl"
       page="terms"
       title="Gebruiksvoorwaarden"
-      updated="1 oktober 2026"
+      updated="2 oktober 2026"
       description="Gebruiksvoorwaarden voor de app Wordvoya — Woordpuzzel."
     >
       <p className="note">
@@ -177,8 +177,9 @@ export function Terms() {
       <h2>Diamanten</h2>
       <p>
         Diamanten zijn virtuele items die alleen in het spel worden gebruikt, voor hints en voor extra tijd in levels met
-        tijdslimiet. U krijgt ze door te spelen (beloningen voor bonuswoorden; een level voltooien levert punten op, geen
-        diamanten) of door ze te kopen via Google Play; advertenties geven geen diamanten. Ze hebben geen geldwaarde,
+        tijdslimiet. U krijgt ze door ze te kopen via Google Play, en nieuwe spelers beginnen met 100 diamanten;
+        spelen (woorden vinden en levels voltooien) levert punten op, geen diamanten, en advertenties geven geen
+        diamanten. Ze hebben geen geldwaarde,
         kunnen niet worden ingewisseld voor contant geld, zijn niet terugbetaalbaar (behalve waar de wet anders vereist
         en onder voorbehoud van het terugbetalingsbeleid van Google Play) en kunnen niet aan iemand anders worden
         overgedragen.

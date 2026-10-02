@@ -24,7 +24,7 @@ export const HOME_EXTRA: Record<ExtraLang, HomeText> = {
     features: [
       ['~', 'Buchstabeninseln', 'Kein Rad: Die Buchstaben liegen auf Inseln im Meer. Zieh den Finger, und deine Route bildet das Wort.'],
       ['∞', 'Weltwunder', 'Von Pamukkale bis zum Taj Mahal ist jeder Halt ein Weltwunder. Jede Reise führt zu zehn neuen Orten; die Fahrt endet nie, und die Rätsel wachsen mit.'],
-      ['★', 'Bonuswörter', 'Finde die zusätzlichen Wörter, die sich in den Buchstaben verstecken, und verdiene Diamanten; wenn du nicht weiterkommst, deckst du mit einem Tipp einen Buchstaben auf.'],
+      ['★', 'Bonuswörter', 'Finde die zusätzlichen Wörter, die sich in den Buchstaben verstecken, und verdiene Punkte; wenn du nicht weiterkommst, deckst du mit einem Tipp einen Buchstaben auf.'],
       ['A', 'Neugierig auf ein Wort?', 'Tippe auf ein gefundenes Wort und sieh dir seine Bedeutung an. Jedes Rätselwort wurde von Hand geprüft.'],
       ['15', 'Rätsel in 15 Sprachen', 'Deutsch, Englisch, Türkisch, Japanisch, Hindi, Arabisch und mehr; der Fortschritt wird für jede Sprache getrennt gespeichert.'],
       ['✓', 'Kein Konto nötig', 'Das Spiel braucht keine Anmeldung, du kannst sofort loslegen. Dein Fortschritt bleibt auf deinem Gerät.'],
@@ -57,7 +57,7 @@ export const HOME_EXTRA: Record<ExtraLang, HomeText> = {
     features: [
       ['~', 'Des îles de lettres', 'Pas de roue : les lettres sont posées sur des îles au milieu de la mer. Fais glisser ton doigt et ton itinéraire forme le mot.'],
       ['∞', 'Les merveilles du monde', 'De Pamukkale au Taj Mahal, chaque escale est une merveille du monde. Chaque voyage visite dix nouveaux lieux ; l’aventure ne s’arrête jamais et les grilles ne cessent de grandir.'],
-      ['★', 'Mots bonus', 'Trouve les mots supplémentaires cachés dans les lettres pour gagner des diamants, et révèle une lettre avec un indice quand tu es bloqué.'],
+      ['★', 'Mots bonus', 'Trouve les mots supplémentaires cachés dans les lettres pour gagner des points, et révèle une lettre avec un indice quand tu es bloqué.'],
       ['A', 'Un mot te intrigue ?', 'Touche un mot trouvé pour voir sa définition. Chaque mot de la grille a été vérifié à la main.'],
       ['15', 'Des grilles en 15 langues', 'Français, anglais, turc, japonais, hindi, arabe et bien d’autres ; la progression est enregistrée séparément pour chaque langue.'],
       ['✓', 'Pas besoin de compte', 'Le jeu ne demande aucune inscription : tu peux commencer tout de suite. Ta progression reste sur ton appareil.'],
@@ -90,7 +90,7 @@ export const HOME_EXTRA: Record<ExtraLang, HomeText> = {
     features: [
       ['~', 'Islas de letras', 'Nada de ruedas: las letras están en islas en medio del mar. Desliza el dedo y tu ruta forma la palabra.'],
       ['∞', 'Maravillas del mundo', 'De Pamukkale al Taj Mahal, cada parada es una maravilla del mundo. Cada viaje visita diez lugares nuevos; la travesía nunca termina y los puzles no dejan de crecer.'],
-      ['★', 'Palabras extra', 'Encuentra las palabras adicionales escondidas en las letras para ganar diamantes y descubre una letra con una pista cuando te atasques.'],
+      ['★', 'Palabras extra', 'Encuentra las palabras adicionales escondidas en las letras para ganar puntos y descubre una letra con una pista cuando te atasques.'],
       ['A', '¿Curiosidad por una palabra?', 'Toca una palabra que hayas encontrado para ver su significado. Todas las palabras de los puzles se han revisado a mano.'],
       ['15', 'Puzles en 15 idiomas', 'Español, inglés, turco, japonés, hindi, árabe y más; el progreso se guarda por separado para cada idioma.'],
       ['✓', 'No hace falta cuenta', 'El juego no pide registro, así que puedes empezar al instante. Tu progreso se queda en tu dispositivo.'],
@@ -123,7 +123,7 @@ export const HOME_EXTRA: Record<ExtraLang, HomeText> = {
     features: [
       ['~', 'Isole di lettere', 'Niente ruota: le lettere sono sulle isole in mezzo al mare. Fai scorrere il dito e il tuo percorso forma la parola.'],
       ['∞', 'Meraviglie del mondo', 'Da Pamukkale al Taj Mahal, ogni tappa è una meraviglia del mondo. Ogni viaggio tocca dieci luoghi nuovi; l’avventura non finisce mai e i puzzle continuano a crescere.'],
-      ['★', 'Parole bonus', 'Trova le parole extra nascoste tra le lettere per guadagnare diamanti e svela una lettera con un suggerimento quando sei bloccato.'],
+      ['★', 'Parole bonus', 'Trova le parole extra nascoste tra le lettere per guadagnare punti e svela una lettera con un suggerimento quando sei bloccato.'],
       ['A', 'Curioso di una parola?', 'Tocca una parola trovata per vederne il significato. Ogni parola dei puzzle è stata controllata a mano.'],
       ['15', 'Puzzle in 15 lingue', 'Italiano, inglese, turco, giapponese, hindi, arabo e altro ancora; i progressi vengono salvati separatamente per ogni lingua.'],
       ['✓', 'Nessun account necessario', 'Il gioco non richiede registrazione, quindi puoi iniziare subito. I tuoi progressi restano sul tuo dispositivo.'],
@@ -156,7 +156,7 @@ export const HOME_EXTRA: Record<ExtraLang, HomeText> = {
     features: [
       ['~', 'Ilhas de letras', 'Sem roda: as letras ficam em ilhas no meio do mar. Deslize o dedo e sua rota forma a palavra.'],
       ['∞', 'Maravilhas do mundo', 'De Pamukkale ao Taj Mahal, cada parada é uma maravilha do mundo. Cada viagem passa por dez lugares novos; a jornada nunca acaba e os quebra-cabeças não param de crescer.'],
-      ['★', 'Palavras bônus', 'Encontre as palavras extras escondidas nas letras para ganhar diamantes e revele uma letra com uma dica quando travar.'],
+      ['★', 'Palavras bônus', 'Encontre as palavras extras escondidas nas letras para ganhar pontos e revele uma letra com uma dica quando travar.'],
       ['A', 'Curioso sobre uma palavra?', 'Toque em uma palavra encontrada para ver o significado. Cada palavra dos quebra-cabeças foi revisada à mão.'],
       ['15', 'Quebra-cabeças em 15 idiomas', 'Português, inglês, turco, japonês, hindi, árabe e mais; o progresso é guardado separadamente para cada idioma.'],
       ['✓', 'Sem precisar de conta', 'O jogo não exige cadastro, então você pode começar já. Seu progresso fica no seu dispositivo.'],
@@ -189,7 +189,7 @@ export const HOME_EXTRA: Record<ExtraLang, HomeText> = {
     features: [
       ['~', 'Острова букв', 'Никаких кругов: буквы лежат на островах посреди моря. Проведи пальцем, и твой маршрут сложится в слово.'],
       ['∞', 'Чудеса света', 'От Памуккале до Тадж-Махала каждая остановка — чудо света. В каждом плавании десять новых мест; путешествие никогда не кончается, а головоломки становятся всё больше.'],
-      ['★', 'Бонусные слова', 'Находи дополнительные слова, спрятанные в буквах, и зарабатывай алмазы; если застрял, подсказка откроет одну букву.'],
+      ['★', 'Бонусные слова', 'Находи дополнительные слова, спрятанные в буквах, и зарабатывай очки; если застрял, подсказка откроет одну букву.'],
       ['A', 'Интересно, что значит слово?', 'Нажми на найденное слово, чтобы увидеть его значение. Каждое слово в головоломках проверено вручную.'],
       ['15', 'Головоломки на 15 языках', 'Русский, английский, турецкий, японский, хинди, арабский и другие; прогресс сохраняется отдельно для каждого языка.'],
       ['✓', 'Аккаунт не нужен', 'Игре не нужна регистрация, так что начать можно сразу. Твой прогресс остаётся на твоём устройстве.'],
@@ -222,7 +222,7 @@ export const HOME_EXTRA: Record<ExtraLang, HomeText> = {
     features: [
       ['~', 'Letter-eilanden', 'Geen wiel: de letters liggen op eilanden in de zee. Veeg met je vinger en je route vormt het woord.'],
       ['∞', 'Wereldwonderen', 'Van Pamukkale tot de Taj Mahal is elke halte een wereldwonder. Elke reis bezoekt tien nieuwe plekken; de tocht houdt nooit op en de puzzels worden steeds groter.'],
-      ['★', 'Bonuswoorden', 'Vind de extra woorden die in de letters verborgen zitten en verdien diamanten; zit je vast, dan onthult een hint een letter.'],
+      ['★', 'Bonuswoorden', 'Vind de extra woorden die in de letters verborgen zitten en verdien punten; zit je vast, dan onthult een hint een letter.'],
       ['A', 'Benieuwd naar een woord?', 'Tik op een gevonden woord om de betekenis te zien. Elk puzzelwoord is met de hand gecontroleerd.'],
       ['15', 'Puzzels in 15 talen', 'Nederlands, Engels, Turks, Japans, Hindi, Arabisch en meer; je voortgang wordt voor elke taal apart bijgehouden.'],
       ['✓', 'Geen account nodig', 'Het spel vraagt geen registratie, dus je kunt meteen beginnen. Je voortgang blijft op je apparaat.'],
@@ -255,7 +255,7 @@ export const HOME_EXTRA: Record<ExtraLang, HomeText> = {
     features: [
       ['~', 'Wyspy liter', 'Żadnego koła: litery leżą na wyspach pośrodku morza. Przesuwaj palec, a twoja trasa ułoży słowo.'],
       ['∞', 'Cuda świata', 'Od Pamukkale po Tadź Mahal każdy przystanek to cud świata. W każdym rejsie dziesięć nowych miejsc; podróż nigdy się nie kończy, a łamigłówki stają się coraz większe.'],
-      ['★', 'Słowa dodatkowe', 'Znajdź dodatkowe słowa ukryte w literach, by zdobywać diamenty, a gdy utkniesz, odkryj literę podpowiedzią.'],
+      ['★', 'Słowa dodatkowe', 'Znajdź dodatkowe słowa ukryte w literach, by zdobywać punkty, a gdy utkniesz, odkryj literę podpowiedzią.'],
       ['A', 'Ciekawi cię jakieś słowo?', 'Dotknij znalezionego słowa, by zobaczyć jego znaczenie. Każde słowo w łamigłówkach sprawdzono ręcznie.'],
       ['15', 'Łamigłówki w 15 językach', 'Polski, angielski, turecki, japoński, hindi, arabski i inne; postęp zapisywany jest osobno dla każdego języka.'],
       ['✓', 'Bez zakładania konta', 'Gra nie wymaga rejestracji, więc możesz zacząć od razu. Twój postęp zostaje na twoim urządzeniu.'],
@@ -288,7 +288,7 @@ export const HOME_EXTRA: Record<ExtraLang, HomeText> = {
     features: [
       ['~', '文字の島', '円ではなく、文字は海に浮かぶ島に並んでいます。指をすべらせると、たどったルートが言葉になります。'],
       ['∞', '世界の不思議', 'パムッカレからタージ・マハルまで、どの寄港地も世界の不思議。1回の航海で新しい10か所を巡り、旅は終わることなく、パズルも大きくなっていきます。'],
-      ['★', 'ボーナスワード', '文字の中に隠れた追加の言葉を見つけてダイヤをゲット。行き詰まったら、ヒントで1文字を開けられます。'],
+      ['★', 'ボーナスワード', '文字の中に隠れた追加の言葉を見つけてポイントをゲット。行き詰まったら、ヒントで1文字を開けられます。'],
       ['A', '気になる言葉は？', '見つけた言葉をタップすると、意味が見られます。パズルの言葉はすべて1語ずつ確認済みです。'],
       ['15', '15の言語でパズル', '日本語、英語、トルコ語、ヒンディー語、アラビア語など。進行状況は言語ごとに別々に保存されます。'],
       ['✓', 'アカウント不要', '登録なしですぐに始められます。進行状況は端末の中だけに保存されます。'],
@@ -321,7 +321,7 @@ export const HOME_EXTRA: Record<ExtraLang, HomeText> = {
     features: [
       ['~', '글자 섬', '원이 아니라 바다 위 섬에 글자가 놓여 있습니다. 손가락을 밀면 그린 경로가 단어가 됩니다.'],
       ['∞', '세계의 불가사의', '파묵칼레에서 타지마할까지, 모든 기항지가 세계의 불가사의입니다. 한 번의 항해에서 새로운 열 곳을 방문하며, 여정은 끝나지 않고 퍼즐도 계속 커집니다.'],
-      ['★', '보너스 단어', '글자 속에 숨은 추가 단어를 찾아 다이아몬드를 모으세요. 막혔을 때는 힌트로 글자 하나를 열 수 있습니다.'],
+      ['★', '보너스 단어', '글자 속에 숨은 추가 단어를 찾아 점수를 모으세요. 막혔을 때는 힌트로 글자 하나를 열 수 있습니다.'],
       ['A', '궁금한 단어가 있나요?', '찾은 단어를 누르면 뜻을 볼 수 있습니다. 퍼즐의 모든 단어는 하나하나 직접 검수했습니다.'],
       ['15', '15개 언어의 퍼즐', '한국어, 영어, 튀르키예어, 일본어, 힌디어, 아랍어 등을 지원하며, 진행 상황은 언어마다 따로 저장됩니다.'],
       ['✓', '계정 불필요', '가입 없이 바로 시작할 수 있습니다. 진행 상황은 기기에만 저장됩니다.'],
@@ -354,7 +354,7 @@ export const HOME_EXTRA: Record<ExtraLang, HomeText> = {
     features: [
       ['~', 'جزر الحروف', 'لا عجلة ولا دائرة: الحروف تستقر على جزر وسط البحر. مرِّر إصبعك فيكوّن مسارك الكلمة.'],
       ['∞', 'عجائب الدنيا', 'من باموكالي إلى تاج محل، كل محطة عجيبة من عجائب الدنيا. في كل رحلة تزور عشرة أماكن جديدة؛ ولا تنتهي الرحلة أبدًا وتظل الألغاز تكبر.'],
-      ['★', 'كلمات إضافية', 'اعثر على الكلمات الإضافية المخبأة بين الحروف لتكسب الماسات، واكشف حرفًا بتلميح عندما تعلق.'],
+      ['★', 'كلمات إضافية', 'اعثر على الكلمات الإضافية المخبأة بين الحروف لتكسب نقاطًا، واكشف حرفًا بتلميح عندما تعلق.'],
       ['A', 'هل تتساءل عن كلمة؟', 'اضغط على كلمة وجدتها لتعرف معناها. روجعت كل كلمة في الألغاز كلمةً كلمة.'],
       ['15', 'ألغاز بـ 15 لغة', 'العربية والإنجليزية والتركية واليابانية والهندية وغيرها؛ ويُحفظ تقدمك بشكل منفصل لكل لغة.'],
       ['✓', 'لا حاجة إلى حساب', 'اللعبة لا تحتاج إلى تسجيل، فيمكنك البدء فورًا. يبقى تقدمك على جهازك.'],
@@ -387,7 +387,7 @@ export const HOME_EXTRA: Record<ExtraLang, HomeText> = {
     features: [
       ['~', 'جزیره‌های حروف', 'بدون چرخ: حروف روی جزیره‌هایی در دریا نشسته‌اند. انگشتت را بکش تا مسیرت کلمه را بسازد.'],
       ['∞', 'شگفتی‌های جهان', 'از پاموکاله تا تاج‌محل، هر ایستگاه یکی از شگفتی‌های جهان است. هر سفر ده مکان تازه را می‌بیند؛ این سفر هرگز تمام نمی‌شود و معماها بزرگ‌تر می‌شوند.'],
-      ['★', 'کلمه‌های جایزه', 'کلمه‌های اضافیِ پنهان میان حروف را پیدا کن و الماس بگیر؛ وقتی گیر کردی، با یک راهنما یک حرف را آشکار کن.'],
+      ['★', 'کلمه‌های جایزه', 'کلمه‌های اضافیِ پنهان میان حروف را پیدا کن و امتیاز بگیر؛ وقتی گیر کردی، با یک راهنما یک حرف را آشکار کن.'],
       ['A', 'درباره‌ی یک کلمه کنجکاوی؟', 'روی کلمه‌ای که پیدا کرده‌ای بزن تا معنایش را ببینی. تک‌تک کلمه‌های معماها بررسی شده‌اند.'],
       ['15', 'معما به 15 زبان', 'فارسی، انگلیسی، ترکی، ژاپنی، هندی، عربی و بیشتر؛ پیشرفت برای هر زبان جداگانه نگه داشته می‌شود.'],
       ['✓', 'بدون نیاز به حساب کاربری', 'بازی ثبت‌نام نمی‌خواهد و همین حالا می‌توانی شروع کنی. پیشرفتت فقط روی دستگاه خودت می‌ماند.'],
@@ -420,7 +420,7 @@ export const HOME_EXTRA: Record<ExtraLang, HomeText> = {
     features: [
       ['~', 'अक्षरों के द्वीप', 'कोई गोल चक्र नहीं: अक्षर समुद्र के द्वीपों पर टिके हैं। उँगली फिराएँ और आपका रास्ता शब्द बना देगा।'],
       ['∞', 'दुनिया के अजूबे', 'पामुक्काले से ताज महल तक, हर पड़ाव दुनिया का एक अजूबा है। हर यात्रा में दस नई जगहें आती हैं; सफ़र कभी ख़त्म नहीं होता और पहेलियाँ बड़ी होती जाती हैं।'],
-      ['★', 'बोनस शब्द', 'अक्षरों में छिपे अतिरिक्त शब्द ढूँढ़ें और हीरे कमाएँ; अटक जाएँ तो संकेत से एक अक्षर खोलें।'],
+      ['★', 'बोनस शब्द', 'अक्षरों में छिपे अतिरिक्त शब्द ढूँढ़ें और अंक कमाएँ; अटक जाएँ तो संकेत से एक अक्षर खोलें।'],
       ['A', 'किसी शब्द के बारे में जानना है?', 'ढूँढ़े हुए शब्द पर टैप करें और उसका अर्थ देखें। पहेली का हर शब्द एक-एक करके जाँचा गया है।'],
       ['15', '15 भाषाओं में पहेली', 'हिंदी, अंग्रेज़ी, तुर्की, जापानी, अरबी और कई अन्य; प्रगति हर भाषा के लिए अलग रखी जाती है।'],
       ['✓', 'खाते की ज़रूरत नहीं', 'खेल में साइन-अप की ज़रूरत नहीं, इसलिए आप तुरंत शुरू कर सकते हैं। आपकी प्रगति सिर्फ़ आपके डिवाइस पर रहती है।'],
