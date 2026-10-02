@@ -22,8 +22,8 @@ function PrivacyTr() {
       lang="tr"
       page="privacy"
       title="Gizlilik Politikası"
-      updated="30 Eylül 2026"
-      description="Wordvoya hesap istemez; oyun verilerin cihazında kalır. Reklamlar Google AdMob ile gösterilir, satın almalar Google Play üzerinden yapılır."
+      updated="2 Ekim 2026"
+      description="Wordvoya hesap istemez; oyun verilerin cihazında kalır. Reklamlar uygulamada Google AdMob, sitede Google AdSense ile gösterilir; satın almalar Google Play üzerinden yapılır."
     >
       <p>
         Bu politika, <strong>Wordvoya: Kelime Bulmacası</strong> Android uygulamasını (<code>com.cranked.wordvoya</code>) ve bu web sitesini kullandığınızda hangi verilerin işlendiğini açıklar.
@@ -104,9 +104,10 @@ function PrivacyTr() {
 
       <h2>Web Sitesi</h2>
       <p>
-        Bu site çerez kullanmaz ve üçüncü taraf kaynak (yazı tipi, analiz, reklam) yüklemez. Sunucumuz, güvenlik ve hata
-        giderme amacıyla standart erişim kayıtlarını (IP adresi, tarayıcı bilgisi, istenen sayfa, zaman) kısa süre
-        tutabilir; bu kayıtlar başka bir amaçla kullanılmaz.
+        Bu sitede <strong>Google AdSense</strong> reklamları gösterilir. Google ve iş ortakları, reklamları göstermek ve ölçmek, kişiselleştirilmiş reklamlar sunmak (bu siteye ve başka sitelere yaptığınız ziyaretlere göre) ve sahtekarlığı önlemek için çerezler ve benzeri teknolojiler kullanır. Ayrıntılar için <a href="https://policies.google.com/technologies/partner-sites?hl=tr">Google'ın, hizmetlerini kullanan sitelerden gelen verileri nasıl kullandığına</a> bakabilirsiniz. Kişiselleştirilmiş reklamları <a href="https://adssettings.google.com/">Google Reklam Ayarları</a>'ndan kapatabilir, üçüncü taraf sağlayıcıların çerez kullanımını <a href="https://www.aboutads.info/">www.aboutads.info</a> adresinden reddedebilirsiniz. Avrupa Ekonomik Alanı, Birleşik Krallık ve İsviçre'de kişiselleştirilmiş reklamlar yalnızca onayınızla gösterilir.
+      </p>
+      <p>
+        Reklamlar dışında site kendi çerezini kullanmaz ve analiz aracı yüklemez. Sunucumuz, güvenlik ve hata giderme amacıyla standart erişim kayıtlarını (IP adresi, tarayıcı bilgisi, istenen sayfa, zaman) kısa süre tutabilir; bu kayıtlar başka bir amaçla kullanılmaz.
       </p>
 
       <h2>Veri Saklama ve Silme</h2>
@@ -141,8 +142,8 @@ function PrivacyEn() {
       lang="en"
       page="privacy"
       title="Privacy Policy"
-      updated="30 September 2026"
-      description="Wordvoya needs no account and your game data stays on your device. Ads are served by Google AdMob and purchases go through Google Play."
+      updated="2 October 2026"
+      description="Wordvoya needs no account and your game data stays on your device. Ads are served by Google AdMob in the app and Google AdSense on this site; purchases go through Google Play."
     >
       <p>
         This policy explains what data is processed when you use the <strong>Wordvoya: Word Puzzle</strong> Android app (<code>com.cranked.wordvoya</code>) and this website.
@@ -222,9 +223,10 @@ function PrivacyEn() {
 
       <h2>This Website</h2>
       <p>
-        This site does not use cookies and loads no third-party resources (fonts, analytics or ads). Our server may keep
-        standard access logs (IP address, browser information, requested page, time) for a short period for security and
-        troubleshooting; they are not used for anything else.
+        This site shows ads from <strong>Google AdSense</strong>. Google and its partners use cookies and similar technologies to show and measure ads, to serve personalized ads (based on your visits to this and other websites) and to prevent fraud. See <a href="https://policies.google.com/technologies/partner-sites">how Google uses information from sites that use its services</a>. You can turn off personalized ads in <a href="https://adssettings.google.com/">Google Ads Settings</a> and opt out of third-party vendors' use of cookies at <a href="https://www.aboutads.info/">www.aboutads.info</a>. In the European Economic Area, the United Kingdom and Switzerland, personalized ads are shown only with your consent.
+      </p>
+      <p>
+        Apart from the ads, the site sets no cookies of its own and loads no analytics. Our server may keep standard access logs (IP address, browser information, requested page, time) for a short period for security and troubleshooting; they are not used for anything else.
       </p>
 
       <h2>Data Retention and Deletion</h2>

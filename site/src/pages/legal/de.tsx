@@ -9,8 +9,8 @@ export function Privacy() {
       lang="de"
       page="privacy"
       title="Datenschutzerklärung"
-      updated="30. September 2026"
-      description="Wordvoya benötigt kein Konto, und Ihre Spieldaten bleiben auf Ihrem Gerät. Werbung wird über Google AdMob ausgeliefert, Käufe laufen über Google Play."
+      updated="2. Oktober 2026"
+      description="Wordvoya benötigt kein Konto, und Ihre Spieldaten bleiben auf Ihrem Gerät. Werbung wird in der App über Google AdMob und auf dieser Website über Google AdSense ausgeliefert; Käufe laufen über Google Play."
     >
       <p className="note">
         Diese Übersetzung wird nur zur Vereinfachung bereitgestellt; weicht sie von der <a href={PATHS.en.privacy}>englischen Fassung</a> ab, ist die englische Fassung maßgeblich.
@@ -96,10 +96,10 @@ export function Privacy() {
 
       <h2>Diese Website</h2>
       <p>
-        Diese Website verwendet keine Cookies und lädt keine Ressourcen von Drittanbietern (Schriftarten, Analysen oder
-        Werbung). Unser Server kann zur Gewährleistung der Sicherheit und zur Fehlerbehebung für kurze Zeit übliche
-        Zugriffsprotokolle (IP-Adresse, Browserinformationen, aufgerufene Seite, Uhrzeit) speichern; sie werden für keinen
-        anderen Zweck verwendet.
+        Diese Website zeigt Werbung von <strong>Google AdSense</strong>. Google und seine Partner verwenden Cookies und ähnliche Technologien, um Werbung anzuzeigen und ihre Wirkung zu messen, um personalisierte Werbung auszuliefern (auf Grundlage Ihrer Besuche auf dieser und anderen Websites) und um Betrug zu verhindern. Lesen Sie hierzu, <a href="https://policies.google.com/technologies/partner-sites?hl=de">wie Google Informationen von Websites verwendet, die Dienste von Google nutzen</a>. Personalisierte Werbung können Sie in den <a href="https://adssettings.google.com/">Einstellungen für Werbung</a> von Google deaktivieren, und unter <a href="https://www.aboutads.info/">www.aboutads.info</a> können Sie der Verwendung von Cookies durch Drittanbieter widersprechen. Im Europäischen Wirtschaftsraum, im Vereinigten Königreich und in der Schweiz wird personalisierte Werbung nur mit Ihrer Einwilligung angezeigt.
+      </p>
+      <p>
+        Abgesehen von der Werbung setzt diese Website keine eigenen Cookies und lädt keine Analysedienste. Unser Server kann zur Gewährleistung der Sicherheit und zur Fehlerbehebung für kurze Zeit übliche Zugriffsprotokolle (IP-Adresse, Browserinformationen, aufgerufene Seite, Uhrzeit) speichern; sie werden für keinen anderen Zweck verwendet.
       </p>
 
       <h2>Datenspeicherung und Löschung</h2>

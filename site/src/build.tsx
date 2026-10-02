@@ -1,5 +1,5 @@
 // Siteyi derler: her sayfayı sunucuda bir kez HTML'e çevirir, public/ ile birlikte dist/'e yazar.
-// Tarayıcıya JavaScript gitmez (nginx CSP: script-src 'none').
+// Sitenin kendi JavaScript'i yoktur; tarayıcıya giden tek betik Google AdSense'inki (Layout.tsx <head>).
 import { cpSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,7 +16,7 @@ const out = join(root, 'dist');
 
 const PAGES: Record<PageKey, { render: (lang: Lang) => ReactElement; lastmod: string }> = {
   home: { render: (lang) => <Home lang={lang} />, lastmod: '2026-10-02' },
-  privacy: { render: (lang) => <Privacy lang={lang} />, lastmod: '2026-10-01' },
+  privacy: { render: (lang) => <Privacy lang={lang} />, lastmod: '2026-10-02' },
   terms: { render: (lang) => <Terms lang={lang} />, lastmod: '2026-10-02' },
 };
 

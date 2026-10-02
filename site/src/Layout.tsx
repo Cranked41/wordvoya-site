@@ -31,8 +31,13 @@ export function Document({ lang, title, description, page, og, noindex, children
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        {/* AdSense hesap doğrulaması: her sayfada olmalı */}
+        {/* AdSense hesap doğrulaması ve otomatik reklamlar: her sayfada olmalı (nginx CSP buna göre gevşek) */}
         <meta name="google-adsense-account" content={ADSENSE_ACCOUNT} />
+        <script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_ACCOUNT}`}
+          crossOrigin="anonymous"
+        />
         <title>{title}</title>
         {description && <meta name="description" content={description} />}
         {noindex && <meta name="robots" content="noindex" />}
@@ -64,7 +69,7 @@ export function Document({ lang, title, description, page, og, noindex, children
 /** Bir dildeki aynı sayfa. */
 const pageIn = (to: Lang, page: PageKey) => PATHS[to][page];
 
-/** Dil menüsü: JavaScript'siz açılır liste (CSP script-src 'none'), dil adları kendi dillerinde. */
+/** Dil menüsü: JavaScript'siz açılır liste (<details>), dil adları kendi dillerinde. */
 function LangMenu({ lang, page }: { lang: Lang; page: PageKey }) {
   return (
     <details className="langmenu">

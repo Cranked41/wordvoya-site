@@ -9,8 +9,8 @@ export function Privacy() {
       lang="it"
       page="privacy"
       title="Informativa sulla privacy"
-      updated="30 settembre 2026"
-      description="Wordvoya non richiede un account e i dati di gioco restano sul Suo dispositivo. Gli annunci sono forniti da Google AdMob e gli acquisti passano da Google Play."
+      updated="2 ottobre 2026"
+      description="Wordvoya non richiede un account e i dati di gioco restano sul Suo dispositivo. Gli annunci sono forniti da Google AdMob nell’app e da Google AdSense su questo sito; gli acquisti passano da Google Play."
     >
       <p className="note">
         Questa è una traduzione fornita per comodità; in caso di differenze rispetto alla <a href={PATHS.en.privacy}>versione inglese</a>, prevale la versione inglese.
@@ -101,10 +101,17 @@ export function Privacy() {
 
       <h2>Questo sito web</h2>
       <p>
-        Questo sito non utilizza cookie e non carica risorse di terze parti (font, strumenti di analisi o pubblicità). Il
-        nostro server può conservare per un breve periodo i log di accesso standard (indirizzo IP, informazioni sul
-        browser, pagina richiesta, ora) per ragioni di sicurezza e di risoluzione dei problemi; non vengono utilizzati
-        per nessun altro scopo.
+        Questo sito mostra annunci di <strong>Google AdSense</strong>. Google e i suoi partner utilizzano cookie e
+        tecnologie simili per mostrare e misurare gli annunci, per fornire annunci personalizzati (basati sulle Sue visite
+        a questo e ad altri siti web) e per prevenire le frodi. Si veda <a href="https://policies.google.com/technologies/partner-sites?hl=it">come Google utilizza le informazioni dei siti che utilizzano i suoi servizi</a>. Può disattivare gli annunci personalizzati nelle <a href="https://adssettings.google.com/">Impostazioni annunci di Google</a> e disattivare l’utilizzo dei cookie da parte di fornitori di terze parti su <a href="https://www.aboutads.info/">www.aboutads.info</a>. Nello Spazio
+        economico europeo, nel Regno Unito e in Svizzera gli annunci personalizzati vengono mostrati soltanto con il Suo
+        consenso.
+      </p>
+      <p>
+        Fatta eccezione per gli annunci, il sito non installa cookie propri e non carica strumenti di analisi. Il nostro
+        server può conservare per un breve periodo i log di accesso standard (indirizzo IP, informazioni sul browser,
+        pagina richiesta, ora) per ragioni di sicurezza e di risoluzione dei problemi; non vengono utilizzati per nessun
+        altro scopo.
       </p>
 
       <h2>Conservazione e cancellazione dei dati</h2>

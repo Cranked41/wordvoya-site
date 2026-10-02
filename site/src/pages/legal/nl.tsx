@@ -9,8 +9,8 @@ export function Privacy() {
       lang="nl"
       page="privacy"
       title="Privacybeleid"
-      updated="30 september 2026"
-      description="Wordvoya heeft geen account nodig en uw spelgegevens blijven op uw apparaat. Advertenties worden getoond via Google AdMob en aankopen lopen via Google Play."
+      updated="2 oktober 2026"
+      description="Wordvoya heeft geen account nodig en uw spelgegevens blijven op uw apparaat. Advertenties worden getoond via Google AdMob in de app en via Google AdSense op deze site; aankopen lopen via Google Play."
     >
       <p className="note">
         Dit is een vertaling die voor het gemak wordt aangeboden; als deze afwijkt van de <a href={PATHS.en.privacy}>Engelse versie</a>, prevaleert de Engelse versie.
@@ -100,7 +100,10 @@ export function Privacy() {
 
       <h2>Deze website</h2>
       <p>
-        Deze site gebruikt geen cookies en laadt geen bronnen van derden (lettertypen, analyses of advertenties). Onze
+        Deze site toont advertenties van <strong>Google AdSense</strong>. Google en zijn partners gebruiken cookies en vergelijkbare technologieën om advertenties te tonen en te meten, om gepersonaliseerde advertenties weer te geven (op basis van uw bezoeken aan deze en andere websites) en om fraude te voorkomen. Zie <a href="https://policies.google.com/technologies/partner-sites?hl=nl">hoe Google informatie gebruikt van sites die gebruikmaken van zijn services</a>. U kunt gepersonaliseerde advertenties uitschakelen in de <a href="https://adssettings.google.com/">Advertentie-instellingen van Google</a> en het gebruik van cookies door externe leveranciers weigeren via <a href="https://www.aboutads.info/">www.aboutads.info</a>. In de Europese Economische Ruimte, het Verenigd Koninkrijk en Zwitserland worden gepersonaliseerde advertenties alleen met uw toestemming getoond.
+      </p>
+      <p>
+        Afgezien van de advertenties plaatst de site geen eigen cookies en worden er geen analysetools geladen. Onze
         server kan gedurende een korte periode standaard toegangslogboeken bijhouden (IP-adres, browsergegevens,
         opgevraagde pagina, tijdstip) voor beveiliging en probleemoplossing; ze worden voor niets anders gebruikt.
       </p>

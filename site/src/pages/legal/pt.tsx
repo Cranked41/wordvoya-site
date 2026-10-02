@@ -9,8 +9,8 @@ export function Privacy() {
       lang="pt"
       page="privacy"
       title="Política de Privacidade"
-      updated="30 de setembro de 2026"
-      description="O Wordvoya não exige conta e os dados do seu jogo ficam no seu dispositivo. Os anúncios são exibidos pelo Google AdMob e as compras são feitas pelo Google Play."
+      updated="2 de outubro de 2026"
+      description="O Wordvoya não exige conta e os dados do seu jogo ficam no seu dispositivo. Os anúncios são exibidos pelo Google AdMob no app e pelo Google AdSense neste site; as compras são feitas pelo Google Play."
     >
       <p className="note">
         Esta é uma tradução fornecida por conveniência; se houver divergência em relação à <a href={PATHS.en.privacy}>versão em inglês</a>, prevalece a versão em inglês.
@@ -100,10 +100,16 @@ export function Privacy() {
 
       <h2>Este site</h2>
       <p>
-        Este site não usa cookies e não carrega recursos de terceiros (fontes, ferramentas de análise ou anúncios). Nosso
-        servidor pode manter, por um curto período, registros de acesso padrão (endereço IP, informações do navegador,
-        página solicitada, horário) por motivos de segurança e solução de problemas; eles não são usados para nenhuma
-        outra finalidade.
+        Este site exibe anúncios do <strong>Google AdSense</strong>. O Google e seus parceiros usam cookies e tecnologias
+        semelhantes para exibir e medir anúncios, para exibir anúncios personalizados (com base nas suas visitas a este e
+        a outros sites) e para prevenir fraudes. Consulte <a href="https://policies.google.com/technologies/partner-sites?hl=pt-BR">como o Google usa as informações de sites que utilizam os seus serviços</a>. Você pode desativar os anúncios personalizados nas <a href="https://adssettings.google.com/">Configurações de anúncios do Google</a> e recusar o uso de cookies por fornecedores terceiros em <a href="https://www.aboutads.info/">www.aboutads.info</a>. No Espaço Econômico Europeu, no Reino Unido e na Suíça, os anúncios
+        personalizados só são exibidos com o seu consentimento.
+      </p>
+      <p>
+        Além dos anúncios, o site não instala cookies próprios e não carrega ferramentas de análise. Nosso servidor pode
+        manter, por um curto período, registros de acesso padrão (endereço IP, informações do navegador, página
+        solicitada, horário) por motivos de segurança e solução de problemas; eles não são usados para nenhuma outra
+        finalidade.
       </p>
 
       <h2>Retenção e exclusão de dados</h2>

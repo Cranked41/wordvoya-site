@@ -1,7 +1,10 @@
 # wordvoya.com
 
 Wordvoya oyununun tanıtım sitesi. Sayfalar React + TypeScript (TSX) ile yazılır, derlemede statik HTML'e çevrilir
-ve nginx ile servis edilir; tarayıcıya JavaScript gitmez (CSP `script-src 'none'`). Uygulama ayrı depoda:
+ve nginx ile servis edilir; sitenin kendi JavaScript'i yoktur, yalnız her sayfanın `<head>`'inde Google AdSense
+otomatik reklam betiği vardır (`Layout.tsx`, 2026-10-02). Reklam betiği, çerçeveleri ve görselleri çok sayıda Google
+alan adından geldiği için nginx CSP'si kaynak kısıtlamaz; yalnız `frame-ancestors 'none'; base-uri 'self';
+form-action 'none'; object-src 'none'`. Gizlilik politikası (15 dil) AdSense çerezlerini açıklar. Uygulama ayrı depoda:
 `Cranked41/Wordvoya` (2026-10-01'de site oradan bu depoya, geçmişiyle taşındı).
 
 | Yol | İçerik |

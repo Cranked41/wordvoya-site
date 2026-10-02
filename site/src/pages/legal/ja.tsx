@@ -10,8 +10,8 @@ export function Privacy() {
       lang="ja"
       page="privacy"
       title="プライバシーポリシー"
-      updated="2026年9月30日"
-      description="Wordvoyaはアカウントを必要とせず、ゲームデータはお客様の端末内にのみ保存されます。広告はGoogle AdMobによって配信され、購入はGoogle Playを通じて行われます。"
+      updated="2026年10月2日"
+      description="Wordvoyaはアカウントを必要とせず、ゲームデータはお客様の端末内にのみ保存されます。広告はアプリではGoogle AdMob、本サイトではGoogle AdSenseによって配信され、購入はGoogle Playを通じて行われます。"
     >
       <p className="note">
         これは便宜のために提供している翻訳であり、<a href={PATHS.en.privacy}>英語版</a>と相違がある場合は、英語版が優先されます。
@@ -75,7 +75,10 @@ export function Privacy() {
 
       <h2>本ウェブサイトについて</h2>
       <p>
-        本サイトはCookieを使用せず、第三者のリソース（フォント、アクセス解析、広告）も読み込みません。当社のサーバーは、セキュリティとトラブルシューティングのために、標準的なアクセスログ（IPアドレス、ブラウザ情報、リクエストされたページ、時刻）を短期間保存することがあります。これらを他の目的に使用することはありません。
+        本サイトでは<strong>Google AdSense</strong>の広告が表示されます。Googleおよびそのパートナーは、広告の表示と効果測定、パーソナライズ広告（本サイトおよび他のウェブサイトへのお客様のアクセスに基づくもの）の配信、ならびに不正行為の防止のために、Cookieおよび類似の技術を使用します。詳しくは、<a href="https://policies.google.com/technologies/partner-sites?hl=ja">Googleのサービスを使用するサイトから得た情報をGoogleがどのように使用するか</a>をご覧ください。パーソナライズ広告は<a href="https://adssettings.google.com/">Googleの広告設定</a>で無効にでき、第三者配信事業者によるCookieの使用は<a href="https://www.aboutads.info/">www.aboutads.info</a>で無効にできます。欧州経済領域、英国、スイスでは、パーソナライズ広告はお客様の同意がある場合にのみ表示されます。
+      </p>
+      <p>
+        広告を除き、本サイトは独自のCookieを設定せず、アクセス解析も読み込みません。当社のサーバーは、セキュリティとトラブルシューティングのために、標準的なアクセスログ（IPアドレス、ブラウザ情報、リクエストされたページ、時刻）を短期間保存することがあります。これらを他の目的に使用することはありません。
       </p>
 
       <h2>データの保存と削除</h2>

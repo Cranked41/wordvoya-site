@@ -12,7 +12,7 @@ COPY src src
 COPY public public
 RUN npm run build
 
-# 2) Servis: yalnız derlenmiş dosyalar; tarayıcıya JavaScript gitmez
+# 2) Servis: yalnız derlenmiş dosyalar; sitenin kendi JavaScript'i yok (yalnız Google AdSense betiği)
 FROM nginx:1.27-alpine
 RUN rm -rf /usr/share/nginx/html/*
 COPY nginx.conf /etc/nginx/conf.d/default.conf

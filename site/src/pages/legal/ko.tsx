@@ -9,8 +9,8 @@ export function Privacy() {
       lang="ko"
       page="privacy"
       title="개인정보 처리방침"
-      updated="2026년 9월 30일"
-      description="Wordvoya는 계정이 필요 없으며 게임 데이터는 기기에 남습니다. 광고는 Google AdMob이 제공하고 구매는 Google Play를 통해 이루어집니다."
+      updated="2026년 10월 2일"
+      description="Wordvoya는 계정이 필요 없으며 게임 데이터는 기기에 남습니다. 광고는 앱에서는 Google AdMob이, 이 사이트에서는 Google AdSense가 제공하며, 구매는 Google Play를 통해 이루어집니다."
     >
       <p className="note">
         이 문서는 편의를 위해 제공되는 번역본이며, <a href={PATHS.en.privacy}>영어 버전</a>과 내용이 다를 경우 영어 버전이 우선합니다.
@@ -91,9 +91,10 @@ export function Privacy() {
 
       <h2>이 웹사이트</h2>
       <p>
-        이 사이트는 쿠키를 사용하지 않으며 제3자 리소스(글꼴, 분석, 광고)를 불러오지 않습니다. 당사 서버는 보안과 문제
-        해결을 위해 표준 접속 로그(IP 주소, 브라우저 정보, 요청한 페이지, 시간)를 짧은 기간 동안 보관할 수 있으며, 이
-        로그는 다른 용도로 사용되지 않습니다.
+        이 사이트에는 <strong>Google AdSense</strong> 광고가 표시됩니다. Google과 그 파트너는 광고 표시 및 측정, 맞춤형 광고 제공(이 사이트와 다른 웹사이트에 대한 이용자의 방문 기록 기반), 부정 행위 방지를 위해 쿠키 및 이와 유사한 기술을 사용합니다. 자세한 내용은 <a href="https://policies.google.com/technologies/partner-sites?hl=ko">Google이 자사 서비스를 이용하는 사이트의 정보를 사용하는 방식</a>을 참조하십시오. 맞춤형 광고는 <a href="https://adssettings.google.com/">Google 광고 설정</a>에서 사용 중지할 수 있으며, 제3자 공급업체의 쿠키 사용은 <a href="https://www.aboutads.info/">www.aboutads.info</a>에서 거부할 수 있습니다. 유럽 경제 지역, 영국 및 스위스에서는 이용자가 동의한 경우에만 맞춤형 광고가 표시됩니다.
+      </p>
+      <p>
+        광고를 제외하면 이 사이트는 자체 쿠키를 설정하지 않으며 분석 도구를 불러오지 않습니다. 당사 서버는 보안과 문제 해결을 위해 표준 접속 로그(IP 주소, 브라우저 정보, 요청한 페이지, 시간)를 짧은 기간 동안 보관할 수 있으며, 이 로그는 다른 용도로 사용되지 않습니다.
       </p>
 
       <h2>데이터 보관 및 삭제</h2>

@@ -9,8 +9,8 @@ export function Privacy() {
       lang="pl"
       page="privacy"
       title="Polityka prywatności"
-      updated="30 września 2026"
-      description="Wordvoya nie wymaga konta, a dane z gry pozostają na Państwa urządzeniu. Reklamy wyświetla Google AdMob, a zakupy odbywają się przez Google Play."
+      updated="2 października 2026"
+      description="Wordvoya nie wymaga konta, a dane z gry pozostają na Państwa urządzeniu. Reklamy wyświetla Google AdMob w aplikacji i Google AdSense na tej stronie, a zakupy odbywają się przez Google Play."
     >
       <p className="note">
         Jest to tłumaczenie udostępnione dla wygody; w razie rozbieżności z <a href={PATHS.en.privacy}>wersją angielską</a> pierwszeństwo ma wersja angielska.
@@ -96,10 +96,10 @@ export function Privacy() {
 
       <h2>Ta strona internetowa</h2>
       <p>
-        Ta strona nie używa plików cookie i nie ładuje zasobów podmiotów trzecich (czcionek, narzędzi analitycznych ani
-        reklam). Nasz serwer może przez krótki czas przechowywać standardowe dzienniki dostępu (adres IP, informacje
-        o przeglądarce, żądaną stronę, czas) ze względów bezpieczeństwa i w celu usuwania usterek; nie są one wykorzystywane
-        do żadnych innych celów.
+        Na tej stronie wyświetlane są reklamy <strong>Google AdSense</strong>. Google i jego partnerzy wykorzystują pliki cookie i podobne technologie w celu wyświetlania reklam i mierzenia ich skuteczności, wyświetlania reklam spersonalizowanych (na podstawie Państwa wizyt na tej i innych stronach internetowych) oraz zapobiegania nadużyciom. Zob. <a href="https://policies.google.com/technologies/partner-sites?hl=pl">jak Google wykorzystuje informacje z witryn korzystających z jego usług</a>. Reklamy spersonalizowane mogą Państwo wyłączyć w <a href="https://adssettings.google.com/">Ustawieniach reklam Google</a>, a z wykorzystywania plików cookie przez zewnętrznych dostawców mogą Państwo zrezygnować na stronie <a href="https://www.aboutads.info/">www.aboutads.info</a>. W Europejskim Obszarze Gospodarczym, Wielkiej Brytanii i Szwajcarii reklamy spersonalizowane są wyświetlane wyłącznie za Państwa zgodą.
+      </p>
+      <p>
+        Poza reklamami strona nie ustawia własnych plików cookie i nie ładuje narzędzi analitycznych. Nasz serwer może przez krótki czas przechowywać standardowe dzienniki dostępu (adres IP, informacje o przeglądarce, żądaną stronę, czas) ze względów bezpieczeństwa i w celu usuwania usterek; nie są one wykorzystywane do żadnych innych celów.
       </p>
 
       <h2>Przechowywanie i usuwanie danych</h2>

@@ -9,8 +9,8 @@ export function Privacy() {
       lang="fr"
       page="privacy"
       title="Politique de confidentialité"
-      updated="30 septembre 2026"
-      description="Wordvoya ne demande aucun compte et vos données de jeu restent sur votre appareil. Les publicités sont diffusées par Google AdMob et les achats passent par Google Play."
+      updated="2 octobre 2026"
+      description="Wordvoya ne demande aucun compte et vos données de jeu restent sur votre appareil. Les publicités sont diffusées par Google AdMob dans l’application et par Google AdSense sur ce site ; les achats passent par Google Play."
     >
       <p className="note">
         Ceci est une traduction fournie à titre de commodité ; en cas de divergence avec la <a href={PATHS.en.privacy}>version anglaise</a>, la version anglaise prévaut.
@@ -101,7 +101,10 @@ export function Privacy() {
 
       <h2>Ce site web</h2>
       <p>
-        Ce site n’utilise pas de cookies et ne charge aucune ressource tierce (polices, outils d’analyse ou publicités). Notre
+        Ce site affiche des publicités de <strong>Google AdSense</strong>. Google et ses partenaires utilisent des cookies et des technologies similaires pour afficher et mesurer les publicités, pour diffuser des publicités personnalisées (en fonction de vos visites sur ce site et sur d’autres sites web) et pour prévenir la fraude. Voir <a href="https://policies.google.com/technologies/partner-sites?hl=fr">comment Google utilise les informations des sites qui utilisent ses services</a>. Vous pouvez désactiver les publicités personnalisées dans les <a href="https://adssettings.google.com/">Paramètres des annonces Google</a> et refuser l’utilisation de cookies par des fournisseurs tiers sur <a href="https://www.aboutads.info/">www.aboutads.info</a>. Dans l’Espace économique européen, au Royaume-Uni et en Suisse, les publicités personnalisées ne sont affichées qu’avec votre consentement.
+      </p>
+      <p>
+        En dehors des publicités, le site ne dépose aucun cookie qui lui soit propre et ne charge aucun outil d’analyse. Notre
         serveur peut conserver pendant une courte période des journaux d’accès standard (adresse IP, informations sur le
         navigateur, page demandée, heure) à des fins de sécurité et de dépannage ; ils ne sont utilisés à aucune autre fin.
       </p>
