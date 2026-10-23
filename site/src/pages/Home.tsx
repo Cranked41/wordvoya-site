@@ -2,7 +2,7 @@
 import type { ReactNode } from 'react';
 import { Document, Footer, Header } from '../Layout';
 import { HOME_EXTRA } from '../i18n';
-import { UI, type Lang } from '../site';
+import { AD_SLOT_HOME, ADSENSE_ACCOUNT, UI, type Lang } from '../site';
 
 export interface HomeText {
   title: string;
@@ -123,6 +123,22 @@ export default function Home({ lang }: { lang: Lang }) {
             </div>
           </div>
         </section>
+
+        {/* Görüntülü reklam birimi. Sayfada React çalışmaz; isteği satır içi betik gönderir.
+            Reklam gelmezse (site onaysızken hep) alan CSS ile gizlenir. */}
+        <aside className="ad-slot">
+          <div className="wrap">
+            <ins
+              className="adsbygoogle"
+              style={{ display: 'block' }}
+              data-ad-client={ADSENSE_ACCOUNT}
+              data-ad-slot={AD_SLOT_HOME}
+              data-ad-format="auto"
+              data-full-width-responsive="true"
+            />
+            <script dangerouslySetInnerHTML={{ __html: '(window.adsbygoogle = window.adsbygoogle || []).push({});' }} />
+          </div>
+        </aside>
 
         <section className="shots">
           <div className="wrap">

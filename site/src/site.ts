@@ -9,9 +9,11 @@ export const isRtl = (lang: Lang) => lang === 'ar' || lang === 'fa';
 
 export const ORIGIN = 'https://wordvoya.com';
 export const ADSENSE_ACCOUNT = 'ca-pub-7447009773268822';
+/** AdSense > Reklamlar > Reklam birimine göre: "display_ad" (infidoc ve tasbeehmat ile aynı birim). */
+export const AD_SLOT_HOME = '3660794359';
 export const SUPPORT_EMAIL = 'support@wordvoya.com';
 /** style.css değişince artır: tarayıcı önbelleği eskisini tutmasın. */
-export const CSS_VERSION = 4;
+export const CSS_VERSION = 5;
 
 /** Türkçe kökte (eski adresler korunur), öbür diller /<dil>/ altında. */
 export const PATHS = Object.fromEntries(

@@ -94,6 +94,9 @@ h2 { font-size: 1.6rem; margin: 0 0 18px; }
 
 /* Ekran görüntüleri */
 section.shots { padding: 40px 0; }
+.ad-slot { padding: 24px 0 8px; }
+/* Site onaylanmadan ya da reklam gelmeyince boş alan kalmasın */
+.ad-slot:has(ins[data-ad-status="unfilled"]) { display: none; }
 .shots .row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
 .shots img { border-radius: 18px; border: 1px solid var(--line); }
 
