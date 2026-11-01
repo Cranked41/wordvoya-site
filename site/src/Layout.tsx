@@ -3,11 +3,14 @@ import type { ReactNode } from 'react';
 import {
   ADSENSE_ACCOUNT,
   CSS_VERSION,
+  INSTAGRAM_URL,
   LANGS,
   ORIGIN,
   PATHS,
   SUPPORT_EMAIL,
   UI,
+  HANDLE,
+  X_URL,
   isRtl,
   type Lang,
   type PageKey,
@@ -54,6 +57,9 @@ export function Document({ lang, title, description, page, og, noindex, children
             <meta property="og:description" content={og.description} />
             <meta property="og:url" content={ORIGIN + PATHS[lang].home} />
             <meta property="og:image" content={ORIGIN + og.image} />
+            {/* X'te paylaşılınca büyük görselli kart ve hesap */}
+            <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:site" content={HANDLE} />
           </>
         )}
         <meta name="theme-color" content="#1B5E7A" />
@@ -120,6 +126,10 @@ export function Footer({ lang, page, children }: { lang: Lang; page: PageKey; ch
           {page !== 'privacy' && <a href={p.privacy}>{t.privacyLong}</a>}
           {page !== 'terms' && <a href={p.terms}>{t.terms}</a>}
           {page === 'home' && <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>}
+        </div>
+        <div className="links social">
+          <a href={X_URL} rel="me noopener">X {HANDLE}</a>
+          <a href={INSTAGRAM_URL} rel="me noopener">Instagram {HANDLE}</a>
         </div>
         <div className="links langs">
           {LANGS.filter((to) => to !== lang).map((to) => (
