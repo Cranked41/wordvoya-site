@@ -2,7 +2,7 @@
 import type { ReactNode } from 'react';
 import { Document, Footer, Header } from '../Layout';
 import { HOME_EXTRA } from '../i18n';
-import { AD_SLOT_HOME, ADSENSE_ACCOUNT, UI, type Lang } from '../site';
+import { AD_SLOT_HOME, ADSENSE_ACCOUNT, IMG_VERSION, UI, type Lang } from '../site';
 
 export interface HomeText {
   title: string;
@@ -105,7 +105,7 @@ export default function Home({ lang }: { lang: Lang }) {
               <p>{t.intro}</p>
               <span className="badge soon">{t.soon}</span>
             </div>
-            <img className="shot" src={`/img/ekran-${lang}-1.webp`} alt={t.heroAlt} width={540} height={960} />
+            <img className="shot" src={`/img/ekran-${lang}-1.webp?v=${IMG_VERSION}`} alt={t.heroAlt} width={540} height={960} />
           </div>
         </section>
 
@@ -145,7 +145,7 @@ export default function Home({ lang }: { lang: Lang }) {
             <h2>{t.shotsTitle}</h2>
             <div className="row">
               {t.shots.map((alt, i) => (
-                <img key={alt} src={`/img/ekran-${lang}-${i + 1}.webp`} alt={alt} width={540} height={960} loading="lazy" />
+                <img key={alt} src={`/img/ekran-${lang}-${i + 1}.webp?v=${IMG_VERSION}`} alt={alt} width={540} height={960} loading="lazy" />
               ))}
             </div>
           </div>
