@@ -19,7 +19,7 @@ export const INSTAGRAM_URL = 'https://www.instagram.com/wordvoya/';
 /** style.css değişince artır: tarayıcı önbelleği eskisini tutmasın. */
 export const CSS_VERSION = 5;
 /** Ekran görüntüleri (img/ekran-*.webp) yenilenince artır: nginx bir hafta önbellekte tutuyor, adlar aynı kalıyor. */
-export const IMG_VERSION = 2;
+export const IMG_VERSION = 3;
 
 /** Türkçe kökte (eski adresler korunur), öbür diller /<dil>/ altında. */
 export const PATHS = Object.fromEntries(
