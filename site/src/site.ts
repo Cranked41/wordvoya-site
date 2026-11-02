@@ -12,12 +12,13 @@ export const ADSENSE_ACCOUNT = 'ca-pub-7447009773268822';
 /** AdSense > Reklamlar > Reklam birimine göre: "display_ad" (infidoc ve tasbeehmat ile aynı birim). */
 export const AD_SLOT_HOME = '3660794359';
 export const SUPPORT_EMAIL = 'support@wordvoya.com';
+export const PLAY_URL = 'https://play.google.com/store/apps/details?id=com.cranked.wordvoya';
 /** Oyunun sosyal medya hesapları (uygulamanın Ayarlar > Hakkında bölümünde de var); ad ikisinde de aynı. */
 export const HANDLE = '@wordvoya';
 export const X_URL = 'https://x.com/wordvoya';
 export const INSTAGRAM_URL = 'https://www.instagram.com/wordvoya/';
 /** style.css değişince artır: tarayıcı önbelleği eskisini tutmasın. */
-export const CSS_VERSION = 5;
+export const CSS_VERSION = 6;
 /** Ekran görüntüleri (img/ekran-*.webp) yenilenince artır: nginx bir hafta önbellekte tutuyor, adlar aynı kalıyor. */
 export const IMG_VERSION = 3;
 

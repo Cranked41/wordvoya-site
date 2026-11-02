@@ -2,7 +2,7 @@
 import type { ReactNode } from 'react';
 import { Document, Footer, Header } from '../Layout';
 import { HOME_EXTRA } from '../i18n';
-import { AD_SLOT_HOME, ADSENSE_ACCOUNT, IMG_VERSION, UI, type Lang } from '../site';
+import { AD_SLOT_HOME, ADSENSE_ACCOUNT, IMG_VERSION, PLAY_URL, UI, type Lang } from '../site';
 
 export interface HomeText {
   title: string;
@@ -10,7 +10,8 @@ export interface HomeText {
   og: { title: string; description: string; image: string };
   sub: string;
   intro: string;
-  soon: string;
+  /** Google Play düğmesi. */
+  play: string;
   iconAlt: string;
   heroAlt: string;
   featuresTitle: string;
@@ -34,7 +35,7 @@ const TEXT: Record<Lang, HomeText> = {
     sub: 'Kelime Bulmacası',
     intro:
       'Harfler denizdeki adalarda seni bekliyor. Parmağını adadan adaya kaydır, rotan bir kelime yazsın ve çapraz bulmacaya yerleşsin. Her bölüm yeni bir ada, her ada yeni kelimeler.',
-    soon: "Yakında Google Play'de",
+    play: "Google Play'den indir",
     iconAlt: 'Wordvoya simgesi',
     heroAlt: 'Harf adalarını kaydırarak TEKRAR kelimesini kurmak',
     featuresTitle: 'Adadan adaya bir kelime avı',
@@ -67,7 +68,7 @@ const TEXT: Record<Lang, HomeText> = {
     sub: 'Word Puzzle',
     intro:
       'Letters wait on islands in the sea. Slide your finger from island to island: your route spells a word and fills the crossword. Every level is a new island with new words to find.',
-    soon: 'Coming soon to Google Play',
+    play: 'Get it on Google Play',
     iconAlt: 'Wordvoya icon',
     heroAlt: 'Sliding across letter islands to spell AROUND',
     featuresTitle: 'A word hunt from island to island',
@@ -103,7 +104,9 @@ export default function Home({ lang }: { lang: Lang }) {
               <h1>Wordvoya</h1>
               <p className="sub">{t.sub}</p>
               <p>{t.intro}</p>
-              <span className="badge soon">{t.soon}</span>
+              <a className="badge" href={`${PLAY_URL}&hl=${lang}`}>
+                {t.play}
+              </a>
             </div>
             <img className="shot" src={`/img/ekran-${lang}-1.webp?v=${IMG_VERSION}`} alt={t.heroAlt} width={540} height={960} />
           </div>

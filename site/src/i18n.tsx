@@ -17,7 +17,7 @@ export const HOME_EXTRA: Record<ExtraLang, HomeText> = {
     sub: 'Worträtsel',
     intro:
       'Die Buchstaben warten auf Inseln im Meer. Zieh den Finger von Insel zu Insel: Deine Route bildet ein Wort und landet im Kreuzworträtsel. Jedes Level ist eine neue Insel mit neuen Wörtern.',
-    soon: 'Bald bei Google Play',
+    play: 'Jetzt bei Google Play',
     iconAlt: 'Wordvoya-Symbol',
     heroAlt: 'Über die Buchstabeninseln gleiten, um ein Wort zu bilden',
     featuresTitle: 'Eine Wortjagd von Insel zu Insel',
@@ -50,7 +50,7 @@ export const HOME_EXTRA: Record<ExtraLang, HomeText> = {
     sub: 'Jeu de mots',
     intro:
       'Les lettres t’attendent sur des îles au milieu de la mer. Fais glisser ton doigt d’île en île : ton itinéraire forme un mot et vient se placer dans la grille de mots croisés. Chaque niveau est une nouvelle île, avec de nouveaux mots à trouver.',
-    soon: 'Bientôt sur Google Play',
+    play: 'Disponible sur Google Play',
     iconAlt: 'Icône de Wordvoya',
     heroAlt: 'Glisser sur les îles de lettres pour former un mot',
     featuresTitle: 'Une chasse aux mots d’île en île',
@@ -83,7 +83,7 @@ export const HOME_EXTRA: Record<ExtraLang, HomeText> = {
     sub: 'Puzle de palabras',
     intro:
       'Las letras te esperan en islas en medio del mar. Desliza el dedo de isla en isla: tu ruta forma una palabra y se coloca en el crucigrama. Cada nivel es una isla nueva con palabras nuevas por descubrir.',
-    soon: 'Próximamente en Google Play',
+    play: 'Disponible en Google Play',
     iconAlt: 'Icono de Wordvoya',
     heroAlt: 'Deslizando el dedo por las islas de letras para formar una palabra',
     featuresTitle: 'Una caza de palabras de isla en isla',
@@ -116,7 +116,7 @@ export const HOME_EXTRA: Record<ExtraLang, HomeText> = {
     sub: 'Puzzle di parole',
     intro:
       'Le lettere ti aspettano su isole in mezzo al mare. Fai scorrere il dito da un’isola all’altra: il tuo percorso forma una parola e si posiziona nelle parole crociate. Ogni livello è un’isola nuova, con parole nuove da scoprire.',
-    soon: 'In arrivo su Google Play',
+    play: 'Disponibile su Google Play',
     iconAlt: 'Icona di Wordvoya',
     heroAlt: 'Far scorrere il dito sulle isole di lettere per formare una parola',
     featuresTitle: 'Una caccia alle parole di isola in isola',
@@ -149,7 +149,7 @@ export const HOME_EXTRA: Record<ExtraLang, HomeText> = {
     sub: 'Jogo de palavras',
     intro:
       'As letras esperam você em ilhas no meio do mar. Deslize o dedo de ilha em ilha: sua rota forma uma palavra e se encaixa nas palavras cruzadas. Cada fase é uma ilha nova, com novas palavras para descobrir.',
-    soon: 'Em breve no Google Play',
+    play: 'Disponível no Google Play',
     iconAlt: 'Ícone do Wordvoya',
     heroAlt: 'Deslizando pelas ilhas de letras para formar uma palavra',
     featuresTitle: 'Uma caça às palavras de ilha em ilha',
@@ -182,7 +182,7 @@ export const HOME_EXTRA: Record<ExtraLang, HomeText> = {
     sub: 'Игра в слова',
     intro:
       'Буквы ждут тебя на островах посреди моря. Проведи пальцем от острова к острову: твой маршрут сложится в слово и встанет в кроссворд. Каждый уровень — новый остров с новыми словами, которые предстоит найти.',
-    soon: 'Скоро в Google Play',
+    play: 'Доступно в Google Play',
     iconAlt: 'Значок Wordvoya',
     heroAlt: 'Проводим пальцем по островам букв, чтобы составить слово',
     featuresTitle: 'Охота за словами от острова к острову',
@@ -215,7 +215,7 @@ export const HOME_EXTRA: Record<ExtraLang, HomeText> = {
     sub: 'Woordpuzzel',
     intro:
       'De letters wachten op je op eilanden in de zee. Veeg met je vinger van eiland naar eiland: je route vormt een woord en komt in de kruiswoordpuzzel terecht. Elk level is een nieuw eiland met nieuwe woorden om te vinden.',
-    soon: 'Binnenkort op Google Play',
+    play: 'Ontdek het op Google Play',
     iconAlt: 'Wordvoya-pictogram',
     heroAlt: 'Over de letter-eilanden vegen om een woord te vormen',
     featuresTitle: 'Een woordenjacht van eiland naar eiland',
@@ -248,7 +248,7 @@ export const HOME_EXTRA: Record<ExtraLang, HomeText> = {
     sub: 'Łamigłówka słowna',
     intro:
       'Litery czekają na ciebie na wyspach pośrodku morza. Przesuwaj palec z wyspy na wyspę: twoja trasa ułoży słowo i wpadnie do krzyżówki. Każdy poziom to nowa wyspa i nowe słowa do odnalezienia.',
-    soon: 'Wkrótce w Google Play',
+    play: 'Pobierz z Google Play',
     iconAlt: 'Ikona Wordvoya',
     heroAlt: 'Przesuwanie palcem po wyspach liter, by ułożyć słowo',
     featuresTitle: 'Polowanie na słowa z wyspy na wyspę',
@@ -281,7 +281,7 @@ export const HOME_EXTRA: Record<ExtraLang, HomeText> = {
     sub: 'ことばパズル',
     intro:
       '文字は海に浮かぶ島で待っています。島から島へ指をすべらせると、たどったルートが言葉になり、クロスワードに収まります。レベルごとに新しい島、新しい言葉との出会いが待っています。',
-    soon: 'Google Playで近日公開',
+    play: 'Google Play で手に入れよう',
     iconAlt: 'Wordvoyaのアイコン',
     heroAlt: '文字の島の上で指をすべらせて言葉をつくる',
     featuresTitle: '島から島へ、言葉探しの旅',
@@ -314,7 +314,7 @@ export const HOME_EXTRA: Record<ExtraLang, HomeText> = {
     sub: '단어 퍼즐',
     intro:
       '글자들은 바다 위 섬에서 기다리고 있습니다. 섬에서 섬으로 손가락을 밀어 보세요. 그린 경로가 단어가 되어 크로스워드에 채워집니다. 레벨마다 새로운 섬, 새로운 단어가 기다립니다.',
-    soon: 'Google Play 출시 예정',
+    play: 'Google Play에서 받기',
     iconAlt: 'Wordvoya 아이콘',
     heroAlt: '글자 섬 위로 손가락을 밀어 단어 만들기',
     featuresTitle: '섬에서 섬으로 이어지는 단어 사냥',
@@ -347,7 +347,7 @@ export const HOME_EXTRA: Record<ExtraLang, HomeText> = {
     sub: 'لعبة الكلمات',
     intro:
       'الحروف تنتظرك على جزر وسط البحر. مرِّر إصبعك من جزيرة إلى أخرى: يكوّن مسارك كلمة ويملأ الكلمات المتقاطعة. كل مستوى جزيرة جديدة، وكلمات جديدة تنتظر أن تكتشفها.',
-    soon: 'قريبًا على Google Play',
+    play: 'احصل عليه من Google Play',
     iconAlt: 'أيقونة Wordvoya',
     heroAlt: 'تمرير الإصبع عبر جزر الحروف لتكوين كلمة',
     featuresTitle: 'مطاردة كلمات من جزيرة إلى جزيرة',
@@ -380,7 +380,7 @@ export const HOME_EXTRA: Record<ExtraLang, HomeText> = {
     sub: 'بازی کلمات',
     intro:
       'حروف روی جزیره‌هایی در دریا منتظرت هستند. انگشتت را از جزیره‌ای به جزیره‌ی دیگر بکش: مسیرت یک کلمه می‌سازد و جدول کلمات متقاطع را پر می‌کند. هر مرحله یک جزیره‌ی تازه است، با کلمه‌های تازه برای پیدا کردن.',
-    soon: 'به‌زودی در Google Play',
+    play: 'دریافت از Google Play',
     iconAlt: 'آیکون Wordvoya',
     heroAlt: 'کشیدن انگشت روی جزیره‌های حروف برای ساختن یک کلمه',
     featuresTitle: 'شکار کلمه از جزیره‌ای به جزیره‌ی دیگر',
@@ -413,7 +413,7 @@ export const HOME_EXTRA: Record<ExtraLang, HomeText> = {
     sub: 'शब्द पहेली',
     intro:
       'अक्षर समुद्र के द्वीपों पर आपका इंतज़ार कर रहे हैं। उँगली को एक द्वीप से दूसरे द्वीप तक फिराएँ: आपका रास्ता एक शब्द बनाता है और क्रॉसवर्ड में जुड़ जाता है। हर स्तर एक नया द्वीप है, और खोजने के लिए नए शब्द।',
-    soon: 'जल्द ही Google Play पर',
+    play: 'Google Play पर पाएं',
     iconAlt: 'Wordvoya आइकन',
     heroAlt: 'अक्षरों के द्वीपों पर उँगली फिराकर एक शब्द बनाना',
     featuresTitle: 'द्वीप से द्वीप तक शब्दों की खोज',
