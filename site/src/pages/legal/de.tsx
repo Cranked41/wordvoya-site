@@ -9,7 +9,7 @@ export function Privacy() {
       lang="de"
       page="privacy"
       title="Datenschutzerklärung"
-      updated="2. Oktober 2026"
+      updated="7. November 2026"
       description="Wordvoya benötigt kein Konto, und Ihre Spieldaten bleiben auf Ihrem Gerät. Werbung wird in der App über Google AdMob und auf dieser Website über Google AdSense ausgeliefert; Käufe laufen über Google Play."
     >
       <p className="note">
@@ -47,11 +47,7 @@ export function Privacy() {
           Kauf nicht doppelt gezählt wird).
         </li>
         <li>
-          <strong>Bestenliste (Google Play Games, optional):</strong> Ihre Punkte sammeln sich auf Ihrem Gerät. Wenn Sie sich
-          bei Google Play Games anmelden, werden Ihre Gesamt- und Wochenpunkte, das erreichte Level, die Anzahl der gefundenen
-          Wörter und die Zeit, die Sie für Ihr zuletzt beendetes Level benötigt haben, zusammen mit Ihrem Play-Games-Profilnamen
-          an Google gesendet und anderen Spielern in der Bestenliste angezeigt. Wenn Sie sich nicht anmelden, wird nichts davon
-          gesendet. In den Play-Games-Einstellungen können Sie festlegen, wer Ihr Profil sieht, und Ihre Spieldaten löschen.
+          <strong>Bestenliste:</strong> Ihre Punkte sammeln sich auf Ihrem Gerät und werden an die Wordvoya-Bestenliste auf unserem Server (wordvoya.com) gesendet: der von Ihnen gewählte Name, Ihre Gesamt- und Wochenpunkte, das erreichte Level, die Anzahl der gefundenen Wörter sowie Zeit und Punkte Ihres letzten Levels. Diese Daten werden mit einer zufälligen, auf Ihrem Gerät erzeugten Kennung gespeichert und anderen Spielern in der Bestenliste angezeigt; wir fragen weder nach Ihrem echten Namen noch nach Ihrer E-Mail-Adresse oder Gerätekennungen. Um Missbrauch zu verhindern, verarbeitet der Server die IP-Adresse jeder Anfrage; sie wird nicht mit Ihrem Bestenlisten-Eintrag gespeichert. Sie können Ihren Eintrag jederzeit in der App unter <em>Bestenliste &gt; (i) &gt; Bestenliste verlassen</em> löschen. Wenn Sie bei Google Play Games angemeldet sind, werden Ihre Punkte zusätzlich an die Play-Games-Bestenlisten gesendet; Ihr Profil und Ihre Spieldaten verwalten Sie in den Play-Games-Einstellungen.
         </li>
       </ul>
 
@@ -104,7 +100,7 @@ export function Privacy() {
 
       <h2>Datenspeicherung und Löschung</h2>
       <p>
-        Ihre Spieldaten bleiben auf Ihrem Gerät. Zum Löschen können Sie die App deinstallieren oder in der App <em>Einstellungen &gt; Daten &gt; Fortschritt zurücksetzen</em> verwenden. Auf unseren Servern speichern wir keine Konto- oder Spieldatensätze über Sie. Daten, die Google
+        Ihre Spieldaten bleiben auf Ihrem Gerät. Zum Löschen können Sie die App deinstallieren oder in der App <em>Einstellungen &gt; Daten &gt; Fortschritt zurücksetzen</em> verwenden. Auf unseren Servern speichern wir über Sie nur Ihren Bestenlisten-Eintrag (siehe oben), den Sie in der App löschen können. Daten, die Google
         für Werbung verarbeitet, unterliegen den Richtlinien von Google; Sie können sie in <a href="https://myadcenter.google.com/">Meine Werbezentrale</a> verwalten.
       </p>
 

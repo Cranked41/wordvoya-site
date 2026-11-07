@@ -9,7 +9,7 @@ export function Privacy() {
       lang="pl"
       page="privacy"
       title="Polityka prywatności"
-      updated="2 października 2026"
+      updated="7 listopada 2026"
       description="Wordvoya nie wymaga konta, a dane z gry pozostają na Państwa urządzeniu. Reklamy wyświetla Google AdMob w aplikacji i Google AdSense na tej stronie, a zakupy odbywają się przez Google Play."
     >
       <p className="note">
@@ -47,11 +47,7 @@ export function Privacy() {
           został policzony dwukrotnie).
         </li>
         <li>
-          <strong>Ranking (Google Play Games, opcjonalnie):</strong> Państwa punkty sumują się na urządzeniu. Jeśli
-          zalogują się Państwo w Google Play Games, łączna i tygodniowa liczba punktów, osiągnięty poziom, liczba
-          znalezionych słów oraz czas ukończenia ostatniego poziomu są wysyłane do Google wraz z nazwą Państwa profilu Play
-          Games i pokazywane innym graczom w rankingu. Jeśli nie zalogują się Państwo, nic z tego nie jest wysyłane.
-          W ustawieniach Play Games mogą Państwo decydować, kto widzi Państwa profil, oraz usuwać swoje dane z gry.
+          <strong>Ranking:</strong> Państwa punkty sumują się na urządzeniu i są wysyłane do rankingu Wordvoya na naszym serwerze (wordvoya.com): wybrana przez Państwa nazwa, łączna i tygodniowa liczba punktów, osiągnięty poziom, liczba znalezionych słów oraz czas i punkty ostatniego poziomu. Są one przechowywane z losowym identyfikatorem utworzonym na urządzeniu i pokazywane innym graczom w rankingu; nie prosimy o prawdziwe imię i nazwisko, adres e-mail ani identyfikatory urządzenia. Aby zapobiegać nadużyciom, serwer przetwarza adres IP każdego żądania; nie jest on przechowywany razem z Państwa wpisem w rankingu. Wpis można w każdej chwili usunąć w aplikacji: <em>Ranking &gt; (i) &gt; Opuść ranking</em>. Jeśli są Państwo zalogowani w Google Play Games, punkty są wysyłane również do rankingów Play Games; profilem i danymi z gry można zarządzać w ustawieniach Play Games.
         </li>
       </ul>
 
@@ -104,7 +100,7 @@ export function Privacy() {
 
       <h2>Przechowywanie i usuwanie danych</h2>
       <p>
-        Dane z gry pozostają na Państwa urządzeniu. Aby je usunąć, należy odinstalować aplikację lub skorzystać w aplikacji z opcji <em>Ustawienia &gt; Dane &gt; Zresetuj postępy</em>. Nie przechowujemy na naszych serwerach żadnego konta ani zapisu gry dotyczącego Państwa. Dane przetwarzane przez Google
+        Dane z gry pozostają na Państwa urządzeniu. Aby je usunąć, należy odinstalować aplikację lub skorzystać w aplikacji z opcji <em>Ustawienia &gt; Dane &gt; Zresetuj postępy</em>. Jedyne dane dotyczące Państwa przechowywane na naszych serwerach to wpis w rankingu (zob. wyżej), który można usunąć w aplikacji. Dane przetwarzane przez Google
         na potrzeby reklam podlegają zasadom Google; można nimi zarządzać w <a href="https://myadcenter.google.com/">Moim Centrum reklam</a>.
       </p>
 

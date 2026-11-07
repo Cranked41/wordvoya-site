@@ -9,7 +9,7 @@ export function Privacy() {
       lang="nl"
       page="privacy"
       title="Privacybeleid"
-      updated="2 oktober 2026"
+      updated="7 november 2026"
       description="Wordvoya heeft geen account nodig en uw spelgegevens blijven op uw apparaat. Advertenties worden getoond via Google AdMob in de app en via Google AdSense op deze site; aankopen lopen via Google Play."
     >
       <p className="note">
@@ -48,12 +48,7 @@ export function Privacy() {
           aankoop niet twee keer wordt geteld).
         </li>
         <li>
-          <strong>Ranglijst (Google Play Games, optioneel):</strong> Uw punten worden opgeteld op uw apparaat. Als u zich
-          aanmeldt bij Google Play Games, worden uw totale en wekelijkse punten, het level dat u hebt bereikt, het aantal
-          woorden dat u hebt gevonden en de tijd die u nodig had om uw laatste level te voltooien samen met de naam van
-          uw Play Games-profiel naar Google verzonden en aan andere spelers getoond op de ranglijst. Als u zich niet
-          aanmeldt, wordt hiervan niets verzonden. In de instellingen van Play Games kunt u bepalen wie uw profiel ziet
-          en uw spelgegevens verwijderen.
+          <strong>Ranglijst:</strong> Uw punten worden opgeteld op uw apparaat en verzonden naar de Wordvoya-ranglijst op onze server (wordvoya.com): de naam die u kiest, uw totale en wekelijkse punten, het bereikte level, het aantal gevonden woorden en de tijd en punten van uw laatste level. Ze worden opgeslagen met een willekeurige ID die op uw apparaat wordt aangemaakt en aan andere spelers getoond op de ranglijst; wij vragen niet om uw echte naam, e-mailadres of apparaat-ID’s. Om misbruik te voorkomen verwerkt de server het IP-adres van elk verzoek; het wordt niet bij uw ranglijstvermelding opgeslagen. U kunt uw vermelding op elk moment in de app verwijderen via <em>Ranglijst &gt; (i) &gt; Ranglijst verlaten</em>. Als u bent aangemeld bij Google Play Games, worden uw punten ook naar de ranglijsten van Play Games verzonden; uw profiel en spelgegevens beheert u in de instellingen van Play Games.
         </li>
       </ul>
 
@@ -110,7 +105,7 @@ export function Privacy() {
 
       <h2>Bewaring en verwijdering van gegevens</h2>
       <p>
-        Uw spelgegevens blijven op uw apparaat. Om ze te verwijderen, verwijdert u de app of gebruikt u <em>Instellingen &gt; Gegevens &gt; Voortgang resetten</em> in de app. Wij bewaren op onze servers geen account of spelgegevens over u. Gegevens die Google
+        Uw spelgegevens blijven op uw apparaat. Om ze te verwijderen, verwijdert u de app of gebruikt u <em>Instellingen &gt; Gegevens &gt; Voortgang resetten</em> in de app. Het enige dat wij over u op onze servers bewaren, is uw ranglijstvermelding (zie hierboven), die u in de app kunt verwijderen. Gegevens die Google
         voor advertenties verwerkt, vallen onder het beleid van Google; u kunt ze beheren in <a href="https://myadcenter.google.com/">Mijn advertentiecentrum</a>.
       </p>
 

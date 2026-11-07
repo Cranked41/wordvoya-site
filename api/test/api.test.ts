@@ -100,6 +100,18 @@ test('yetkisiz ve bozuk istekler', async () => {
   } finally { await stop() }
 })
 
+test('oyuncu kaydını siler', async () => {
+  const { call, stop, week } = await start()
+  try {
+    const a = (await call('POST', '/players', { name: 'Elif' })).body
+    await call('PUT', '/players/me/scores', { ...snap(900), week }, a.token)
+    assert.equal((await call('DELETE', '/players/me', undefined, a.token)).status, 200)
+    assert.equal((await call('GET', '/boards/total')).body.entries.length, 0)
+    assert.equal((await call('PUT', '/players/me/scores', { ...snap(900), week }, a.token)).status, 401)
+    assert.equal((await call('DELETE', '/players/me', undefined, a.token)).status, 401)
+  } finally { await stop() }
+})
+
 test('ad kuralları', () => {
   assert.equal(cleanName('  Rıza   Çelik '), 'Rıza Çelik')
   assert.equal(cleanName('علي'), 'علي')

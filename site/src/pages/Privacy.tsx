@@ -22,7 +22,7 @@ function PrivacyTr() {
       lang="tr"
       page="privacy"
       title="Gizlilik Politikası"
-      updated="2 Ekim 2026"
+      updated="7 Kasım 2026"
       description="Wordvoya hesap istemez; oyun verilerin cihazında kalır. Reklamlar uygulamada Google AdMob, sitede Google AdSense ile gösterilir; satın almalar Google Play üzerinden yapılır."
     >
       <p>
@@ -55,11 +55,7 @@ function PrivacyTr() {
           Google Play'den öğrenir ve cihazda saklar (aynı satın alma iki kez sayılmasın diye satın alma belirteci dahil).
         </li>
         <li>
-          <strong>Skor tablosu (Google Play Games, isteğe bağlı):</strong> Puanlarınız cihazınızda birikir. Google Play
-          Games ile oturum açarsanız toplam ve haftalık puanınız, ulaştığınız bölüm, bulduğunuz kelime sayısı ve son
-          bölümü bitirme süreniz Play Games profil adınızla birlikte Google'a gönderilir ve skor tablosunda diğer
-          oyunculara gösterilir. Oturum açmazsanız hiçbiri gönderilmez. Profilinizin kimlere görüneceğini Play Games
-          ayarlarından yönetebilir, oyun verilerinizi oradan silebilirsiniz.
+          <strong>Skor tablosu:</strong> Puanlarınız cihazınızda birikir ve sunucumuzdaki (wordvoya.com) Wordvoya skor tablosuna gönderilir: seçtiğiniz ad, toplam ve haftalık puanınız, ulaştığınız bölüm, bulduğunuz kelime sayısı, son bölümün süresi ve puanı. Bunlar cihazınızda üretilen rastgele bir kimlikle saklanır ve skor tablosunda diğer oyunculara gösterilir; gerçek adınızı, e-posta adresinizi ya da cihaz kimliğinizi istemeyiz. Sunucu, kötüye kullanımı önlemek için isteklerin IP adresini işler; bu adres skor kaydınızla birlikte saklanmaz. Kaydınızı uygulamada <em>Skor Tablosu &gt; (i) &gt; Tablodan çık</em> ile istediğiniz zaman silebilirsiniz. Google Play Games'te oturumunuz açıksa puanlarınız Play Games skor tablolarına da gönderilir; profilinizi ve oyun verilerinizi Play Games ayarlarından yönetebilirsiniz.
         </li>
       </ul>
 
@@ -112,8 +108,7 @@ function PrivacyTr() {
 
       <h2>Veri Saklama ve Silme</h2>
       <p>
-        Oyun verileriniz cihazınızda kalır. Silmek için uygulamayı kaldırabilir ya da uygulamada <em>Ayarlar &gt; Veriler &gt; İlerlemeyi sıfırla</em> seçeneğini kullanabilirsiniz. Sunucularımızda size ait bir
-        hesap ya da oyun kaydı tutulmaz. Google'ın reklam için işlediği veriler Google'ın politikasına tabidir; <a href="https://myadcenter.google.com/">Google Reklam Merkezi</a>'nden yönetebilirsiniz.
+        Oyun verileriniz cihazınızda kalır. Silmek için uygulamayı kaldırabilir ya da uygulamada <em>Ayarlar &gt; Veriler &gt; İlerlemeyi sıfırla</em> seçeneğini kullanabilirsiniz. Sunucularımızda yalnız skor tablosu kaydınız tutulur (yukarıya bakın); onu uygulamadan silebilirsiniz. Google'ın reklam için işlediği veriler Google'ın politikasına tabidir; <a href="https://myadcenter.google.com/">Google Reklam Merkezi</a>'nden yönetebilirsiniz.
       </p>
 
       <h2>Çocukların Gizliliği</h2>
@@ -142,7 +137,7 @@ function PrivacyEn() {
       lang="en"
       page="privacy"
       title="Privacy Policy"
-      updated="2 October 2026"
+      updated="7 November 2026"
       description="Wordvoya needs no account and your game data stays on your device. Ads are served by Google AdMob in the app and Google AdSense on this site; purchases go through Google Play."
     >
       <p>
@@ -175,11 +170,7 @@ function PrivacyEn() {
           stores that on your device (including the purchase token, so the same purchase is not counted twice).
         </li>
         <li>
-          <strong>Leaderboard (Google Play Games, optional):</strong> Your points add up on your device. If you sign in
-          with Google Play Games, your total and weekly points, the level you have reached, the number of words you have
-          found and the time you took to finish your last level are sent to Google together with your Play Games profile
-          name and shown to other players on the leaderboard. If you do not sign in, none of this is sent. You can control
-          who sees your profile, and delete your game data, in the Play Games settings.
+          <strong>Leaderboard:</strong> Your points add up on your device and are sent to the Wordvoya leaderboard on our server (wordvoya.com): the name you choose, your total and weekly points, the level you have reached, the number of words you have found, and the time and points of your last level. They are stored with a random ID created on your device and shown to other players on the leaderboard; we do not ask for your real name, email address or device identifiers. To prevent abuse, the server processes the IP address of each request; it is not stored with your leaderboard record. You can delete your record at any time in the app under <em>Leaderboard &gt; (i) &gt; Leave the leaderboard</em>. If you are signed in to Google Play Games, your points are also sent to the Play Games leaderboards; you can manage your profile and game data in the Play Games settings.
         </li>
       </ul>
 
@@ -231,7 +222,7 @@ function PrivacyEn() {
 
       <h2>Data Retention and Deletion</h2>
       <p>
-        Your game data stays on your device. To delete it, uninstall the app or use <em>Settings &gt; Data &gt; Reset progress</em> in the app. We keep no account or game records about you on our servers. Data processed by Google
+        Your game data stays on your device. To delete it, uninstall the app or use <em>Settings &gt; Data &gt; Reset progress</em> in the app. The only record we keep about you on our servers is your leaderboard record (see above), which you can delete in the app. Data processed by Google
         for ads is subject to Google's policies; you can manage it in <a href="https://myadcenter.google.com/">My Ad Center</a>.
       </p>
 

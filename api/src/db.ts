@@ -95,6 +95,11 @@ export class Store {
     return this.db.prepare('SELECT * FROM players WHERE token_hash = ?').get(hashToken(token)) as PlayerRow | undefined
   }
 
+  /** Oyuncunun kaydını tümüyle siler (uygulamada "Tablodan çık"). */
+  deletePlayer(id: string) {
+    this.db.prepare('DELETE FROM players WHERE id = ?').run(id)
+  }
+
   rename(id: string, name: string) {
     this.db.prepare('UPDATE players SET name = ?, updated_at = ? WHERE id = ?').run(name, this.now(), id)
   }

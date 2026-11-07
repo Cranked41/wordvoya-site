@@ -9,7 +9,7 @@ export function Privacy() {
       lang="pt"
       page="privacy"
       title="Política de Privacidade"
-      updated="2 de outubro de 2026"
+      updated="7 de novembro de 2026"
       description="O Wordvoya não exige conta e os dados do seu jogo ficam no seu dispositivo. Os anúncios são exibidos pelo Google AdMob no app e pelo Google AdSense neste site; as compras são feitas pelo Google Play."
     >
       <p className="note">
@@ -49,12 +49,7 @@ export function Privacy() {
           para que a mesma compra não seja contada duas vezes).
         </li>
         <li>
-          <strong>Ranking (Google Play Games, opcional):</strong> Seus pontos se acumulam no seu dispositivo. Se você
-          entrar com o Google Play Games, seus pontos totais e semanais, o nível que você alcançou, o número de palavras
-          que você encontrou e o tempo que você levou para concluir o seu último nível são enviados ao Google junto com o
-          nome do seu perfil do Play Games e exibidos para outros jogadores no ranking. Se você não entrar, nada disso é
-          enviado. Você pode controlar quem vê o seu perfil, e excluir os dados do seu jogo, nas configurações do Play
-          Games.
+          <strong>Ranking:</strong> Seus pontos se acumulam no seu dispositivo e são enviados ao ranking do Wordvoya no nosso servidor (wordvoya.com): o nome que você escolher, seus pontos totais e semanais, o nível alcançado, o número de palavras encontradas e o tempo e os pontos do seu último nível. Eles são guardados com um identificador aleatório criado no seu dispositivo e exibidos para outros jogadores no ranking; não pedimos seu nome real, seu e-mail nem identificadores do dispositivo. Para evitar abusos, o servidor trata o endereço IP de cada solicitação; ele não é guardado com o seu registro no ranking. Você pode excluir seu registro a qualquer momento no app, em <em>Classificação &gt; (i) &gt; Sair da classificação</em>. Se você estiver conectado ao Google Play Games, seus pontos também são enviados aos rankings do Play Games; você pode gerenciar seu perfil e os dados do seu jogo nas configurações do Play Games.
         </li>
       </ul>
 
@@ -114,7 +109,7 @@ export function Privacy() {
 
       <h2>Retenção e exclusão de dados</h2>
       <p>
-        Os dados do seu jogo ficam no seu dispositivo. Para excluí-los, desinstale o app ou use <em>Configurações &gt; Dados &gt; Zerar progresso</em> no app. Não mantemos nenhuma conta nem registro de jogo sobre você em nossos servidores. Os dados tratados pelo Google
+        Os dados do seu jogo ficam no seu dispositivo. Para excluí-los, desinstale o app ou use <em>Configurações &gt; Dados &gt; Zerar progresso</em> no app. O único registro sobre você que mantemos em nossos servidores é o seu registro no ranking (veja acima), que você pode excluir no app. Os dados tratados pelo Google
         para anúncios estão sujeitos às políticas do Google; você pode gerenciá-los na <a href="https://myadcenter.google.com/">Minha Central de Anúncios</a>.
       </p>
 

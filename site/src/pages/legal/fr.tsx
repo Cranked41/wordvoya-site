@@ -9,7 +9,7 @@ export function Privacy() {
       lang="fr"
       page="privacy"
       title="Politique de confidentialité"
-      updated="2 octobre 2026"
+      updated="7 novembre 2026"
       description="Wordvoya ne demande aucun compte et vos données de jeu restent sur votre appareil. Les publicités sont diffusées par Google AdMob dans l’application et par Google AdSense sur ce site ; les achats passent par Google Play."
     >
       <p className="note">
@@ -49,12 +49,7 @@ export function Privacy() {
           achat ne soit pas compté deux fois).
         </li>
         <li>
-          <strong>Classement (Google Play Games, facultatif) :</strong> Vos points s’accumulent sur votre appareil. Si vous
-          vous connectez à Google Play Games, vos points totaux et hebdomadaires, le niveau atteint, le nombre de mots
-          trouvés et le temps que vous avez mis pour terminer votre dernier niveau sont envoyés à Google avec le nom de votre
-          profil Play Games et affichés aux autres joueurs dans le classement. Si vous ne vous connectez pas, rien de tout
-          cela n’est envoyé. Vous pouvez gérer qui voit votre profil, et supprimer vos données de jeu, dans les paramètres de
-          Play Games.
+          <strong>Classement&#160;:</strong> Vos points s’accumulent sur votre appareil et sont envoyés au classement Wordvoya sur notre serveur (wordvoya.com)&#160;: le nom que vous choisissez, vos points totaux et hebdomadaires, le niveau atteint, le nombre de mots trouvés, ainsi que le temps et les points de votre dernier niveau. Ils sont conservés avec un identifiant aléatoire créé sur votre appareil et affichés aux autres joueurs dans le classement&#160;; nous ne demandons ni votre vrai nom, ni votre adresse e-mail, ni les identifiants de votre appareil. Pour prévenir les abus, le serveur traite l’adresse IP de chaque requête&#160;; elle n’est pas conservée avec votre entrée du classement. Vous pouvez supprimer votre entrée à tout moment dans l’application, via <em>Classement &gt; (i) &gt; Quitter le classement</em>. Si vous êtes connecté à Google Play Games, vos points sont aussi envoyés aux classements Play Games&#160;; vous pouvez gérer votre profil et vos données de jeu dans les paramètres de Play Games.
         </li>
       </ul>
 
@@ -111,7 +106,7 @@ export function Privacy() {
 
       <h2>Conservation et suppression des données</h2>
       <p>
-        Vos données de jeu restent sur votre appareil. Pour les supprimer, désinstallez l’application ou utilisez <em>Paramètres &gt; Données &gt; Réinitialiser la progression</em> dans l’application. Nous ne conservons sur nos serveurs aucun compte ni aucun enregistrement de jeu vous concernant. Les données traitées par Google
+        Vos données de jeu restent sur votre appareil. Pour les supprimer, désinstallez l’application ou utilisez <em>Paramètres &gt; Données &gt; Réinitialiser la progression</em> dans l’application. La seule donnée vous concernant que nous conservons sur nos serveurs est votre entrée du classement (voir ci-dessus), que vous pouvez supprimer dans l’application. Les données traitées par Google
         à des fins publicitaires sont soumises aux politiques de Google ; vous pouvez les gérer dans <a href="https://myadcenter.google.com/">Mon Centre d’annonces</a>.
       </p>
 

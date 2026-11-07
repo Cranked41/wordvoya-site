@@ -62,8 +62,9 @@ function send(res: ServerResponse, status: number, body: Json) {
 export function createApp(store: Store, opts: { now?: () => number; perMinute?: number; playersPerHour?: number } = {}) {
   const now = opts.now ?? Date.now
   const limiter = new Limiter(now)
-  const perMinute = opts.perMinute ?? 120
-  const playersPerHour = opts.playersPerHour ?? 10
+  // Mobil operatörler çok kullanıcıyı tek IP'den çıkarır (CGNAT): sınırlar yalnız kötüye kullanımı kesecek kadar
+  const perMinute = opts.perMinute ?? 300
+  const playersPerHour = opts.playersPerHour ?? 60
 
   const auth = (req: IncomingMessage, required: boolean) => {
     const header = req.headers.authorization ?? ''
@@ -97,6 +98,12 @@ export function createApp(store: Store, opts: { now?: () => number; perMinute?: 
       if (!name) throw new HttpError(422, 'name')
       store.rename(me.id, name)
       return send(res, 200, { name })
+    }
+
+    if (path === '/api/v1/players/me' && method === 'DELETE') {
+      const me = auth(req, true)!
+      store.deletePlayer(me.id)
+      return send(res, 200, { ok: true })
     }
 
     if (path === '/api/v1/players/me/scores' && method === 'PUT') {

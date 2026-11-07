@@ -60,6 +60,7 @@ test edip dağıtır; ayağa kalkmazsa `:previous` imaja döner.
 |---|---|
 | `POST /players {name}` | Yeni oyuncu: `{id, token, name}`. Belirteç yalnız cihazda; sunucuda SHA-256 özeti |
 | `PATCH /players/me {name}` | Ad değiştir (Bearer belirteç) |
+| `DELETE /players/me` | Kaydı tümüyle sil (uygulamada "Tablodan çık"; Play'in hesap silme şartı) |
 | `PUT /players/me/scores {total, weekly, week, level, words, last?}` | Cihazdaki toplamlar; her tablo en iyiyi tutar |
 | `GET /boards/{total,weekly,level,words}?scope=near` | İlk 25 ya da oyuncunun çevresi (11 satır) + `player` |
 
