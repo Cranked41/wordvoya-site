@@ -9,7 +9,7 @@ export function Privacy() {
       lang="pl"
       page="privacy"
       title="Polityka prywatności"
-      updated="7 listopada 2026"
+      updated="8 listopada 2026"
       description="Wordvoya nie wymaga konta, a dane z gry pozostają na Państwa urządzeniu. Reklamy wyświetla Google AdMob w aplikacji i Google AdSense na tej stronie, a zakupy odbywają się przez Google Play."
     >
       <p className="note">
@@ -19,8 +19,7 @@ export function Privacy() {
         Niniejsza polityka wyjaśnia, jakie dane są przetwarzane podczas korzystania z aplikacji <strong>Wordvoya: Łamigłówka słowna</strong> na Androida (<code>com.cranked.wordvoya</code>) oraz z tej strony internetowej.
       </p>
       <p className="lead">
-        <strong>W skrócie:</strong> Wordvoya nie wymaga konta i nie wysyła danych na nasze serwery; dane z gry pozostają
-        na Państwa urządzeniu. Aplikacja wyświetla reklamy Google AdMob, a Google może wykorzystywać do ich wyświetlania
+        <strong>W skrócie:</strong> Wordvoya nie wymaga konta; dane z gry pozostają na Państwa urządzeniu, a na nasz serwer wysyłane są tylko wybrana przez Państwa nazwa i statystyki gry na potrzeby rankingu. Aplikacja wyświetla reklamy Google AdMob, a Google może wykorzystywać do ich wyświetlania
         identyfikator reklamowy Państwa urządzenia oraz niektóre informacje techniczne. Zakup opcji „Usuń reklamy” odbywa się przez Google Play.
       </p>
 
@@ -31,8 +30,7 @@ export function Privacy() {
           adresu e-mail ani żadnego innego identyfikatora.
         </li>
         <li>
-          <strong>Dane z gry na urządzeniu:</strong> postępy na poziomach, znalezione słowa, dzienna seria i cel, diamenty
-          oraz ustawienia są przechowywane wyłącznie na Państwa urządzeniu i nie są do nas wysyłane.
+          <strong>Dane z gry na urządzeniu:</strong> postępy na poziomach, znalezione słowa, dzienna seria i cel, diamenty oraz ustawienia są przechowywane na Państwa urządzeniu. To, co jest wysyłane na nasz serwer na potrzeby rankingu, opisano poniżej.
         </li>
         <li>
           <strong>Reklamy (Google AdMob):</strong> w celu wyświetlania i mierzenia skuteczności reklam oraz zapobiegania
@@ -47,7 +45,7 @@ export function Privacy() {
           został policzony dwukrotnie).
         </li>
         <li>
-          <strong>Ranking:</strong> Państwa punkty sumują się na urządzeniu i są wysyłane do rankingu Wordvoya na naszym serwerze (wordvoya.com): wybrana przez Państwa nazwa, łączna i tygodniowa liczba punktów, osiągnięty poziom, liczba znalezionych słów oraz czas i punkty ostatniego poziomu. Są one przechowywane z losowym identyfikatorem utworzonym na urządzeniu i pokazywane innym graczom w rankingu; nie prosimy o prawdziwe imię i nazwisko, adres e-mail ani identyfikatory urządzenia. Aby zapobiegać nadużyciom, serwer przetwarza adres IP każdego żądania; nie jest on przechowywany razem z Państwa wpisem w rankingu. Wpis można w każdej chwili usunąć w aplikacji: <em>Ranking &gt; (i) &gt; Opuść ranking</em>. Jeśli są Państwo zalogowani w Google Play Games, punkty są wysyłane również do rankingów Play Games; profilem i danymi z gry można zarządzać w ustawieniach Play Games.
+          <strong>Ranking:</strong> Państwa punkty sumują się na urządzeniu i są wysyłane do rankingu Wordvoya na naszym serwerze (wordvoya.com): wybrana przez Państwa nazwa, łączna i tygodniowa liczba punktów, osiągnięty poziom, liczba znalezionych słów oraz czas i punkty ostatniego poziomu. Zapisujemy też Państwa saldo diamentów oraz numer, punkty, czas i datę każdego ukończonego poziomu; dane te nie są pokazywane innym graczom i służą wyłącznie do prowadzenia gry (pomoc, wykrywanie oszustw i diamenty w prezencie). Są one przechowywane z losowym identyfikatorem utworzonym na urządzeniu i pokazywane innym graczom w rankingu; nie prosimy o prawdziwe imię i nazwisko, adres e-mail ani identyfikatory urządzenia. Aby zapobiegać nadużyciom, serwer przetwarza adres IP każdego żądania; nie jest on przechowywany razem z Państwa wpisem w rankingu. Wpis można w każdej chwili usunąć w aplikacji: <em>Ranking &gt; (i) &gt; Opuść ranking</em>. Jeśli są Państwo zalogowani w Google Play Games, punkty są wysyłane również do rankingów Play Games; profilem i danymi z gry można zarządzać w ustawieniach Play Games.
         </li>
       </ul>
 

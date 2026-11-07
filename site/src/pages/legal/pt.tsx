@@ -9,7 +9,7 @@ export function Privacy() {
       lang="pt"
       page="privacy"
       title="Política de Privacidade"
-      updated="7 de novembro de 2026"
+      updated="8 de novembro de 2026"
       description="O Wordvoya não exige conta e os dados do seu jogo ficam no seu dispositivo. Os anúncios são exibidos pelo Google AdMob no app e pelo Google AdSense neste site; as compras são feitas pelo Google Play."
     >
       <p className="note">
@@ -19,8 +19,7 @@ export function Privacy() {
         Esta política explica quais dados são tratados quando você usa o app Android <strong>Wordvoya: Jogo de palavras</strong> (<code>com.cranked.wordvoya</code>) e este site.
       </p>
       <p className="lead">
-        <strong>Em resumo:</strong> o Wordvoya não exige conta e não envia dados aos nossos servidores; os dados do seu
-        jogo ficam no seu dispositivo. O app exibe anúncios do Google AdMob, e o Google pode usar o ID de publicidade do
+        <strong>Em resumo:</strong> o Wordvoya não exige conta; os dados do seu jogo ficam no seu dispositivo, e apenas o nome que você escolher e suas estatísticas de jogo são enviados ao nosso servidor para o ranking. O app exibe anúncios do Google AdMob, e o Google pode usar o ID de publicidade do
         seu dispositivo e algumas informações técnicas para exibi-los. A compra de “Remover anúncios” é feita pelo
         Google Play.
       </p>
@@ -33,8 +32,7 @@ export function Privacy() {
         </li>
         <li>
           <strong>Dados do jogo no seu dispositivo:</strong> O progresso nos níveis, as palavras encontradas, a sequência
-          de dias e a meta diária, os diamantes e as configurações são armazenados somente no seu dispositivo e não são
-          enviados a nós.
+          de dias e a meta diária, os diamantes e as configurações são armazenados no seu dispositivo. O que é enviado ao nosso servidor para o ranking está descrito abaixo.
         </li>
         <li>
           <strong>Anúncios (Google AdMob):</strong> Para exibir e medir anúncios e para prevenir fraudes, o Google pode
@@ -49,7 +47,7 @@ export function Privacy() {
           para que a mesma compra não seja contada duas vezes).
         </li>
         <li>
-          <strong>Ranking:</strong> Seus pontos se acumulam no seu dispositivo e são enviados ao ranking do Wordvoya no nosso servidor (wordvoya.com): o nome que você escolher, seus pontos totais e semanais, o nível alcançado, o número de palavras encontradas e o tempo e os pontos do seu último nível. Eles são guardados com um identificador aleatório criado no seu dispositivo e exibidos para outros jogadores no ranking; não pedimos seu nome real, seu e-mail nem identificadores do dispositivo. Para evitar abusos, o servidor trata o endereço IP de cada solicitação; ele não é guardado com o seu registro no ranking. Você pode excluir seu registro a qualquer momento no app, em <em>Classificação &gt; (i) &gt; Sair da classificação</em>. Se você estiver conectado ao Google Play Games, seus pontos também são enviados aos rankings do Play Games; você pode gerenciar seu perfil e os dados do seu jogo nas configurações do Play Games.
+          <strong>Ranking:</strong> Seus pontos se acumulam no seu dispositivo e são enviados ao ranking do Wordvoya no nosso servidor (wordvoya.com): o nome que você escolher, seus pontos totais e semanais, o nível alcançado, o número de palavras encontradas e o tempo e os pontos do seu último nível. Também registramos seu saldo de diamantes e o número, os pontos, o tempo e a data de cada nível concluído; esses dados não são mostrados a outros jogadores e são usados apenas para administrar o jogo (suporte, verificação de trapaças e diamantes de presente). Eles são guardados com um identificador aleatório criado no seu dispositivo e exibidos para outros jogadores no ranking; não pedimos seu nome real, seu e-mail nem identificadores do dispositivo. Para evitar abusos, o servidor trata o endereço IP de cada solicitação; ele não é guardado com o seu registro no ranking. Você pode excluir seu registro a qualquer momento no app, em <em>Classificação &gt; (i) &gt; Sair da classificação</em>. Se você estiver conectado ao Google Play Games, seus pontos também são enviados aos rankings do Play Games; você pode gerenciar seu perfil e os dados do seu jogo nas configurações do Play Games.
         </li>
       </ul>
 

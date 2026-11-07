@@ -9,7 +9,7 @@ export function Privacy() {
       lang="fr"
       page="privacy"
       title="Politique de confidentialité"
-      updated="7 novembre 2026"
+      updated="8 novembre 2026"
       description="Wordvoya ne demande aucun compte et vos données de jeu restent sur votre appareil. Les publicités sont diffusées par Google AdMob dans l’application et par Google AdSense sur ce site ; les achats passent par Google Play."
     >
       <p className="note">
@@ -19,8 +19,7 @@ export function Privacy() {
         Cette politique explique quelles données sont traitées lorsque vous utilisez l’application Android <strong>Wordvoya : Jeu de mots</strong> (<code>com.cranked.wordvoya</code>) et ce site web.
       </p>
       <p className="lead">
-        <strong>En bref :</strong> Wordvoya ne demande aucun compte et n’envoie aucune donnée à nos serveurs ; vos données de
-        jeu restent sur votre appareil. L’application affiche des publicités de Google AdMob, et Google peut utiliser
+        <strong>En bref :</strong> Wordvoya ne demande aucun compte&#160;; vos données de jeu restent sur votre appareil, et seuls le nom que vous choisissez et vos statistiques de jeu sont envoyés à notre serveur pour le classement. L’application affiche des publicités de Google AdMob, et Google peut utiliser
         l’identifiant publicitaire de votre appareil ainsi que certaines informations techniques pour les diffuser. L’achat
         « Supprimer les pubs » s’effectue via Google Play.
       </p>
@@ -33,8 +32,7 @@ export function Privacy() {
         </li>
         <li>
           <strong>Données de jeu sur votre appareil :</strong> La progression par niveau, les mots trouvés, la série
-          quotidienne et l’objectif quotidien, les diamants et les paramètres sont stockés uniquement sur votre appareil et
-          ne nous sont pas envoyés.
+          quotidienne et l’objectif quotidien, les diamants et les paramètres sont stockés sur votre appareil. Ce qui est envoyé à notre serveur pour le classement est décrit ci-dessous.
         </li>
         <li>
           <strong>Publicités (Google AdMob) :</strong> Pour diffuser et mesurer les publicités et pour prévenir la fraude,
@@ -49,7 +47,7 @@ export function Privacy() {
           achat ne soit pas compté deux fois).
         </li>
         <li>
-          <strong>Classement&#160;:</strong> Vos points s’accumulent sur votre appareil et sont envoyés au classement Wordvoya sur notre serveur (wordvoya.com)&#160;: le nom que vous choisissez, vos points totaux et hebdomadaires, le niveau atteint, le nombre de mots trouvés, ainsi que le temps et les points de votre dernier niveau. Ils sont conservés avec un identifiant aléatoire créé sur votre appareil et affichés aux autres joueurs dans le classement&#160;; nous ne demandons ni votre vrai nom, ni votre adresse e-mail, ni les identifiants de votre appareil. Pour prévenir les abus, le serveur traite l’adresse IP de chaque requête&#160;; elle n’est pas conservée avec votre entrée du classement. Vous pouvez supprimer votre entrée à tout moment dans l’application, via <em>Classement &gt; (i) &gt; Quitter le classement</em>. Si vous êtes connecté à Google Play Games, vos points sont aussi envoyés aux classements Play Games&#160;; vous pouvez gérer votre profil et vos données de jeu dans les paramètres de Play Games.
+          <strong>Classement&#160;:</strong> Vos points s’accumulent sur votre appareil et sont envoyés au classement Wordvoya sur notre serveur (wordvoya.com)&#160;: le nom que vous choisissez, vos points totaux et hebdomadaires, le niveau atteint, le nombre de mots trouvés, ainsi que le temps et les points de votre dernier niveau. Nous enregistrons aussi votre solde de diamants ainsi que le numéro, les points, le temps et la date de chaque niveau terminé&#160;; ces données ne sont pas montrées aux autres joueurs et servent uniquement à gérer le jeu (assistance, contrôle de la triche et diamants offerts). Ils sont conservés avec un identifiant aléatoire créé sur votre appareil et affichés aux autres joueurs dans le classement&#160;; nous ne demandons ni votre vrai nom, ni votre adresse e-mail, ni les identifiants de votre appareil. Pour prévenir les abus, le serveur traite l’adresse IP de chaque requête&#160;; elle n’est pas conservée avec votre entrée du classement. Vous pouvez supprimer votre entrée à tout moment dans l’application, via <em>Classement &gt; (i) &gt; Quitter le classement</em>. Si vous êtes connecté à Google Play Games, vos points sont aussi envoyés aux classements Play Games&#160;; vous pouvez gérer votre profil et vos données de jeu dans les paramètres de Play Games.
         </li>
       </ul>
 

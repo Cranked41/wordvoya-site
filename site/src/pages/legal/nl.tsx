@@ -9,7 +9,7 @@ export function Privacy() {
       lang="nl"
       page="privacy"
       title="Privacybeleid"
-      updated="7 november 2026"
+      updated="8 november 2026"
       description="Wordvoya heeft geen account nodig en uw spelgegevens blijven op uw apparaat. Advertenties worden getoond via Google AdMob in de app en via Google AdSense op deze site; aankopen lopen via Google Play."
     >
       <p className="note">
@@ -19,8 +19,7 @@ export function Privacy() {
         Dit beleid legt uit welke gegevens worden verwerkt wanneer u de Android-app <strong>Wordvoya: Woordpuzzel</strong> (<code>com.cranked.wordvoya</code>) en deze website gebruikt.
       </p>
       <p className="lead">
-        <strong>Kort samengevat:</strong> Wordvoya heeft geen account nodig en stuurt geen gegevens naar onze servers;
-        uw spelgegevens blijven op uw apparaat. De app toont advertenties van Google AdMob en Google kan het
+        <strong>Kort samengevat:</strong> Wordvoya heeft geen account nodig; uw spelgegevens blijven op uw apparaat en alleen de naam die u kiest en uw spelstatistieken worden voor de ranglijst naar onze server gestuurd. De app toont advertenties van Google AdMob en Google kan het
         advertentie-ID van uw apparaat en enige technische informatie gebruiken om ze te tonen. De aankoop
         “Advertenties verwijderen” verloopt via Google Play.
       </p>
@@ -33,7 +32,7 @@ export function Privacy() {
         </li>
         <li>
           <strong>Spelgegevens op uw apparaat:</strong> Voortgang in levels, gevonden woorden, de dagelijkse reeks en het
-          dagdoel, diamanten en instellingen worden alleen op uw apparaat opgeslagen en niet naar ons verzonden.
+          dagdoel, diamanten en instellingen worden op uw apparaat opgeslagen. Wat voor de ranglijst naar onze server wordt gestuurd, staat hieronder beschreven.
         </li>
         <li>
           <strong>Advertenties (Google AdMob):</strong> Om advertenties te tonen en te meten en om fraude te voorkomen,
@@ -48,7 +47,7 @@ export function Privacy() {
           aankoop niet twee keer wordt geteld).
         </li>
         <li>
-          <strong>Ranglijst:</strong> Uw punten worden opgeteld op uw apparaat en verzonden naar de Wordvoya-ranglijst op onze server (wordvoya.com): de naam die u kiest, uw totale en wekelijkse punten, het bereikte level, het aantal gevonden woorden en de tijd en punten van uw laatste level. Ze worden opgeslagen met een willekeurige ID die op uw apparaat wordt aangemaakt en aan andere spelers getoond op de ranglijst; wij vragen niet om uw echte naam, e-mailadres of apparaat-ID’s. Om misbruik te voorkomen verwerkt de server het IP-adres van elk verzoek; het wordt niet bij uw ranglijstvermelding opgeslagen. U kunt uw vermelding op elk moment in de app verwijderen via <em>Ranglijst &gt; (i) &gt; Ranglijst verlaten</em>. Als u bent aangemeld bij Google Play Games, worden uw punten ook naar de ranglijsten van Play Games verzonden; uw profiel en spelgegevens beheert u in de instellingen van Play Games.
+          <strong>Ranglijst:</strong> Uw punten worden opgeteld op uw apparaat en verzonden naar de Wordvoya-ranglijst op onze server (wordvoya.com): de naam die u kiest, uw totale en wekelijkse punten, het bereikte level, het aantal gevonden woorden en de tijd en punten van uw laatste level. Daarnaast slaan we uw diamantensaldo op en het nummer, de punten, de tijd en de datum van elk voltooid level; deze gegevens worden niet aan andere spelers getoond en alleen gebruikt om het spel te beheren (ondersteuning, controle op valsspelen en cadeaudiamanten). Ze worden opgeslagen met een willekeurige ID die op uw apparaat wordt aangemaakt en aan andere spelers getoond op de ranglijst; wij vragen niet om uw echte naam, e-mailadres of apparaat-ID’s. Om misbruik te voorkomen verwerkt de server het IP-adres van elk verzoek; het wordt niet bij uw ranglijstvermelding opgeslagen. U kunt uw vermelding op elk moment in de app verwijderen via <em>Ranglijst &gt; (i) &gt; Ranglijst verlaten</em>. Als u bent aangemeld bij Google Play Games, worden uw punten ook naar de ranglijsten van Play Games verzonden; uw profiel en spelgegevens beheert u in de instellingen van Play Games.
         </li>
       </ul>
 

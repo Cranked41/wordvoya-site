@@ -9,7 +9,7 @@ export function Privacy() {
       lang="de"
       page="privacy"
       title="Datenschutzerklärung"
-      updated="7. November 2026"
+      updated="8. November 2026"
       description="Wordvoya benötigt kein Konto, und Ihre Spieldaten bleiben auf Ihrem Gerät. Werbung wird in der App über Google AdMob und auf dieser Website über Google AdSense ausgeliefert; Käufe laufen über Google Play."
     >
       <p className="note">
@@ -19,8 +19,7 @@ export function Privacy() {
         Diese Erklärung beschreibt, welche Daten verarbeitet werden, wenn Sie die Android-App <strong>Wordvoya: Worträtsel</strong> (<code>com.cranked.wordvoya</code>) und diese Website nutzen.
       </p>
       <p className="lead">
-        <strong>Kurz gesagt:</strong> Wordvoya benötigt kein Konto und sendet keine Daten an unsere Server; Ihre Spieldaten
-        bleiben auf Ihrem Gerät. Die App zeigt Werbung von Google AdMob, und Google kann die Werbe-ID Ihres Geräts und einige
+        <strong>Kurz gesagt:</strong> Wordvoya benötigt kein Konto; Ihre Spieldaten bleiben auf Ihrem Gerät, und an unseren Server werden nur der von Ihnen gewählte Name und Ihre Spielstatistiken für die Bestenliste gesendet. Die App zeigt Werbung von Google AdMob, und Google kann die Werbe-ID Ihres Geräts und einige
         technische Informationen verwenden, um sie auszuliefern. Der Kauf „Werbung entfernen“ erfolgt über Google Play.
       </p>
 
@@ -32,7 +31,7 @@ export function Privacy() {
         </li>
         <li>
           <strong>Spieldaten auf Ihrem Gerät:</strong> Levelfortschritt, gefundene Wörter, die Tagesserie und das Tagesziel,
-          Diamanten und Einstellungen werden ausschließlich auf Ihrem Gerät gespeichert und nicht an uns gesendet.
+          Diamanten und Einstellungen werden auf Ihrem Gerät gespeichert. Was für die Bestenliste an unseren Server gesendet wird, ist unten beschrieben.
         </li>
         <li>
           <strong>Werbung (Google AdMob):</strong> Um Werbung auszuliefern und ihre Wirkung zu messen sowie um Betrug zu
@@ -47,7 +46,7 @@ export function Privacy() {
           Kauf nicht doppelt gezählt wird).
         </li>
         <li>
-          <strong>Bestenliste:</strong> Ihre Punkte sammeln sich auf Ihrem Gerät und werden an die Wordvoya-Bestenliste auf unserem Server (wordvoya.com) gesendet: der von Ihnen gewählte Name, Ihre Gesamt- und Wochenpunkte, das erreichte Level, die Anzahl der gefundenen Wörter sowie Zeit und Punkte Ihres letzten Levels. Diese Daten werden mit einer zufälligen, auf Ihrem Gerät erzeugten Kennung gespeichert und anderen Spielern in der Bestenliste angezeigt; wir fragen weder nach Ihrem echten Namen noch nach Ihrer E-Mail-Adresse oder Gerätekennungen. Um Missbrauch zu verhindern, verarbeitet der Server die IP-Adresse jeder Anfrage; sie wird nicht mit Ihrem Bestenlisten-Eintrag gespeichert. Sie können Ihren Eintrag jederzeit in der App unter <em>Bestenliste &gt; (i) &gt; Bestenliste verlassen</em> löschen. Wenn Sie bei Google Play Games angemeldet sind, werden Ihre Punkte zusätzlich an die Play-Games-Bestenlisten gesendet; Ihr Profil und Ihre Spieldaten verwalten Sie in den Play-Games-Einstellungen.
+          <strong>Bestenliste:</strong> Ihre Punkte sammeln sich auf Ihrem Gerät und werden an die Wordvoya-Bestenliste auf unserem Server (wordvoya.com) gesendet: der von Ihnen gewählte Name, Ihre Gesamt- und Wochenpunkte, das erreichte Level, die Anzahl der gefundenen Wörter sowie Zeit und Punkte Ihres letzten Levels. Außerdem speichern wir Ihr Diamantenguthaben sowie Nummer, Punkte, Zeit und Datum jedes abgeschlossenen Levels; diese Angaben werden anderen Spielern nicht angezeigt und nur für den Betrieb des Spiels verwendet (Support, Prüfung auf Betrug und Geschenkdiamanten). Diese Daten werden mit einer zufälligen, auf Ihrem Gerät erzeugten Kennung gespeichert und anderen Spielern in der Bestenliste angezeigt; wir fragen weder nach Ihrem echten Namen noch nach Ihrer E-Mail-Adresse oder Gerätekennungen. Um Missbrauch zu verhindern, verarbeitet der Server die IP-Adresse jeder Anfrage; sie wird nicht mit Ihrem Bestenlisten-Eintrag gespeichert. Sie können Ihren Eintrag jederzeit in der App unter <em>Bestenliste &gt; (i) &gt; Bestenliste verlassen</em> löschen. Wenn Sie bei Google Play Games angemeldet sind, werden Ihre Punkte zusätzlich an die Play-Games-Bestenlisten gesendet; Ihr Profil und Ihre Spieldaten verwalten Sie in den Play-Games-Einstellungen.
         </li>
       </ul>
 

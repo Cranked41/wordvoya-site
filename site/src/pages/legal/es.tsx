@@ -9,7 +9,7 @@ export function Privacy() {
       lang="es"
       page="privacy"
       title="Política de privacidad"
-      updated="7 de noviembre de 2026"
+      updated="8 de noviembre de 2026"
       description="Wordvoya no necesita cuenta y los datos de su juego permanecen en su dispositivo. Los anuncios los sirven Google AdMob en la aplicación y Google AdSense en este sitio, y las compras se realizan a través de Google Play."
     >
       <p className="note">
@@ -19,8 +19,7 @@ export function Privacy() {
         Esta política explica qué datos se procesan cuando usted utiliza la aplicación para Android <strong>Wordvoya: Puzle de palabras</strong> (<code>com.cranked.wordvoya</code>) y este sitio web.
       </p>
       <p className="lead">
-        <strong>En resumen:</strong> Wordvoya no necesita cuenta y no envía ningún dato a nuestros servidores; los datos de su
-        juego permanecen en su dispositivo. La aplicación muestra anuncios de Google AdMob, y Google puede utilizar el ID de
+        <strong>En resumen:</strong> Wordvoya no necesita cuenta; los datos de su juego permanecen en su dispositivo, y a nuestro servidor solo se envían el nombre que elija y sus estadísticas de juego para la clasificación. La aplicación muestra anuncios de Google AdMob, y Google puede utilizar el ID de
         publicidad de su dispositivo y cierta información técnica para mostrarlos. La compra «Quitar anuncios» se realiza a
         través de Google Play.
       </p>
@@ -33,7 +32,7 @@ export function Privacy() {
         </li>
         <li>
           <strong>Datos de juego en su dispositivo:</strong> El progreso de los niveles, las palabras encontradas, la racha
-          diaria y la meta diaria, los diamantes y los ajustes se almacenan únicamente en su dispositivo y no se nos envían.
+          diaria y la meta diaria, los diamantes y los ajustes se almacenan en su dispositivo. Lo que se envía a nuestro servidor para la clasificación se describe a continuación.
         </li>
         <li>
           <strong>Anuncios (Google AdMob):</strong> Para mostrar y medir los anuncios y para prevenir el fraude, Google puede
@@ -48,7 +47,7 @@ export function Privacy() {
           compra no se contabilice dos veces).
         </li>
         <li>
-          <strong>Clasificación:</strong> Sus puntos se acumulan en su dispositivo y se envían a la clasificación de Wordvoya en nuestro servidor (wordvoya.com): el nombre que elija, sus puntos totales y semanales, el nivel alcanzado, el número de palabras encontradas y el tiempo y los puntos de su último nivel. Se guardan con un identificador aleatorio creado en su dispositivo y se muestran a otros jugadores en la clasificación; no le pedimos su nombre real, su correo electrónico ni identificadores del dispositivo. Para evitar abusos, el servidor trata la dirección IP de cada solicitud; no se guarda junto con su registro de la clasificación. Puede eliminar su registro en cualquier momento en la aplicación, en <em>Clasificación &gt; (i) &gt; Salir de la clasificación</em>. Si ha iniciado sesión en Google Play Games, sus puntos también se envían a las clasificaciones de Play Games; puede gestionar su perfil y sus datos de juego en los ajustes de Play Games.
+          <strong>Clasificación:</strong> Sus puntos se acumulan en su dispositivo y se envían a la clasificación de Wordvoya en nuestro servidor (wordvoya.com): el nombre que elija, sus puntos totales y semanales, el nivel alcanzado, el número de palabras encontradas y el tiempo y los puntos de su último nivel. También registramos su saldo de diamantes y el número, los puntos, el tiempo y la fecha de cada nivel que complete; estos datos no se muestran a otros jugadores y solo se utilizan para gestionar el juego (soporte, control de trampas y diamantes de regalo). Se guardan con un identificador aleatorio creado en su dispositivo y se muestran a otros jugadores en la clasificación; no le pedimos su nombre real, su correo electrónico ni identificadores del dispositivo. Para evitar abusos, el servidor trata la dirección IP de cada solicitud; no se guarda junto con su registro de la clasificación. Puede eliminar su registro en cualquier momento en la aplicación, en <em>Clasificación &gt; (i) &gt; Salir de la clasificación</em>. Si ha iniciado sesión en Google Play Games, sus puntos también se envían a las clasificaciones de Play Games; puede gestionar su perfil y sus datos de juego en los ajustes de Play Games.
         </li>
       </ul>
 
