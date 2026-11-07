@@ -1,0 +1,13 @@
+services:
+  wordvoya-api:
+    build: .
+    image: wordvoya-api:latest
+    container_name: wordvoya-api
+    restart: unless-stopped
+    ports:
+      # Yalnız yerelden: dışarıya host nginx (https://wordvoya.com/api/) üzerinden açılır
+      - "127.0.0.1:8087:8080"
+    volumes:
+      # Veritabanı ve günlük yedekler (konteyner silinse de kalır)
+      - /root/wordvoya-api/data:/data
+    mem_limit: 128m

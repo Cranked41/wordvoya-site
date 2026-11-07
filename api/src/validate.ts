@@ -1,0 +1,58 @@
+// İstemciden gelen verinin denetimi. Kurallar uygulamadaki (ScoreRepository, GameViewModel.levelScore) puanlamaya göre.
+import type { Last, Snapshot } from './db.ts'
+
+export const NAME_MIN = 2
+export const NAME_MAX = 20
+
+// Kaba sözler: tam kelime ya da birleşik yazımda. Liste kısa tutuldu; gerekirse oyuncu sunucuda gizlenir (hidden = 1).
+const BLOCKED = [
+  'amk', 'aq', 'orospu', 'oç', 'piç', 'sik', 'sikerim', 'yarrak', 'göt', 'pezevenk', 'kahpe', 'ibne', 'amcık',
+  'fuck', 'shit', 'bitch', 'cunt', 'nigger', 'nigga', 'faggot', 'whore', 'slut', 'dick', 'pussy', 'hitler', 'nazi',
+]
+
+/** Görünen adı temizler; kurala uymuyorsa null. */
+export function cleanName(raw: unknown): string | null {
+  if (typeof raw !== 'string') return null
+  const name = raw.normalize('NFC').replace(/\s+/gu, ' ').trim()
+  const length = [...name].length
+  if (length < NAME_MIN || length > NAME_MAX) return null
+  if (!/^[\p{L}\p{M}\p{N}][\p{L}\p{M}\p{N} ._'’-]*$/u.test(name)) return null
+  const lower = name.toLocaleLowerCase('tr')
+  const words = lower.split(/[^\p{L}\p{N}]+/u).filter(Boolean)
+  const joined = words.join('')
+  if (BLOCKED.some((b) => words.includes(b) || (b.length >= 4 && joined.includes(b)))) return null
+  return name
+}
+
+const MAX_LEVEL = 100_000
+const MAX_WORDS = 5_000_000
+// Bir kelime en çok 10 puan; bonus kelime 5, bölüm başına hız en çok 100 (bkz. GameViewModel.levelScore).
+// Bonus ve hız, bulunan kelime sayısına bağlı değil; bölüm başı kelime en az 3 sayılarak cömert bir üst sınır.
+const maxTotal = (words: number) => words * 10 + words * 5 + Math.ceil(words / 3) * 100 + 1_000
+
+const int = (v: unknown, max: number): number | null =>
+  typeof v === 'number' && Number.isInteger(v) && v >= 0 && v <= max ? v : null
+
+/** Skor gövdesini denetler; uymuyorsa hatanın adı. */
+export function parseSnapshot(body: unknown): Snapshot | string {
+  if (typeof body !== 'object' || body === null) return 'body'
+  const b = body as Record<string, unknown>
+  const words = int(b.words, MAX_WORDS)
+  if (words == null) return 'words'
+  const total = int(b.total, maxTotal(words))
+  if (total == null) return 'total'
+  const weekly = int(b.weekly, total)
+  if (weekly == null) return 'weekly'
+  const week = int(b.week, 1_000_000)
+  if (week == null) return 'week'
+  const level = int(b.level, MAX_LEVEL)
+  if (level == null) return 'level'
+  let last: Last | null = null
+  if (b.last != null) {
+    const l = b.last as Record<string, unknown>
+    const ll = int(l.level, MAX_LEVEL), ls = int(l.seconds, 86_400), lp = int(l.score, 10_000)
+    if (ll == null || ls == null || lp == null) return 'last'
+    last = { level: ll, seconds: ls, score: lp }
+  }
+  return { total, weekly, week, level, words, last }
+}

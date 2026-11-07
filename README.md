@@ -47,3 +47,22 @@ kurulur, ayağa kalkmazsa önceki imaja dönülür. Önünde host nginx + HTTPS 
 
 Secret'lar (Settings > Secrets and variables > Actions): `DEPLOY_HOST`, `DEPLOY_PORT`, `DEPLOY_USER`,
 `DEPLOY_PASSWORD` — Wordvoya deposundakilerle aynı değerler.
+
+## Skor tablosu API'si (`api/`)
+
+Uygulamanın skor tablosu (2026-11-07'den beri Play Games yerine): `https://wordvoya.com/api/v1`. Bağımlılıksız Node 24
+(TypeScript doğrudan çalışır), veritabanı tek SQLite dosyası. Sunucuda `/root/wordvoya-api`, konteyner
+`127.0.0.1:8087`, veri `/root/wordvoya-api/data/wordvoya.db`, günlük yedek `data/backup/` (14 gün, cron 04:20).
+Host nginx'te `location /api/` bu konteynere gider. `master` push'ta `api/` değiştiyse `.github/workflows/api.yml`
+test edip dağıtır; ayağa kalkmazsa `:previous` imaja döner.
+
+| Uç | İş |
+|---|---|
+| `POST /players {name}` | Yeni oyuncu: `{id, token, name}`. Belirteç yalnız cihazda; sunucuda SHA-256 özeti |
+| `PATCH /players/me {name}` | Ad değiştir (Bearer belirteç) |
+| `PUT /players/me/scores {total, weekly, week, level, words, last?}` | Cihazdaki toplamlar; her tablo en iyiyi tutar |
+| `GET /boards/{total,weekly,level,words}?scope=near` | İlk 25 ya da oyuncunun çevresi (11 satır) + `player` |
+
+Ad 2-20 karakter, harf/rakam/boşluk/`._'-`, kaba söz listesi `src/validate.ts`. Hileli oyuncuyu gizlemek:
+`docker exec -it wordvoya-api node -e "new (require('node:sqlite').DatabaseSync)('/data/wordvoya.db').prepare('UPDATE players SET hidden=1 WHERE name=?').run('AD')"`.
+Yerelde: `cd api && npm test`.
