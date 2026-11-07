@@ -70,10 +70,34 @@ export function parseSnapshot(body: unknown): Snapshot | string {
   if (level == null) return 'level'
   let last: Last | null = null
   if (b.last != null) {
-    const l = b.last as Record<string, unknown>
-    const ll = int(l.level, MAX_LEVEL), ls = int(l.seconds, 86_400), lp = int(l.score, 10_000)
-    if (ll == null || ls == null || lp == null) return 'last'
-    last = { level: ll, seconds: ls, score: lp }
+    last = parseLast(b.last)
+    if (!last) return 'last'
   }
-  return { total, weekly, week, level, words, last }
+  let diamonds: number | null = null
+  if (b.diamonds != null) {
+    diamonds = int(b.diamonds, MAX_DIAMONDS)
+    if (diamonds == null) return 'diamonds'
+  }
+  const levels: Last[] = []
+  if (b.levels != null) {
+    if (!Array.isArray(b.levels) || b.levels.length > MAX_LEVELS_PER_SYNC) return 'levels'
+    for (const item of b.levels) {
+      const r = parseLast(item)
+      if (!r) return 'levels'
+      levels.push(r)
+    }
+  }
+  return { total, weekly, week, level, words, last, diamonds, levels }
+}
+
+const MAX_DIAMONDS = 100_000_000
+/** Uygulama gönderilemeyen bölümleri biriktirir; bir gönderimde en çok bu kadarı gelir. */
+export const MAX_LEVELS_PER_SYNC = 100
+
+function parseLast(v: unknown): Last | null {
+  if (typeof v !== 'object' || v === null) return null
+  const l = v as Record<string, unknown>
+  const ll = int(l.level, MAX_LEVEL), ls = int(l.seconds, 86_400), lp = int(l.score, 10_000)
+  if (ll == null || ll < 1 || ls == null || lp == null) return null
+  return { level: ll, seconds: ls, score: lp }
 }

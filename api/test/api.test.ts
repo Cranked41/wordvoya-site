@@ -129,7 +129,7 @@ test('skor sınırları', () => {
   assert.equal(parseSnapshot({ total: 100, weekly: 200, week: 1, level: 1, words: 50 }), 'weekly')
   assert.equal(parseSnapshot({ total: 1.5, weekly: 0, week: 1, level: 1, words: 50 }), 'total')
   assert.deepEqual(parseSnapshot({ total: 100, weekly: 50, week: 1, level: 3, words: 50 }),
-    { total: 100, weekly: 50, week: 1, level: 3, words: 50, last: null })
+    { total: 100, weekly: 50, week: 1, level: 3, words: 50, last: null, diamonds: null, levels: [] })
 })
 
 test('aynı adda iki oyuncu olmaz', async () => {

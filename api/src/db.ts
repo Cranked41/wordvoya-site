@@ -15,7 +15,13 @@ export interface Snapshot {
   level: number
   words: number
   last: Last | null
+  /** Cihazdaki elmas bakiyesi (eski sürümler göndermez). */
+  diamonds: number | null
+  /** Son gönderimden beri biten bölümler (eski sürümler göndermez; o zaman yalnız [last] kaydedilir). */
+  levels: Last[]
 }
+
+export interface Grant { id: number; amount: number; note: string }
 
 export interface Row {
   rank: number
@@ -25,10 +31,15 @@ export interface Row {
   me: boolean
 }
 
-interface PlayerRow {
+export interface PlayerRow {
   id: string
   name: string
   created_at: number
+  updated_at: number
+  hidden: number
+  diamonds: number | null
+  diamonds_at: number | null
+  seen_at: number | null
   total: number
   weekly: number
   week: number
@@ -60,8 +71,9 @@ function unique(write: () => unknown): boolean {
 }
 
 export class Store {
-  private db: DatabaseSync
-  private now: () => number
+  /** Yönetim paneli ([AdminStore]) aynı bağlantıyı kullanır. */
+  readonly db: DatabaseSync
+  readonly now: () => number
 
   constructor(path: string, now: () => number = Date.now) {
     this.now = now
@@ -91,6 +103,36 @@ export class Store {
       CREATE INDEX IF NOT EXISTS players_words ON players (words DESC, created_at);
     `)
     this.migrateNameKey()
+    this.migratePanelData()
+  }
+
+  /** 2026-11-08: yönetim paneli için elmas bakiyesi, bölüm sonuçları ve elmas hediyeleri. */
+  private migratePanelData() {
+    const cols = new Set((this.db.prepare('PRAGMA table_info(players)').all() as { name: string }[]).map((c) => c.name))
+    for (const col of ['diamonds', 'diamonds_at', 'seen_at']) {
+      if (!cols.has(col)) this.db.exec(`ALTER TABLE players ADD COLUMN ${col} INTEGER`)
+    }
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS level_results (
+        player_id TEXT NOT NULL,
+        level INTEGER NOT NULL,
+        score INTEGER NOT NULL,
+        seconds INTEGER NOT NULL,
+        first_at INTEGER NOT NULL,
+        best_at INTEGER NOT NULL,
+        PRIMARY KEY (player_id, level)
+      ) WITHOUT ROWID;
+      CREATE TABLE IF NOT EXISTS grants (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        player_id TEXT NOT NULL,
+        amount INTEGER NOT NULL,
+        note TEXT NOT NULL DEFAULT '',
+        admin TEXT NOT NULL,
+        created_at INTEGER NOT NULL,
+        claimed_at INTEGER
+      );
+      CREATE INDEX IF NOT EXISTS grants_player ON grants (player_id, claimed_at);
+    `)
   }
 
   /** 2026-11-07: aynı adda iki oyuncu olmasın. Eski satırlara anahtar yazılır; çakışan sonrakiler kimlikle ayrılır. */
@@ -131,7 +173,27 @@ export class Store {
 
   /** Oyuncunun kaydını tümüyle siler (uygulamada "Tablodan çık"). */
   deletePlayer(id: string) {
-    this.db.prepare('DELETE FROM players WHERE id = ?').run(id)
+    this.db.exec('BEGIN')
+    try {
+      for (const table of ['level_results', 'grants']) this.db.prepare(`DELETE FROM ${table} WHERE player_id = ?`).run(id)
+      this.db.prepare('DELETE FROM players WHERE id = ?').run(id)
+      this.db.exec('COMMIT')
+    } catch (e) {
+      this.db.exec('ROLLBACK')
+      throw e
+    }
+  }
+
+  /** Oyuncunun henüz almadığı elmas hediyeleri (uygulama skor gönderiminin cevabında alır). */
+  pendingGrants(id: string): Grant[] {
+    return this.db.prepare('SELECT id, amount, note FROM grants WHERE player_id = ? AND claimed_at IS NULL ORDER BY id')
+      .all(id) as unknown as Grant[]
+  }
+
+  /** Uygulama elmasları bakiyeye ekledi: bir daha gönderilmez. */
+  claimGrants(id: string, ids: number[]) {
+    const stmt = this.db.prepare('UPDATE grants SET claimed_at = ? WHERE id = ? AND player_id = ? AND claimed_at IS NULL')
+    for (const g of ids) stmt.run(this.now(), g, id)
   }
 
   /** Ad değiştirir; ad başkasındaysa false (oyuncunun kendi adının yazımını değiştirmesi serbest). */
@@ -154,13 +216,25 @@ export class Store {
     const total = Math.max(p.total, s.total)
     const improved = s.total > p.total
     const last = improved && s.last ? s.last : null
+    const t = this.now()
     this.db.prepare(`
-      UPDATE players SET total = ?, weekly = ?, week = ?, level = ?, words = ?, updated_at = ?,
-        last_level = COALESCE(?, last_level), last_seconds = COALESCE(?, last_seconds), last_score = COALESCE(?, last_score)
+      UPDATE players SET total = ?, weekly = ?, week = ?, level = ?, words = ?, updated_at = ?, seen_at = ?,
+        last_level = COALESCE(?, last_level), last_seconds = COALESCE(?, last_seconds), last_score = COALESCE(?, last_score),
+        diamonds = COALESCE(?, diamonds), diamonds_at = CASE WHEN ? IS NULL THEN diamonds_at ELSE ? END
       WHERE id = ?`).run(
-      total, weekly, week, Math.max(p.level, s.level), Math.max(p.words, s.words), this.now(),
-      last?.level ?? null, last?.seconds ?? null, last?.score ?? null, id,
+      total, weekly, week, Math.max(p.level, s.level), Math.max(p.words, s.words), t, t,
+      last?.level ?? null, last?.seconds ?? null, last?.score ?? null,
+      s.diamonds, s.diamonds, t, id,
     )
+    // Bölüm başına en iyi sonuç (ilk bitiriş anı korunur)
+    const upsert = this.db.prepare(`
+      INSERT INTO level_results (player_id, level, score, seconds, first_at, best_at) VALUES (?, ?, ?, ?, ?, ?)
+      ON CONFLICT (player_id, level) DO UPDATE SET
+        seconds = CASE WHEN excluded.score > score THEN excluded.seconds ELSE seconds END,
+        best_at = CASE WHEN excluded.score > score THEN excluded.best_at ELSE best_at END,
+        score = MAX(score, excluded.score)`)
+    const results = s.levels.length ? s.levels : s.last ? [s.last] : []
+    for (const r of results) upsert.run(id, r.level, r.score, r.seconds, t, t)
   }
 
   private column(board: Board): string {

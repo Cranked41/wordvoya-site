@@ -4,6 +4,7 @@ ENV NODE_ENV=production PORT=8080 DB_PATH=/data/wordvoya.db NODE_NO_WARNINGS=1
 WORKDIR /app
 COPY package.json ./
 COPY src src
+COPY admin admin
 RUN mkdir -p /data && chown node:node /data
 USER node
 EXPOSE 8080

@@ -67,3 +67,23 @@ test edip dağıtır; ayağa kalkmazsa `:previous` imaja döner.
 Ad 2-20 karakter, harf/rakam/boşluk/`._'-`, kaba söz listesi `src/validate.ts`. Hileli oyuncuyu gizlemek:
 `docker exec -it wordvoya-api node -e "new (require('node:sqlite').DatabaseSync)('/data/wordvoya.db').prepare('UPDATE players SET hidden=1 WHERE name=?').run('AD')"`.
 Yerelde: `cd api && npm test`.
+
+### Yönetim paneli (`https://wordvoya.com/api/admin/`)
+
+Oyuncular, puanları, bölüm sonuçları ve elmas bakiyeleri; admin rolü oyuncuya elmas hediye eder (oyuncu bir sonraki
+senkronda alır, uygulamada "Sana hediye!" penceresi çıkar). Sayfa API ile birlikte kurulur (`api/admin/`), nginx
+ayarı gerekmez.
+
+- Roller: `admin` (görür, elmas verir/geri alır), `viewer` (yalnız görür).
+- Şifreler scrypt özetiyle saklanır; oturum çerezi HttpOnly + SameSite=Strict, 7 gün. Girişte IP başına 15 dakikada 10 deneme.
+- Hesaplar sunucuda açılır (şifre ekrana yazılmaz):
+
+```sh
+docker exec -it wordvoya-api node src/admin-cli.ts add <kullanıcı> admin
+docker exec -it wordvoya-api node src/admin-cli.ts passwd <kullanıcı>
+docker exec -it wordvoya-api node src/admin-cli.ts role <kullanıcı> viewer
+docker exec -it wordvoya-api node src/admin-cli.ts remove <kullanıcı>
+docker exec -it wordvoya-api node src/admin-cli.ts list
+```
+
+Elmas bakiyesi ve bölüm ayrıntısı uygulamanın 1.3.15 sürümünden itibaren gelir; eski sürümler yalnız toplamları gönderir.
