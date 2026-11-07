@@ -10,13 +10,34 @@ const BLOCKED = [
   'fuck', 'shit', 'bitch', 'cunt', 'nigger', 'nigga', 'faggot', 'whore', 'slut', 'dick', 'pussy', 'hitler', 'nazi',
 ]
 
+// Harf/işaret/rakamla başlar. Ayraçlar: boşluk . _ ' ’ - ve · ・ (Japonca yabancı adlar: マイケル・ジャクソン);
+// ZWNJ/ZWJ Farsça ve Hintçe yazımın parçası (علی‌رضا klavyede yarım boşlukla yazılır).
+const NAME_PATTERN = /^[\p{L}\p{M}\p{N}][\p{L}\p{M}\p{N} ._'’\-·・\u200c\u200d]*$/u
+
+/**
+ * Aynı ad denetiminin anahtarı: büyük/küçük harf, Latin/Kiril aksanları, Arapça harekeler, ayraçlar ve
+ * genişlik farkı yok sayılır ("Ayşe Yılmaz" = "AYSE YILMAZ" = "ayse-yilmaz"). Devanagari ve Hangul işaretleri
+ * harfin parçası olduğu için korunur.
+ */
+export function nameKey(name: string): string {
+  return name
+    .normalize('NFKC')
+    .toLowerCase()
+    .replace(/ı/g, 'i')
+    .replace(/ß/g, 'ss')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f\u064b-\u065f\u0670\u0640]/g, '')
+    .replace(/[^\p{L}\p{M}\p{N}]/gu, '')
+    .normalize('NFC')
+}
+
 /** Görünen adı temizler; kurala uymuyorsa null. */
 export function cleanName(raw: unknown): string | null {
   if (typeof raw !== 'string') return null
   const name = raw.normalize('NFC').replace(/\s+/gu, ' ').trim()
   const length = [...name].length
   if (length < NAME_MIN || length > NAME_MAX) return null
-  if (!/^[\p{L}\p{M}\p{N}][\p{L}\p{M}\p{N} ._'’-]*$/u.test(name)) return null
+  if (!NAME_PATTERN.test(name)) return null
   const lower = name.toLocaleLowerCase('tr')
   const words = lower.split(/[^\p{L}\p{N}]+/u).filter(Boolean)
   const joined = words.join('')

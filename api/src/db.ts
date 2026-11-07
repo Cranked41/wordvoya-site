@@ -1,6 +1,7 @@
 // Skor tablosunun veritabanı: tek SQLite dosyası (oyuncu sayısı binlerle sınırlıyken yeterli ve bakımsız).
 import { DatabaseSync } from 'node:sqlite'
 import { createHash, randomBytes, randomUUID } from 'node:crypto'
+import { nameKey } from './validate.ts'
 
 export type Board = 'total' | 'weekly' | 'level' | 'words'
 export const BOARDS: readonly Board[] = ['total', 'weekly', 'level', 'words']
@@ -47,6 +48,17 @@ export function weekOf(ms: number): number {
 
 export const hashToken = (token: string) => createHash('sha256').update(token).digest('hex')
 
+/** Benzersizlik kısıtına takılırsa false; eşzamanlı iki kayıtta da doğru sonuç verir. */
+function unique(write: () => unknown): boolean {
+  try {
+    write()
+    return true
+  } catch (e) {
+    if (String((e as Error).message).includes('UNIQUE constraint failed: players.name_key')) return false
+    throw e
+  }
+}
+
 export class Store {
   private db: DatabaseSync
   private now: () => number
@@ -78,17 +90,39 @@ export class Store {
       CREATE INDEX IF NOT EXISTS players_level ON players (level DESC, created_at);
       CREATE INDEX IF NOT EXISTS players_words ON players (words DESC, created_at);
     `)
+    this.migrateNameKey()
   }
+
+  /** 2026-11-07: aynı adda iki oyuncu olmasın. Eski satırlara anahtar yazılır; çakışan sonrakiler kimlikle ayrılır. */
+  private migrateNameKey() {
+    const cols = this.db.prepare('PRAGMA table_info(players)').all() as { name: string }[]
+    if (!cols.some((c) => c.name === 'name_key')) {
+      this.db.exec('ALTER TABLE players ADD COLUMN name_key TEXT')
+      const seen = new Set<string>()
+      const rows = this.db.prepare('SELECT id, name FROM players ORDER BY created_at, id').all() as { id: string; name: string }[]
+      const update = this.db.prepare('UPDATE players SET name_key = ? WHERE id = ?')
+      for (const r of rows) {
+        let key = nameKey(r.name)
+        if (seen.has(key)) key = `${key}#${r.id}`
+        seen.add(key)
+        update.run(key, r.id)
+      }
+    }
+    this.db.exec('CREATE UNIQUE INDEX IF NOT EXISTS players_name_key ON players (name_key)')
+  }
+
 
   close() { this.db.close() }
 
-  createPlayer(name: string): { id: string; token: string; name: string } {
+  /** Yeni oyuncu; ad başkasındaysa null. */
+  createPlayer(name: string): { id: string; token: string; name: string } | null {
     const id = randomUUID()
     const token = randomBytes(32).toString('base64url')
     const t = this.now()
-    this.db.prepare('INSERT INTO players (id, token_hash, name, created_at, updated_at) VALUES (?, ?, ?, ?, ?)')
-      .run(id, hashToken(token), name, t, t)
-    return { id, token, name }
+    const ok = unique(() => this.db.prepare(
+      'INSERT INTO players (id, token_hash, name, name_key, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)',
+    ).run(id, hashToken(token), name, nameKey(name), t, t))
+    return ok ? { id, token, name } : null
   }
 
   playerByToken(token: string): PlayerRow | undefined {
@@ -100,8 +134,10 @@ export class Store {
     this.db.prepare('DELETE FROM players WHERE id = ?').run(id)
   }
 
-  rename(id: string, name: string) {
-    this.db.prepare('UPDATE players SET name = ?, updated_at = ? WHERE id = ?').run(name, this.now(), id)
+  /** Ad değiştirir; ad başkasındaysa false (oyuncunun kendi adının yazımını değiştirmesi serbest). */
+  rename(id: string, name: string): boolean {
+    return unique(() => this.db.prepare('UPDATE players SET name = ?, name_key = ?, updated_at = ? WHERE id = ?')
+      .run(name, nameKey(name), this.now(), id))
   }
 
   /**

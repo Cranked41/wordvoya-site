@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import type { AddressInfo } from 'node:net'
 import { Store, weekOf } from '../src/db.ts'
 import { createApp } from '../src/server.ts'
-import { cleanName, parseSnapshot } from '../src/validate.ts'
+import { cleanName, nameKey, parseSnapshot } from '../src/validate.ts'
 
 async function start(now = () => Date.UTC(2026, 10, 6, 12)) {
   const store = new Store(':memory:', now)
@@ -130,4 +130,63 @@ test('skor sınırları', () => {
   assert.equal(parseSnapshot({ total: 1.5, weekly: 0, week: 1, level: 1, words: 50 }), 'total')
   assert.deepEqual(parseSnapshot({ total: 100, weekly: 50, week: 1, level: 3, words: 50 }),
     { total: 100, weekly: 50, week: 1, level: 3, words: 50, last: null })
+})
+
+test('aynı adda iki oyuncu olmaz', async () => {
+  const { call, stop } = await start()
+  try {
+    const a = (await call('POST', '/players', { name: 'Ayşe Yılmaz' })).body
+    // Büyük harf, aksansız ve ayraçlı yazımlar da aynı ad sayılır
+    for (const name of ['Ayşe Yılmaz', 'AYŞE YILMAZ', 'ayse yilmaz', 'Ayşe-Yılmaz', 'Ａｙşe Yılmaz']) {
+      const r = await call('POST', '/players', { name })
+      assert.equal(r.status, 409, name)
+      assert.equal(r.body.error, 'name_taken')
+    }
+    const b = (await call('POST', '/players', { name: 'Mert' })).body
+    assert.equal((await call('PATCH', '/players/me', { name: 'ayşe yılmaz' }, b.token)).status, 409)
+    // Kendi adının yazımını değiştirmek serbest
+    assert.equal((await call('PATCH', '/players/me', { name: 'AYŞE YILMAZ' }, a.token)).status, 200)
+    // Silinen oyuncunun adı boşa çıkar
+    await call('DELETE', '/players/me', undefined, a.token)
+    assert.equal((await call('PATCH', '/players/me', { name: 'Ayşe Yılmaz' }, b.token)).status, 200)
+  } finally { await stop() }
+})
+
+test('dillere göre adlar', () => {
+  for (const name of ['علی‌رضا', 'श्री‍', 'マイケル・ジャクソン', 'Jordi·Puig', '山田 太郎', 'Пётр', 'فاطمة الزّهراء', '김민준']) {
+    assert.equal(cleanName(name), name, name)
+  }
+  assert.equal(cleanName('山田　太郎'), '山田 太郎')   // tam genişlik boşluk
+  assert.equal(cleanName('‌علی'), null)              // yarım boşlukla başlayamaz
+  // Aynı sayılanlar
+  assert.equal(nameKey('İbrahim'), nameKey('ibrahim'))
+  assert.equal(nameKey('Jürgen Groß'), nameKey('jurgen gross'))
+  assert.equal(nameKey('مُحَمَّد'), nameKey('محمد'))
+  assert.equal(nameKey('علی‌رضا'), nameKey('علیرضا'))
+  assert.equal(nameKey('Пётр'), nameKey('петр'))
+  // Farklı kalanlar: Hintçe ünlü işaretleri ve Japonca ses işaretleri harfin parçası
+  assert.notEqual(nameKey('राहुल'), nameKey('रहल'))
+  assert.notEqual(nameKey('ガク'), nameKey('カク'))
+  assert.notEqual(nameKey('김민준'), nameKey('김민주'))
+})
+
+test('eski veritabanına ad anahtarı eklenir', async () => {
+  const { DatabaseSync } = await import('node:sqlite')
+  const { mkdtempSync } = await import('node:fs')
+  const { tmpdir } = await import('node:os')
+  const { join } = await import('node:path')
+  const path = join(mkdtempSync(join(tmpdir(), 'wv-')), 'old.db')
+  const old = new DatabaseSync(path)
+  old.exec(`CREATE TABLE players (id TEXT PRIMARY KEY, token_hash TEXT NOT NULL UNIQUE, name TEXT NOT NULL,
+    created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, hidden INTEGER NOT NULL DEFAULT 0,
+    total INTEGER NOT NULL DEFAULT 0, weekly INTEGER NOT NULL DEFAULT 0, week INTEGER NOT NULL DEFAULT 0,
+    level INTEGER NOT NULL DEFAULT 0, words INTEGER NOT NULL DEFAULT 0, last_level INTEGER, last_seconds INTEGER, last_score INTEGER);
+    INSERT INTO players (id, token_hash, name, created_at, updated_at) VALUES ('a', 'h1', 'Elif', 1, 1), ('b', 'h2', 'ELİF', 2, 2);`)
+  old.close()
+  const store = new Store(path)
+  try {
+    assert.equal(store.count(), 2)                       // çakışan eski kayıt silinmez
+    assert.equal(store.createPlayer('elif'), null)       // ama ad artık alınamaz
+    assert.ok(store.createPlayer('Mert'))
+  } finally { store.close() }
 })

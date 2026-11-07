@@ -88,7 +88,9 @@ export function createApp(store: Store, opts: { now?: () => number; perMinute?: 
       const body = (await readJson(req)) as Json
       const name = cleanName(body.name)
       if (!name) throw new HttpError(422, 'name')
-      return send(res, 201, store.createPlayer(name))
+      const player = store.createPlayer(name)
+      if (!player) throw new HttpError(409, 'name_taken')
+      return send(res, 201, player)
     }
 
     if (path === '/api/v1/players/me' && method === 'PATCH') {
@@ -96,7 +98,7 @@ export function createApp(store: Store, opts: { now?: () => number; perMinute?: 
       const body = (await readJson(req)) as Json
       const name = cleanName(body.name)
       if (!name) throw new HttpError(422, 'name')
-      store.rename(me.id, name)
+      if (!store.rename(me.id, name)) throw new HttpError(409, 'name_taken')
       return send(res, 200, { name })
     }
 
