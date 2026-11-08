@@ -40,6 +40,8 @@ export interface PlayerRow {
   diamonds: number | null
   diamonds_at: number | null
   seen_at: number | null
+  flags: number
+  flagged_at: number | null
   total: number
   weekly: number
   week: number
@@ -55,6 +57,30 @@ export function weekOf(ms: number): number {
   const RESET_OFFSET_MS = 7 * 3_600_000
   const DAY_MS = 86_400_000
   return Math.floor((Math.floor((ms - RESET_OFFSET_MS) / DAY_MS) + 4) / 7)
+}
+
+// Puan artışının üst sınırı. İlk gönderim cihazda birikmiş geçmişi taşır (eski sürümlerden gelenler dahil): cömert
+// ama sınırlı. Sonrakiler son gönderimden beri geçen gerçek süreye bağlı; internetsiz oynayan sonra gönderince
+// süre de geçmiş olur. Fazlası kırpılır (oyuncu tablodan düşmez) ve panelde şüpheli olarak işaretlenir.
+export const IMPORT_MAX_WORDS = 60_000
+export const IMPORT_MAX_LEVEL = 3_000
+const WORDS_PER_SECOND = 0.5      // saniyede yarım kelime: hızlı bir oyuncunun çok üstü
+const SECONDS_PER_LEVEL = 20      // en kısa bölüm ~20 sn
+const POINTS_PER_WORD = 15        // kelime 10 + bonus 5 (validate.maxTotal ile aynı mantık)
+const POINTS_PER_LEVEL = 110      // hız bonusu en çok 100 + pay
+
+export function growthLimit(p: Pick<PlayerRow, 'words' | 'level' | 'total' | 'seen_at'>, now: number) {
+  if (p.seen_at == null) {
+    return {
+      words: IMPORT_MAX_WORDS,
+      level: IMPORT_MAX_LEVEL,
+      total: IMPORT_MAX_WORDS * POINTS_PER_WORD + IMPORT_MAX_LEVEL * POINTS_PER_LEVEL,
+    }
+  }
+  const seconds = Math.max(0, (now - p.seen_at) / 1000)
+  const words = p.words + 60 + Math.floor(seconds * WORDS_PER_SECOND)
+  const level = p.level + 2 + Math.floor(seconds / SECONDS_PER_LEVEL)
+  return { words, level, total: p.total + (words - p.words) * POINTS_PER_WORD + (level - p.level) * POINTS_PER_LEVEL }
 }
 
 export const hashToken = (token: string) => createHash('sha256').update(token).digest('hex')
@@ -109,7 +135,7 @@ export class Store {
   /** 2026-11-08: yönetim paneli için elmas bakiyesi, bölüm sonuçları ve elmas hediyeleri. */
   private migratePanelData() {
     const cols = new Set((this.db.prepare('PRAGMA table_info(players)').all() as { name: string }[]).map((c) => c.name))
-    for (const col of ['diamonds', 'diamonds_at', 'seen_at']) {
+    for (const col of ['diamonds', 'diamonds_at', 'seen_at', 'flags', 'flagged_at']) {
       if (!cols.has(col)) this.db.exec(`ALTER TABLE players ADD COLUMN ${col} INTEGER`)
     }
     this.db.exec(`
@@ -133,6 +159,9 @@ export class Store {
       );
       CREATE INDEX IF NOT EXISTS grants_player ON grants (player_id, claimed_at);
     `)
+    // 2026-11-08: uygulamaya teslim edilen hediye artık geri alınamaz (oyuncu elmasları almış olabilir)
+    const grantCols = (this.db.prepare('PRAGMA table_info(grants)').all() as { name: string }[]).map((c) => c.name)
+    if (!grantCols.includes('delivered_at')) this.db.exec('ALTER TABLE grants ADD COLUMN delivered_at INTEGER')
   }
 
   /** 2026-11-07: aynı adda iki oyuncu olmasın. Eski satırlara anahtar yazılır; çakışan sonrakiler kimlikle ayrılır. */
@@ -184,10 +213,20 @@ export class Store {
     }
   }
 
-  /** Oyuncunun henüz almadığı elmas hediyeleri (uygulama skor gönderiminin cevabında alır). */
+  /** Panelden: uygunsuz adlı oyuncu tablolarda görünmez (kaydı ve puanları durur). */
+  setHidden(id: string, hidden: boolean): boolean {
+    return this.db.prepare('UPDATE players SET hidden = ? WHERE id = ?').run(hidden ? 1 : 0, id).changes > 0
+  }
+
+  /** Oyuncunun henüz almadığı elmas hediyeleri (uygulama skor gönderiminin cevabında alır); teslim anı yazılır. */
   pendingGrants(id: string): Grant[] {
-    return this.db.prepare('SELECT id, amount, note FROM grants WHERE player_id = ? AND claimed_at IS NULL ORDER BY id')
+    const grants = this.db.prepare('SELECT id, amount, note FROM grants WHERE player_id = ? AND claimed_at IS NULL ORDER BY id')
       .all(id) as unknown as Grant[]
+    if (grants.length) {
+      this.db.prepare('UPDATE grants SET delivered_at = COALESCE(delivered_at, ?) WHERE player_id = ? AND claimed_at IS NULL')
+        .run(this.now(), id)
+    }
+    return grants
   }
 
   /** Uygulama elmasları bakiyeye ekledi: bir daha gönderilmez. */
@@ -206,25 +245,33 @@ export class Store {
    * Cihazdaki toplamları kaydeder. Her tablo oyuncunun en iyisini tutar (Play Games gibi): ilerlemesini sıfırlayan
    * oyuncu tablodan düşmez. Haftalık puan yalnız sunucunun haftasıyla aynıysa sayılır.
    */
-  saveScores(id: string, s: Snapshot) {
-    const p = this.db.prepare('SELECT * FROM players WHERE id = ?').get(id) as unknown as PlayerRow
-    const current = weekOf(this.now())
+  saveScores(id: string, s: Snapshot): { clamped: boolean } {
+    const p = this.db.prepare('SELECT * FROM players WHERE id = ?').get(id) as PlayerRow | undefined
+    if (!p) return { clamped: false }   // bu arada silindi
+    const t = this.now()
+    const current = weekOf(t)
+    const limit = growthLimit(p, t)
+    const words = Math.min(Math.max(p.words, s.words), limit.words)
+    const level = Math.min(Math.max(p.level, s.level), limit.level)
+    const total = Math.min(Math.max(p.total, s.total), limit.total)
+    const clamped = s.words > words || s.level > level || s.total > total
     let week = p.week
     let weekly = p.week === current ? p.weekly : 0
     if (p.week !== current) week = current
-    if (s.week === current) weekly = Math.max(weekly, s.weekly)
-    const total = Math.max(p.total, s.total)
-    const improved = s.total > p.total
+    if (s.week === current) weekly = Math.min(Math.max(weekly, s.weekly), weekly + (total - p.total) + (p.week === current ? 0 : total))
+    weekly = Math.min(weekly, total)
+    const improved = total > p.total
     const last = improved && s.last ? s.last : null
-    const t = this.now()
     this.db.prepare(`
       UPDATE players SET total = ?, weekly = ?, week = ?, level = ?, words = ?, updated_at = ?, seen_at = ?,
         last_level = COALESCE(?, last_level), last_seconds = COALESCE(?, last_seconds), last_score = COALESCE(?, last_score),
-        diamonds = COALESCE(?, diamonds), diamonds_at = CASE WHEN ? IS NULL THEN diamonds_at ELSE ? END
+        diamonds = COALESCE(?, diamonds), diamonds_at = CASE WHEN ? IS NULL THEN diamonds_at ELSE ? END,
+        flags = COALESCE(flags, 0) + ?, flagged_at = CASE WHEN ? = 1 THEN ? ELSE flagged_at END
       WHERE id = ?`).run(
-      total, weekly, week, Math.max(p.level, s.level), Math.max(p.words, s.words), t, t,
+      total, weekly, week, level, words, t, t,
       last?.level ?? null, last?.seconds ?? null, last?.score ?? null,
-      s.diamonds, s.diamonds, t, id,
+      s.diamonds, s.diamonds, t,
+      clamped ? 1 : 0, clamped ? 1 : 0, t, id,
     )
     // Bölüm başına en iyi sonuç (ilk bitiriş anı korunur)
     const upsert = this.db.prepare(`
@@ -233,8 +280,9 @@ export class Store {
         seconds = CASE WHEN excluded.score > score THEN excluded.seconds ELSE seconds END,
         best_at = CASE WHEN excluded.score > score THEN excluded.best_at ELSE best_at END,
         score = MAX(score, excluded.score)`)
-    const results = s.levels.length ? s.levels : s.last ? [s.last] : []
+    const results = (s.levels.length ? s.levels : s.last ? [s.last] : []).filter((r) => r.level <= level)
     for (const r of results) upsert.run(id, r.level, r.score, r.seconds, t, t)
+    return { clamped }
   }
 
   private column(board: Board): string {

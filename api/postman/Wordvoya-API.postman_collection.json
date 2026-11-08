@@ -1,0 +1,2044 @@
+{
+  "info": {
+    "_postman_id": "838390fd-01a0-4c85-ab70-9d543b2fef08",
+    "name": "Wordvoya API",
+    "description": "Wordvoya skor tablosu ve yönetim paneli API'si (wordvoya.com/api). Ortam: `Wordvoya canlı` (adminUser, adminPassword doldur).\n\nKoleksiyonu baştan sona **Run collection** ile çalıştır: deneme oyuncularını panel açar, en sonda hepsi silinir. Tek tek çalıştırırken önce `0 · Hazırlık`.\n\nKimlik: oyuncu uçları `Authorization: Bearer <oyuncu jetonu>`; panel uçları giriş çerezi (`wv_admin`, Postman çerez kavanozu). Yeni oyuncu kaydı (POST /players) uygulamadan Play Integrity jetonuyla (`X-Integrity-Token`) yapılır.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "0 · Hazırlık",
+      "description": "Sırayla çalışır: sağlık, admin girişi (çerez Postman'in çerez kavanozuna girer), deneme oyuncusu.",
+      "item": [
+        {
+          "name": "Sağlık",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "health"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 200', () => pm.response.to.have.status(200));",
+                  "pm.test('ok: true', () => pm.expect(pm.response.json().ok).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Admin girişi",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "login"
+              ]
+            },
+            "description": "Şifre ortamın `adminPassword` değişkeninde (gizli). 15 dakikada en çok 10 deneme: yanlış şifreyle art arda çalıştırma.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{adminUser}}\",\n  \"password\": \"{{adminPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Rol admin', () => pm.expect(pm.response.json().role).to.eql('admin'));",
+                  "const c = pm.response.headers.get('Set-Cookie') || '';",
+                  "pm.test('Oturum çerezi HttpOnly + SameSite=Strict + Secure', () => { pm.expect(c).to.include('HttpOnly'); pm.expect(c).to.include('SameSite=Strict'); pm.expect(c).to.include('Secure'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Özet ve Play Integrity modu",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "summary"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 200', () => pm.response.to.have.status(200));",
+                  "const s = pm.response.json();",
+                  "pm.collectionVariables.set('integrityMode', s.integrity ? s.integrity.mode : 'off');",
+                  "console.log('Play Integrity:', JSON.stringify(s.integrity));",
+                  "pm.test('Özet alanları', () => pm.expect(s).to.have.keys('players','active1d','active7d','playingThisWeek','diamondsHeld','diamondsGranted','grantsPending','integrity'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Deneme oyuncusu aç (admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/test-players",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "test-players"
+              ]
+            },
+            "description": "Play Integrity zorunluyken uygulama dışından kayıt olunamaz; deneme oyuncusunu panel açar. Koleksiyonun sonundaki Temizlik onu siler.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman {{$randomInt}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 201', () => pm.response.to.have.status(201));",
+                  "const p = pm.response.json();",
+                  "pm.collectionVariables.set('playerToken', p.token);",
+                  "pm.collectionVariables.set('playerId', p.id);",
+                  "pm.test('Jeton ve kimlik geldi', () => { pm.expect(p.token).to.be.a('string').with.length.above(30); pm.expect(p.id).to.match(/^[0-9a-f-]{36}$/); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "İkinci deneme oyuncusu (IDOR denemesi için)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/test-players",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "test-players"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman Diger {{$randomInt}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 201', () => pm.response.to.have.status(201));",
+                  "const p = pm.response.json();",
+                  "pm.collectionVariables.set('otherToken', p.token);",
+                  "pm.collectionVariables.set('otherId', p.id);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1 · Oyuncu uçları",
+      "item": [
+        {
+          "name": "Skor gönder",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/players/me/scores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "players",
+                "me",
+                "scores"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"total\": 120,\n  \"weekly\": 120,\n  \"week\": {{week}},\n  \"level\": 3,\n  \"words\": 12,\n  \"diamonds\": 140,\n  \"last\": {\n    \"level\": 3,\n    \"seconds\": 41,\n    \"score\": 40\n  },\n  \"levels\": [\n    {\n      \"level\": 1,\n      \"seconds\": 30,\n      \"score\": 40\n    },\n    {\n      \"level\": 2,\n      \"seconds\": 35,\n      \"score\": 40\n    },\n    {\n      \"level\": 3,\n      \"seconds\": 41,\n      \"score\": 40\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Oyunun haftası (Play Games haftası: pazar 00:00 UTC−7), sunucudaki weekOf ile aynı",
+                  "const ms = Date.now();",
+                  "pm.collectionVariables.set('week', Math.floor((Math.floor((ms - 7 * 3600000) / 86400000) + 4) / 7));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Hediyeler dizisi', () => pm.expect(pm.response.json().grants).to.be.an('array'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Tablo: toplam, ilk 25",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/boards/total",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "boards",
+                "total"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('Ben tablodayım', () => pm.expect(b.player).to.include({ score: 120, me: true }));",
+                  "pm.test('En çok 25 satır', () => pm.expect(b.entries.length).to.be.at.most(25));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Tablo: yakınımdakiler",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/boards/total?scope=near",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "boards",
+                "total"
+              ],
+              "query": [
+                {
+                  "key": "scope",
+                  "value": "near"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 200', () => pm.response.to.have.status(200));",
+                  "pm.test('En çok 11 satır, biri ben', () => { const e = pm.response.json().entries; pm.expect(e.length).to.be.at.most(11); pm.expect(e.some(x => x.me)).to.eql(true); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Tablo: haftalık / bölüm / kelime",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/boards/weekly",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "boards",
+                "weekly"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ad değiştir",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/players/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "players",
+                "me"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman Yeni {{$randomInt}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Yeni ad döndü', () => pm.expect(pm.response.json().name).to.match(/^Postman Yeni/));",
+                  "pm.collectionVariables.set('takenName', pm.response.json().name.toUpperCase());"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ad: başkasının adı (409)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{otherToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/players/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "players",
+                "me"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{takenName}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// İlk oyuncunun güncel adını al",
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Alınmış ad reddedilir (409) ya da ad alınamadı', () => pm.expect(pm.response.code).to.be.oneOf([409]));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2 · Elmas hediyesi akışı",
+      "item": [
+        {
+          "name": "Admin: 25 elmas ver",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/players/{{playerId}}/grants",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "players",
+                "{{playerId}}",
+                "grants"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 25,\n  \"note\": \"Postman denemesi\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('grantId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Oyuncu skor gönderir: hediye cevapta",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/players/me/scores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "players",
+                "me",
+                "scores"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"total\": 120, \"weekly\": 120, \"week\": {{week}}, \"level\": 3, \"words\": 12, \"diamonds\": 140 }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Oyunun haftası (Play Games haftası: pazar 00:00 UTC−7), sunucudaki weekOf ile aynı",
+                  "const ms = Date.now();",
+                  "pm.collectionVariables.set('week', Math.floor((Math.floor((ms - 7 * 3600000) / 86400000) + 4) / 7));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 200', () => pm.response.to.have.status(200));",
+                  "const g = pm.response.json().grants;",
+                  "pm.test('Hediye geldi', () => pm.expect(g.map(x => x.id)).to.include(Number(pm.collectionVariables.get('grantId'))));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Teslim edilen hediye geri alınamaz (409)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/grants/{{grantId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "grants",
+                "{{grantId}}"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 409', () => pm.response.to.have.status(409));",
+                  "pm.test('Sebep: delivered', () => pm.expect(pm.response.json().error).to.eql('delivered'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Başka oyuncu hediyeyi onaylayamaz",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{otherToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/players/me/grants/ack",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "players",
+                "me",
+                "grants",
+                "ack"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"ids\": [{{grantId}}] }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Hediye hâlâ asıl oyuncuyu bekliyor",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/players/me/scores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "players",
+                "me",
+                "scores"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"total\": 120, \"weekly\": 120, \"week\": {{week}}, \"level\": 3, \"words\": 12 }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Oyunun haftası (Play Games haftası: pazar 00:00 UTC−7), sunucudaki weekOf ile aynı",
+                  "const ms = Date.now();",
+                  "pm.collectionVariables.set('week', Math.floor((Math.floor((ms - 7 * 3600000) / 86400000) + 4) / 7));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Hediye yerinde', () => pm.expect(pm.response.json().grants.length).to.eql(1));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Oyuncu hediyeyi onaylar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/players/me/grants/ack",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "players",
+                "me",
+                "grants",
+                "ack"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"ids\": [{{grantId}}] }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Onaydan sonra hediye gelmez",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/players/me/scores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "players",
+                "me",
+                "scores"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"total\": 120, \"weekly\": 120, \"week\": {{week}}, \"level\": 3, \"words\": 12 }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Oyunun haftası (Play Games haftası: pazar 00:00 UTC−7), sunucudaki weekOf ile aynı",
+                  "const ms = Date.now();",
+                  "pm.collectionVariables.set('week', Math.floor((Math.floor((ms - 7 * 3600000) / 86400000) + 4) / 7));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Bekleyen hediye yok', () => pm.expect(pm.response.json().grants).to.eql([]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Panel: oyuncu ayrıntısı",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/players/{{playerId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "players",
+                "{{playerId}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 200', () => pm.response.to.have.status(200));",
+                  "const d = pm.response.json();",
+                  "pm.test('Bölüm sonuçları kaydedildi', () => pm.expect(d.levels.length).to.be.at.least(3));",
+                  "pm.test('Elmas bakiyesi 140', () => pm.expect(d.player.diamonds).to.eql(140));",
+                  "pm.test('Yanıtta jeton özeti yok', () => pm.expect(pm.response.text()).to.not.include('token_hash'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3 · Güvenlik denetimleri",
+      "description": "Hepsi reddedilmeli. Kaba kuvvet ve hız sınırı denemeleri bilerek yok: çalıştıran IP'yi 15 dakika panelden kilitler.",
+      "item": [
+        {
+          "name": "Jetonsuz tablo → 401",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/boards/total",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "boards",
+                "total"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Uydurma jetonla tablo → 401",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer uydurma-jeton"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/boards/total",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "boards",
+                "total"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Jetonsuz skor yazma → 401",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/players/me/scores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "players",
+                "me",
+                "scores"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"total\":1,\"weekly\":0,\"week\":1,\"level\":1,\"words\":1}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Başka oyuncunun skoruna yazma (IDOR) → 404",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/players/{{otherId}}/scores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "players",
+                "{{otherId}}",
+                "scores"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"total\":1,\"weekly\":0,\"week\":1,\"level\":1,\"words\":1}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "İmkânsız skor (kelimeye göre) → 422",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/players/me/scores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "players",
+                "me",
+                "scores"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"total\": 9000000, \"weekly\": 0, \"week\": {{week}}, \"level\": 1, \"words\": 10 }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Oyunun haftası (Play Games haftası: pazar 00:00 UTC−7), sunucudaki weekOf ile aynı",
+                  "const ms = Date.now();",
+                  "pm.collectionVariables.set('week', Math.floor((Math.floor((ms - 7 * 3600000) / 86400000) + 4) / 7));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 422', () => pm.response.to.have.status(422));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Bölüm başına imkânsız puan → 422",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/players/me/scores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "players",
+                "me",
+                "scores"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"total\": 120, \"weekly\": 0, \"week\": {{week}}, \"level\": 3, \"words\": 12, \"levels\": [{\"level\": 3, \"seconds\": 5, \"score\": 999999}] }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Oyunun haftası (Play Games haftası: pazar 00:00 UTC−7), sunucudaki weekOf ile aynı",
+                  "const ms = Date.now();",
+                  "pm.collectionVariables.set('week', Math.floor((Math.floor((ms - 7 * 3600000) / 86400000) + 4) / 7));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 422', () => pm.response.to.have.status(422));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Süreyle mümkün olmayan artış kırpılır",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/players/me/scores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "players",
+                "me",
+                "scores"
+              ]
+            },
+            "description": "İstek 200 döner (oyuncu tablodan düşmesin) ama puan kırpılır ve oyuncu panelde 'şüpheli' işaretlenir.",
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"total\": 500000, \"weekly\": 0, \"week\": {{week}}, \"level\": 2900, \"words\": 33000 }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Oyunun haftası (Play Games haftası: pazar 00:00 UTC−7), sunucudaki weekOf ile aynı",
+                  "const ms = Date.now();",
+                  "pm.collectionVariables.set('week', Math.floor((Math.floor((ms - 7 * 3600000) / 86400000) + 4) / 7));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Kırpılma doğrulaması",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/players/{{playerId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "players",
+                "{{playerId}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 200', () => pm.response.to.have.status(200));",
+                  "const p = pm.response.json().player;",
+                  "pm.test('Puan kırpıldı', () => pm.expect(p.total).to.be.below(500000));",
+                  "pm.test('Şüpheli işaretlendi', () => pm.expect(p.flags).to.be.at.least(1));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "HTML/betik adı → 422",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/players/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "players",
+                "me"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"<img src=x onerror=alert(1)>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 422', () => pm.response.to.have.status(422));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Görünmez ad (Hangul dolgu) → 422",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/players/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "players",
+                "me"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"\\u3164\\u3164\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 422', () => pm.response.to.have.status(422));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Dizi gövde → 400",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/players/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "players",
+                "me"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[1,2,3]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Bütünlük jetonsuz kayıt",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/players",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "players"
+              ]
+            },
+            "description": "Play Integrity zorunluyken 403. Kapalı ya da 'kaydet' modunda kayıt açılır: o zaman sonraki istek onu hemen siler.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman Kayit {{$randomInt}}\",\n  \"nonce\": \"00112233445566778899aabbccddeeff\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const mode = pm.collectionVariables.get('integrityMode');",
+                  "if (mode === 'enforce') { pm.test('Zorunlu modda reddedilir', () => pm.response.to.have.status(403)); }",
+                  "else { pm.test('Mod ' + mode + ': kayıt açılır (silinecek)', () => pm.response.to.have.status(201)); pm.collectionVariables.set('strayToken', pm.response.json().token); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "(Temizlik) bütünlüksüz açılan kaydı sil",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{strayToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/players/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "players",
+                "me"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get('strayToken')) { pm.execution.skipRequest(); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.unset('strayToken');"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Panel: başka siteden istek (CSRF) → 403",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "https://kotu.example"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/players/{{playerId}}/grants",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "players",
+                "{{playerId}}",
+                "grants"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Panel: form gönderimi (CSRF) → 415",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/players/{{playerId}}/grants",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "players",
+                "{{playerId}}",
+                "grants"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "amount=5",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 415', () => pm.response.to.have.status(415));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Panel: sıralama alanında enjeksiyon → güvenli",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/players?sort=constructor&q=%25%27%20OR%201%3D1--",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "players"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "constructor"
+                },
+                {
+                  "key": "q",
+                  "value": "%25%27%20OR%201%3D1--"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Şifre özeti sızmadı', () => pm.expect(pm.response.text()).to.not.include('scrypt$'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Panel: yol aşma → 404",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/..%2fsrc%2fdb.ts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "..%2fsrc%2fdb.ts"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Panel sayfası güvenlik başlıkları",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 200', () => pm.response.to.have.status(200));",
+                  "pm.test('CSP: yalnız kendi betiği, çerçeveye girmez', () => { const c = pm.response.headers.get('Content-Security-Policy'); pm.expect(c).to.include(\"script-src 'self'\"); pm.expect(c).to.include(\"frame-ancestors 'none'\"); });",
+                  "pm.test('Arama motorlarına kapalı', () => pm.expect(pm.response.headers.get('X-Robots-Tag')).to.include('noindex'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "HSTS (nginx)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "health"
+              ]
+            },
+            "description": "api/nginx-hardening.sh çalıştırılınca geçer."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Strict-Transport-Security var', () => pm.expect(pm.response.headers.get('Strict-Transport-Security') || '').to.include('max-age'));",
+                  "pm.test('nginx sürümü gizli', () => pm.expect(pm.response.headers.get('Server') || '').to.not.match(/\\d/));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4 · Temizlik",
+      "description": "Koleksiyonun açtığı her şeyi siler; en sonda çıkış ve çıkıştan sonra oturumun kapandığı denetlenir.",
+      "item": [
+        {
+          "name": "Deneme oyuncusu kendini siler",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/players/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "players",
+                "me"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Silinen jeton artık geçmez → 401",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{playerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/boards/total",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "boards",
+                "total"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Admin: ikinci deneme oyuncusunu sil",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/players/{{otherId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "players",
+                "{{otherId}}"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Admin çıkışı",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "logout"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Çıkıştan sonra panel → 401",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "me"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum 401', () => pm.response.to.have.status(401));",
+                  "['playerToken','playerId','otherToken','otherId','grantId','takenName'].forEach(k => pm.collectionVariables.unset(k));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "week",
+      "value": ""
+    },
+    {
+      "key": "integrityMode",
+      "value": ""
+    },
+    {
+      "key": "playerToken",
+      "value": ""
+    },
+    {
+      "key": "playerId",
+      "value": ""
+    },
+    {
+      "key": "otherToken",
+      "value": ""
+    },
+    {
+      "key": "otherId",
+      "value": ""
+    },
+    {
+      "key": "grantId",
+      "value": ""
+    },
+    {
+      "key": "takenName",
+      "value": ""
+    },
+    {
+      "key": "strayToken",
+      "value": ""
+    }
+  ]
+}

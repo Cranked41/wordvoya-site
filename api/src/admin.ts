@@ -40,7 +40,7 @@ const SORTS: Record<Sort, string> = {
   total: 'p.total', weekly: 'weekly_now', level: 'p.level', words: 'p.words',
   diamonds: 'COALESCE(p.diamonds, -1)', seen: 'COALESCE(p.seen_at, 0)', created: 'p.created_at', name: 'p.name_key',
 }
-export const isSort = (s: string): s is Sort => s in SORTS
+export const isSort = (s: string): s is Sort => Object.hasOwn(SORTS, s)
 
 export class AdminStore {
   private store: Store
@@ -177,7 +177,7 @@ export class AdminStore {
       'SELECT level, score, seconds, first_at, best_at FROM level_results WHERE player_id = ? ORDER BY level DESC',
     ).all(id)
     const grants = this.db.prepare(
-      'SELECT id, amount, note, admin, created_at, claimed_at FROM grants WHERE player_id = ? ORDER BY id DESC',
+      'SELECT id, amount, note, admin, created_at, delivered_at, claimed_at FROM grants WHERE player_id = ? ORDER BY id DESC',
     ).all(id)
     return { player: { ...this.publicPlayer(p), ranks }, levels, grants }
   }
@@ -191,9 +191,9 @@ export class AdminStore {
     return Number(r.lastInsertRowid)
   }
 
-  /** Henüz alınmamış hediyeyi geri çeker. */
+  /** Uygulamaya henüz teslim edilmemiş hediyeyi geri çeker (teslim edildiyse oyuncu elmasları almış olabilir). */
   revokeGrant(grantId: number): boolean {
-    return this.db.prepare('DELETE FROM grants WHERE id = ? AND claimed_at IS NULL').run(grantId).changes > 0
+    return this.db.prepare('DELETE FROM grants WHERE id = ? AND claimed_at IS NULL AND delivered_at IS NULL').run(grantId).changes > 0
   }
 
   private publicPlayer(p: PlayerRow & PanelExtra) {
@@ -212,6 +212,8 @@ export class AdminStore {
       granted: p.granted,
       createdAt: p.created_at,
       seenAt: p.seen_at,
+      flags: p.flags ?? 0,
+      flaggedAt: p.flagged_at,
     }
   }
 }

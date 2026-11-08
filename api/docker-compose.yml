@@ -7,7 +7,29 @@ services:
     ports:
       # Yalnız yerelden: dışarıya host nginx (https://wordvoya.com/api/) üzerinden açılır
       - "127.0.0.1:8087:8080"
+    environment:
+      # Play Integrity (src/integrity.ts): off | report | enforce. Sunucuda /root/wordvoya-api/.env dosyasında
+      # INTEGRITY_MODE=report yazılır; değiştirince: docker compose up -d (dağıtım bu dosyaya dokunmaz)
+      INTEGRITY_MODE: ${INTEGRITY_MODE:-off}
+      INTEGRITY_KEY_FILE: /secrets/play-integrity.json
     volumes:
       # Veritabanı ve günlük yedekler (konteyner silinse de kalır)
       - /root/wordvoya-api/data:/data
+      # Play Integrity servis hesabı anahtarı: yalnız okunur, depoda yok (chown 1000, chmod 400)
+      - /root/wordvoya-api/secrets:/secrets:ro
     mem_limit: 128m
+    # Sıkılaştırma: dosya sistemi salt okunur (yazma yalnız /data ve /tmp), Linux yetkileri kapalı,
+    # yetki yükseltme yok, süreç sayısı ve günlük boyutu sınırlı
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 100
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

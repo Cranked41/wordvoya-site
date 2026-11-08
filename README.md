@@ -87,3 +87,34 @@ docker exec -it wordvoya-api node src/admin-cli.ts list
 ```
 
 Elmas bakiyesi ve bölüm ayrıntısı uygulamanın 1.3.15 sürümünden itibaren gelir; eski sürümler yalnız toplamları gönderir.
+
+### Güvenlik (2026-11-08 incelemesi)
+
+- **Jeton:** sağlık (`/health`) ve kayıt dışında her oyuncu ucu `Authorization: Bearer <oyuncu jetonu>` ister (tablolar dahil).
+  Jeton cihazda üretilir, sunucuda yalnız SHA-256'sı tutulur.
+- **Kayıt (Play Integrity):** uygulama kayıt gövdesinin SHA-256'sına bağlı bir Standard API jetonu gönderir
+  (`X-Integrity-Token`); sunucu `src/integrity.ts` ile Google'a çözdürür: paket adı, gövde özeti, tazelik (5 dk),
+  `PLAY_RECOGNIZED`, cihazda en az temel bütünlük, gövdede nonce, aynı jeton ikinci kez değil. Modlar (`INTEGRITY_MODE`):
+  `off` (denetim yok) → `report` (denetler, sayar, engellemez) → `enforce` (geçmeyen kayıt 403). Zorunlu modda anahtar
+  okunamazsa kayıt hiç açılmaz (fail closed). Panel özetinde mod ve sebep sebep sayılar görünür.
+- **Puan artışı** son gönderimden beri geçen gerçek süreyle sınırlı (`db.ts growthLimit`); fazlası kırpılır, oyuncu panelde
+  "şüpheli" işaretlenir. İlk gönderim cihazdaki geçmişi taşır, tavanı `IMPORT_MAX_*`.
+- **Panel:** scrypt şifre, HttpOnly + SameSite=Strict + Secure çerez, IP başına 15 dakikada 10, kullanıcı adı başına saatte
+  30 giriş, aynı anda en çok 4 scrypt; CSRF için Origin + JSON şartı; sıkı CSP.
+- **Konteyner:** salt okunur dosya sistemi, yetkiler kapalı, `no-new-privileges`, süreç ve günlük sınırı; `.dockerignore`
+  veritabanını ve anahtarı imaja sokmaz. CI'daki üçüncü taraf eylemler commit özetine sabit.
+- `npm run security`: 72 saldırı denemesi (yetki, IDOR, hile, enjeksiyon, CSRF, kaba kuvvet, sınırlar) bellekteki kopyaya.
+- `postman/`: koleksiyon + ortam. Run collection ile baştan sona; deneme oyuncularını panel açar, sonda hepsi silinir.
+
+**Play Integrity'yi açmak (bir kez):**
+
+1. Play Console > Test ve yayınla > Uygulama bütünlüğü: bir Google Cloud projesi bağla. Proje NUMARASI uygulamadaki
+   `integrityProjectNumber` (Wordvoya `app/androidApp/build.gradle.kts`) ile aynı olmalı.
+2. O Cloud projesinde **Google Play Integrity API**'yi etkinleştir; bir servis hesabı aç (rol gerekmez), JSON anahtarı indir.
+3. Sunucuya koy (anahtar depoya girmez):
+   `mkdir -p /root/wordvoya-api/secrets && mv anahtar.json /root/wordvoya-api/secrets/play-integrity.json && chown 1000:1000 /root/wordvoya-api/secrets/play-integrity.json && chmod 400 /root/wordvoya-api/secrets/play-integrity.json`
+4. `/root/wordvoya-api/.env` içine `INTEGRITY_MODE=report`, sonra `cd /root/wordvoya-api && docker compose up -d`.
+5. Jeton gönderen uygulama sürümü yayınlandıktan sonra paneldeki Play Integrity kartına bak; eski sürümler azalıp
+   geçmeyenler sıfıra yakınsa `INTEGRITY_MODE=enforce` ve yine `docker compose up -d`.
+
+**nginx (bir kez):** `api/nginx-hardening.sh` HSTS ekler, nginx sürümünü gizler (`scp api\nginx-hardening.sh vds:/root/` ve `ssh vds sh /root/nginx-hardening.sh`).

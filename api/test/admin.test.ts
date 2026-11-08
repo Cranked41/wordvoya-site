@@ -102,21 +102,27 @@ test('elmas: admin verir, oyuncu alır, bir daha gelmez', async () => {
     const first = await call('POST', path, { amount: 50, note: '  Turnuva   ödülü ' }, { cookie: admin })
     assert.equal(first.status, 201)
     const second = (await call('POST', path, { amount: 20 }, { cookie: admin })).body
+    // Uygulamaya teslim edilmeden geri alınabilir
+    const third = (await call('POST', path, { amount: 7 }, { cookie: admin })).body
+    assert.equal((await call('DELETE', `/api/v1/admin/grants/${third.id}`, {}, { cookie: viewer })).status, 403)
+    assert.equal((await call('DELETE', `/api/v1/admin/grants/${third.id}`, {}, { cookie: admin })).status, 200)
 
     const snap = { total: 100, weekly: 100, week, level: 3, words: 30, diamonds: 140 }
     const put = await call('PUT', '/api/v1/players/me/scores', snap, { token: player.token })
     assert.deepEqual(put.body.grants, [{ id: first.body.id, amount: 50, note: 'Turnuva ödülü' }, { id: second.id, amount: 20, note: '' }])
 
-    // İkincisi geri alınır; ilki alınır
-    assert.equal((await call('DELETE', `/api/v1/admin/grants/${second.id}`, {}, { cookie: viewer })).status, 403)
-    assert.equal((await call('DELETE', `/api/v1/admin/grants/${second.id}`, {}, { cookie: admin })).status, 200)
+    // Teslim edildikten sonra geri alınamaz (oyuncu elmasları bakiyesine eklemiş olabilir)
+    const late = await call('DELETE', `/api/v1/admin/grants/${second.id}`, {}, { cookie: admin })
+    assert.equal(late.status, 409)
+    assert.equal(late.body.error, 'delivered')
+    assert.equal((await call('POST', '/api/v1/players/me/grants/ack', { ids: [second.id] }, { token: player.token })).status, 200)
     assert.equal((await call('POST', '/api/v1/players/me/grants/ack', { ids: [first.body.id] }, { token: player.token })).status, 200)
     assert.deepEqual((await call('PUT', '/api/v1/players/me/scores', snap, { token: player.token })).body.grants, [])
     assert.equal((await call('DELETE', `/api/v1/admin/grants/${first.body.id}`, {}, { cookie: admin })).status, 409)   // alınmış
 
     const detail = (await call('GET', `/api/v1/admin/players/${player.id}`, undefined, { cookie: viewer })).body
-    assert.equal(detail.player.granted, 50)
-    assert.equal(detail.grants.length, 1)
+    assert.equal(detail.player.granted, 70)
+    assert.equal(detail.grants.length, 2)
     assert.equal(detail.grants[0].admin, 'riza')
     assert.ok(detail.grants[0].claimed_at)
   } finally { await stop() }

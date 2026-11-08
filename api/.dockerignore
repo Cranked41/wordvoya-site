@@ -1,0 +1,11 @@
+# İmaja yalnız package.json, src ve admin girer (Dockerfile). Sunucudaki derleme klasöründe canlı veritabanı,
+# yedekler, Play Integrity anahtarı ve .env de durur: yanlışlıkla COPY . . yazılsa bile imaja girmesinler.
+data
+secrets
+.env
+*.db
+*.db-*
+test
+postman
+node_modules
+*.sh

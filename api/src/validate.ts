@@ -12,7 +12,11 @@ const BLOCKED = [
 
 // Harf/işaret/rakamla başlar. Ayraçlar: boşluk . _ ' ’ - ve · ・ (Japonca yabancı adlar: マイケル・ジャクソン);
 // ZWNJ/ZWJ Farsça ve Hintçe yazımın parçası (علی‌رضا klavyede yarım boşlukla yazılır).
-const NAME_PATTERN = /^[\p{L}\p{M}\p{N}][\p{L}\p{M}\p{N} ._'’\-·・\u200c\u200d]*$/u
+const NAME_PATTERN = /^[\p{L}\p{N}][\p{L}\p{M}\p{N} ._'’\-·・\u200c\u200d]*$/u
+// Harf sayılan ama görünmeyen dolgu karakterleri (Hangul): boş görünen ad olmasın
+const INVISIBLE = /[\u115f\u1160\u3164\uffa0]/u
+// Yarım boşluk / birleştirici yalnız iki harfin arasında (sonda, başta ya da art arda değil)
+const BAD_JOINER = /[\u200c\u200d](?![\p{L}\p{M}])|[\u200c\u200d]{2}/u
 
 /**
  * Aynı ad denetiminin anahtarı: büyük/küçük harf, Latin/Kiril aksanları, Arapça harekeler, ayraçlar ve
@@ -37,7 +41,8 @@ export function cleanName(raw: unknown): string | null {
   const name = raw.normalize('NFC').replace(/\s+/gu, ' ').trim()
   const length = [...name].length
   if (length < NAME_MIN || length > NAME_MAX) return null
-  if (!NAME_PATTERN.test(name)) return null
+  if (!NAME_PATTERN.test(name) || INVISIBLE.test(name) || BAD_JOINER.test(name)) return null
+  if (nameKey(name).length < NAME_MIN) return null   // ör. yalnız ayraç ve işaretlerden oluşan ad
   const lower = name.toLocaleLowerCase('tr')
   const words = lower.split(/[^\p{L}\p{N}]+/u).filter(Boolean)
   const joined = words.join('')
@@ -91,13 +96,15 @@ export function parseSnapshot(body: unknown): Snapshot | string {
 }
 
 const MAX_DIAMONDS = 100_000_000
+const MAX_LEVEL_SCORE = 2_000
 /** Uygulama gönderilemeyen bölümleri biriktirir; bir gönderimde en çok bu kadarı gelir. */
 export const MAX_LEVELS_PER_SYNC = 100
 
 function parseLast(v: unknown): Last | null {
   if (typeof v !== 'object' || v === null) return null
   const l = v as Record<string, unknown>
-  const ll = int(l.level, MAX_LEVEL), ls = int(l.seconds, 86_400), lp = int(l.score, 10_000)
+  // Bir bölüm en çok ~400 puan eder (12 kelime + bonus + hız); 2000 cömert tavan
+  const ll = int(l.level, MAX_LEVEL), ls = int(l.seconds, 86_400), lp = int(l.score, MAX_LEVEL_SCORE)
   if (ll == null || ll < 1 || ls == null || lp == null) return null
   return { level: ll, seconds: ls, score: lp }
 }

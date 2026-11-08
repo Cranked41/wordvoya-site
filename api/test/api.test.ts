@@ -44,9 +44,9 @@ test('kayıt, skor ve sıra', async () => {
     assert.equal(top.player.rank, 2)
 
     // Bölüm tablosunda son bölüm bilgisi yok
-    const level = (await call('GET', '/boards/level')).body
+    const level = (await call('GET', '/boards/level', undefined, c.token)).body
     assert.equal(level.entries[0].last, null)
-    assert.equal(level.player, null)
+    assert.equal(level.player.last, null)
   } finally { await stop() }
 })
 
@@ -56,13 +56,13 @@ test('en iyi skor kalır, haftalık yalnız bu hafta sayılır', async () => {
     const a = (await call('POST', '/players', { name: 'Elif' })).body
     await call('PUT', '/players/me/scores', { ...snap(900), week }, a.token)
     await call('PUT', '/players/me/scores', { ...snap(100), week }, a.token)   // ilerleme sıfırlandı
-    assert.equal((await call('GET', '/boards/total')).body.entries[0].score, 900)
+    assert.equal((await call('GET', '/boards/total', undefined, a.token)).body.entries[0].score, 900)
 
     const b = (await call('POST', '/players', { name: 'Mert' })).body
     await call('PUT', '/players/me/scores', { ...snap(300), week: week - 1 }, b.token)  // geçen hafta
-    const weekly = (await call('GET', '/boards/weekly')).body
+    const weekly = (await call('GET', '/boards/weekly', undefined, a.token)).body
     assert.deepEqual(weekly.entries.map((e: any) => e.name), ['Elif'])
-    assert.equal((await call('GET', '/boards/total')).body.entries.length, 2)
+    assert.equal((await call('GET', '/boards/total', undefined, a.token)).body.entries.length, 2)
   } finally { await stop() }
 })
 
@@ -80,8 +80,11 @@ test('yakınımdakiler oyuncuyu ortalar', async () => {
     assert.equal(near.player.rank, 20)
     assert.deepEqual(near.entries.map((e: any) => e.rank), [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25])
     assert.ok(near.entries.find((e: any) => e.rank === 20).me)
-    // Oturumsuz ya da skorsuz istekte ilk sıralar gelir
-    assert.equal((await call('GET', '/boards/total?scope=near')).body.entries[0].rank, 1)
+    // Jetonsuz istek reddedilir; skorsuz oyuncuya ilk sıralar gelir
+    assert.equal((await call('GET', '/boards/total?scope=near')).status, 401)
+    assert.equal((await call('GET', '/boards/total', undefined, 'yanlis')).status, 401)
+    const fresh = (await call('POST', '/players', { name: 'Yeni Gelen' })).body
+    assert.equal((await call('GET', '/boards/total?scope=near', undefined, fresh.token)).body.entries[0].rank, 1)
   } finally { await stop() }
 })
 
@@ -106,7 +109,9 @@ test('oyuncu kaydını siler', async () => {
     const a = (await call('POST', '/players', { name: 'Elif' })).body
     await call('PUT', '/players/me/scores', { ...snap(900), week }, a.token)
     assert.equal((await call('DELETE', '/players/me', undefined, a.token)).status, 200)
-    assert.equal((await call('GET', '/boards/total')).body.entries.length, 0)
+    const b = (await call('POST', '/players', { name: 'Mert' })).body
+    assert.equal((await call('GET', '/boards/total', undefined, b.token)).body.entries.length, 0)
+    assert.equal((await call('GET', '/boards/total', undefined, a.token)).status, 401)   // silinen jeton
     assert.equal((await call('PUT', '/players/me/scores', { ...snap(900), week }, a.token)).status, 401)
     assert.equal((await call('DELETE', '/players/me', undefined, a.token)).status, 401)
   } finally { await stop() }
@@ -153,11 +158,19 @@ test('aynı adda iki oyuncu olmaz', async () => {
 })
 
 test('dillere göre adlar', () => {
-  for (const name of ['علی‌رضا', 'श्री‍', 'マイケル・ジャクソン', 'Jordi·Puig', '山田 太郎', 'Пётр', 'فاطمة الزّهراء', '김민준']) {
+  for (const name of ['علی‌رضا', 'श्री', 'マイケル・ジャクソン', 'Jordi·Puig', '山田 太郎', 'Пётр', 'فاطمة الزّهراء', '김민준']) {
     assert.equal(cleanName(name), name, name)
   }
   assert.equal(cleanName('山田　太郎'), '山田 太郎')   // tam genişlik boşluk
   assert.equal(cleanName('‌علی'), null)              // yarım boşlukla başlayamaz
+  // Güvenlik incelemesi: görünmez ya da boş görünen adlar
+  assert.equal(cleanName('ㅤㅤ'), null)        // Hangul dolgu harfi (harf sayılır ama görünmez)
+  assert.equal(cleanName('́́'), null)        // yalnız birleşik işaret
+  assert.equal(cleanName('ًٌ'), null)        // yalnız Arapça hareke
+  assert.equal(cleanName('A‍‍‍'), null)  // sonda / art arda birleştirici
+  assert.equal(cleanName('श्री‍'), null)          // sonda birleştirici
+  assert.equal(cleanName('a‌‌b'), null)     // art arda yarım boşluk
+  assert.equal(cleanName('.-.'), null)                 // yalnız ayraç
   // Aynı sayılanlar
   assert.equal(nameKey('İbrahim'), nameKey('ibrahim'))
   assert.equal(nameKey('Jürgen Groß'), nameKey('jurgen gross'))

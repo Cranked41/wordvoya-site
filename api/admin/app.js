@@ -63,6 +63,20 @@ function stat(label, value, sub, cls) {
     sub ? h('div', { class: 'sub', text: sub }) : null)
 }
 
+const MODE_NAMES = { off: 'kapalı', report: 'yalnız kaydet', enforce: 'zorunlu' }
+
+function integrityStat(i) {
+  if (!i) return null
+  const results = i.results || {}
+  const ok = results.ok || 0
+  const failed = Object.entries(results).filter(([k]) => k !== 'ok' && k !== 'off').reduce((a, [, n]) => a + n, 0)
+  const sub = i.mode === 'off' ? 'kayıt denetlenmiyor' : `${num(ok)} geçti · ${num(failed)} geçmedi`
+  const el = stat('Play Integrity', MODE_NAMES[i.mode] || i.mode, sub)
+  // Ayrıntı: hangi sebeple kaç kayıt geçmedi
+  el.title = Object.entries(results).map(([k, n]) => `${k}: ${n}`).join(', ') || 'henüz kayıt yok'
+  return el
+}
+
 function setWho() {
   who.replaceChildren()
   who.hidden = !me
@@ -151,6 +165,7 @@ async function showList() {
       stat('Bu hafta puan alan', num(s.playingThisWeek)),
       stat('Oyuncuların elması', num(s.diamondsHeld), 'toplam bakiye', 'gem'),
       stat('Hediye edilen elmas', num(s.diamondsGranted), s.grantsPending ? `${s.grantsPending} hediye bekliyor` : 'hepsi alındı', 'gem'),
+      integrityStat(s.integrity),
     )
   }).catch(() => {})
   loadTable(tableBox)
@@ -184,7 +199,7 @@ async function loadTable(box) {
     onkeydown: (e) => { if (e.key === 'Enter') location.hash = `#/p/${p.id}` },
   },
   h('td', { class: 'num', text: p.rank ?? '—' }),
-  h('td', { class: 'name' }, p.name, p.hidden ? ' ' : '', p.hidden ? h('span', { class: 'badge hidden', text: 'gizli' }) : ''),
+  h('td', { class: 'name' }, p.name, badges(p)),
   h('td', { class: 'num', text: num(p.total) }),
   h('td', { class: 'num', text: num(p.weekly) }),
   h('td', { class: 'num', text: num(p.level) }),
@@ -231,11 +246,46 @@ async function showPlayer(id) {
   app.replaceChildren(h('div', { class: 'stack' },
     backLink(),
     h('div', {},
-      h('h1', {}, p.name, p.hidden ? ' ' : '', p.hidden ? h('span', { class: 'badge hidden', text: 'gizli' }) : ''),
+      h('h1', {}, p.name, badges(p)),
+      p.flags ? h('p', { class: 'error', text: `Şüpheli: ${num(p.flags)} kez gerçek süreyle mümkün olmayan puan gönderdi (son ${date(p.flaggedAt)}). Fazlası tabloya yazılmadı.` }) : null,
       h('p', { class: 'muted', text: `Katıldı ${date(p.createdAt)} · son görülme ${ago(p.seenAt)}` })),
     stats,
     h('div', { class: 'grid2' }, grantCard(p, data.grants), grantHistory(data.grants, id)),
-    levelsCard(data.levels, p)))
+    levelsCard(data.levels, p),
+    manageCard(p)))
+}
+
+function manageCard(p) {
+  const card = h('div', { class: 'card' }, h('h2', { text: 'Yönetim' }))
+  if (me.role !== 'admin') {
+    card.append(h('p', { class: 'muted', text: 'Gizleme ve silme için admin yetkisi gerekir.' }))
+    return card
+  }
+  const msg = h('p', { class: 'error', role: 'status' })
+  const hide = h('button', {
+    onclick: async () => {
+      try { await api('PATCH', `/players/${p.id}`, { hidden: !p.hidden }); showPlayer(p.id) } catch { msg.textContent = 'Yapılamadı, tekrar dene.' }
+    },
+    text: p.hidden ? 'Tablolarda göster' : 'Tablolardan gizle (uygunsuz ad)',
+  })
+  const remove = h('button', {
+    class: 'danger',
+    onclick: async () => {
+      if (!confirm(`${p.name} adlı oyuncunun kaydı, bölüm sonuçları ve hediyeleri silinsin mi? Geri alınamaz.`)) return
+      try { await api('DELETE', `/players/${p.id}`); location.hash = '' } catch { msg.textContent = 'Silinemedi, tekrar dene.' }
+    },
+    text: 'Oyuncuyu sil',
+  })
+  card.append(h('div', { class: 'toolbar' }, hide, remove), msg,
+    h('p', { class: 'muted', text: 'Gizlenen oyuncu puan toplamaya devam eder ama hiçbir tabloda görünmez. Silinen oyuncu uygulamayı açınca yeni bir adla yeniden kaydolur.' }))
+  return card
+}
+
+function badges(p) {
+  const out = []
+  if (p.hidden) out.push(' ', h('span', { class: 'badge hidden', text: 'gizli' }))
+  if (p.flags) out.push(' ', h('span', { class: 'badge hidden', title: 'Gerçek süreyle mümkün olmayan puan gönderdi', text: 'şüpheli' }))
+  return out
 }
 
 function backLink() {
@@ -287,11 +337,13 @@ function grantHistory(grants, playerId) {
       h('td', { title: date(g.created_at), text: ago(g.created_at) }),
       h('td', {}, g.claimed_at
         ? h('span', { title: date(g.claimed_at), text: `Alındı ${ago(g.claimed_at)}` })
+        : g.delivered_at
+        ? h('span', { title: date(g.delivered_at), text: `Uygulamaya gitti ${ago(g.delivered_at)}, onay bekleniyor` })
         : h('span', {}, 'Bekliyor', me.role === 'admin' ? ' · ' : '', me.role === 'admin' ? h('button', {
           class: 'link danger',
           onclick: async () => {
             if (!confirm(`${num(g.amount)} elmaslık hediye geri alınsın mı?`)) return
-            try { await api('DELETE', `/grants/${g.id}`) } catch (e) { if (e.status === 409) alert('Oyuncu bu hediyeyi az önce aldı; geri alınamaz.') }
+            try { await api('DELETE', `/grants/${g.id}`) } catch (e) { if (e.status === 409) alert('Hediye az önce uygulamaya gitti; geri alınamaz.') }
             showPlayer(playerId)
           },
           text: 'Geri al',
