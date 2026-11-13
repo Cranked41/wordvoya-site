@@ -186,3 +186,37 @@ test('panel sayfası sıkı güvenlik başlıklarıyla gelir', async () => {
     assert.equal((await call('GET', '/api/admin/../src/db.ts')).status, 404)
   } finally { await stop() }
 })
+
+test('toplu silme: yalnız admin, hepsi tek işlemde, bozuk istek reddedilir', async () => {
+  const { call, login, stop, week, admins } = await start()
+  try {
+    const ps: any[] = []
+    for (const name of ['Bir', 'İki', 'Üç', 'Dört']) ps.push((await call('POST', '/api/v1/players', { name })).body)
+    await call('PUT', '/api/v1/players/me/scores', { total: 50, weekly: 50, week, level: 2, words: 5, levels: [{ level: 1, seconds: 20, score: 50 }] }, { token: ps[0].token })
+    const admin = (await login('riza', 'dogru-sifre-123')).cookie
+    const viewer = (await login('izleyici', 'izleyici-sifre-1')).cookie
+    await call('POST', `/api/v1/admin/players/${ps[0].id}/grants`, { amount: 10 }, { cookie: admin })
+    const path = '/api/v1/admin/players/delete'
+
+    assert.equal((await call('POST', path, { ids: [ps[0].id] }, { cookie: viewer })).status, 403)
+    assert.equal((await call('POST', path, { ids: [ps[0].id] })).status, 401)
+    assert.equal((await call('POST', path, { ids: [ps[0].id] }, { cookie: admin, origin: 'https://kotu.example' })).status, 403)
+    for (const bad of [{}, { ids: [] }, { ids: 'x' }, { ids: ['../etc'] }, { ids: [1] }, { ids: Array(201).fill(ps[0].id) }]) {
+      assert.equal((await call('POST', path, bad, { cookie: admin })).status, 422, JSON.stringify(bad).slice(0, 40))
+    }
+
+    // Tekrarlanan ve olmayan kimlik sayılmaz
+    const missing = '00000000-0000-0000-0000-000000000000'
+    const r = await call('POST', path, { ids: [ps[0].id, ps[1].id, ps[0].id, missing] }, { cookie: admin })
+    assert.deepEqual([r.status, r.body], [200, { deleted: 2 }])
+    const list = (await call('GET', '/api/v1/admin/players?sort=name&dir=asc', undefined, { cookie: viewer })).body
+    assert.deepEqual(list.players.map((p: any) => p.name).sort(), ['Dört', 'Üç'])
+    // Silinenin bölüm sonuçları ve hediyeleri de gider; jetonu artık geçmez
+    assert.equal((await call('GET', `/api/v1/admin/players/${ps[0].id}`, undefined, { cookie: admin })).status, 404)
+    assert.equal((await call('PUT', '/api/v1/players/me/scores', { total: 60, weekly: 60, week, level: 2, words: 6 }, { token: ps[0].token })).status, 401)
+    const db = (admins as any).store.db
+    for (const table of ['level_results', 'grants']) {
+      assert.equal(db.prepare(`SELECT COUNT(*) AS n FROM ${table} WHERE player_id = ?`).get(ps[0].id).n, 0, table)
+    }
+  } finally { await stop() }
+})

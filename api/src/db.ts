@@ -213,6 +213,23 @@ export class Store {
     }
   }
 
+  /** Panelden toplu silme: hepsi tek işlemde (biri bozulursa hiçbiri silinmez). Silinen oyuncu sayısını döner. */
+  deletePlayers(ids: string[]): number {
+    let deleted = 0
+    this.db.exec('BEGIN')
+    try {
+      for (const id of ids) {
+        for (const table of ['level_results', 'grants']) this.db.prepare(`DELETE FROM ${table} WHERE player_id = ?`).run(id)
+        deleted += Number(this.db.prepare('DELETE FROM players WHERE id = ?').run(id).changes)
+      }
+      this.db.exec('COMMIT')
+    } catch (e) {
+      this.db.exec('ROLLBACK')
+      throw e
+    }
+    return deleted
+  }
+
   /** Panelden: uygunsuz adlı oyuncu tablolarda görünmez (kaydı ve puanları durur). */
   setHidden(id: string, hidden: boolean): boolean {
     return this.db.prepare('UPDATE players SET hidden = ? WHERE id = ?').run(hidden ? 1 : 0, id).changes > 0

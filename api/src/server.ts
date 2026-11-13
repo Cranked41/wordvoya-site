@@ -130,6 +130,8 @@ function cookie(req: IncomingMessage, name: string): string | null {
 
 const MAX_GRANT = 100_000
 const NOTE_MAX = 120
+/** Tek istekte silinebilecek en çok oyuncu (8 KB gövde sınırına sığar; panel fazlasını parça parça gönderir). */
+const BULK_DELETE_MAX = 200
 
 export function createApp(
   store: Store,
@@ -301,6 +303,17 @@ export function createApp(
       if (!player) throw new HttpError(409, 'name_taken')
       console.log(`admin ${admin.username}: deneme oyuncusu ${player.id}`)
       return send(res, 201, player)
+    }
+
+    // Toplu silme (panelde seçilen oyuncular). DELETE gövdesi bazı vekillerde düştüğü için POST.
+    if (path === '/players/delete' && method === 'POST') {
+      requireAdmin()
+      const ids = ((await readJson(req)) as Json).ids
+      if (!Array.isArray(ids) || ids.length < 1 || ids.length > BULK_DELETE_MAX ||
+          !ids.every((id) => typeof id === 'string' && /^[0-9a-f-]{36}$/.test(id))) throw new HttpError(422, 'ids')
+      const deleted = store.deletePlayers([...new Set(ids as string[])])
+      console.log(`admin ${admin.username}: ${deleted} oyuncu toplu silindi`)
+      return send(res, 200, { deleted })
     }
 
     const manage = path.match(/^\/players\/([0-9a-f-]{36})$/)

@@ -6,6 +6,9 @@ const app = document.getElementById('app')
 const who = document.getElementById('who')
 let me = null
 const state = { q: '', sort: 'total', dir: 'desc', offset: 0 }
+// Toplu işlem için seçilen oyuncular (id → ad). Sayfa, sıralama ve arama değişse de seçim kalır.
+const selected = new Map()
+const BULK_CHUNK = 200   // sunucunun tek istekte kabul ettiği en çok kimlik
 
 // --- Yardımcılar ---
 
@@ -145,11 +148,17 @@ async function showList() {
   const summaryBox = h('div', { class: 'stats' })
   const search = h('input', { type: 'search', placeholder: 'Ada göre ara…', value: state.q, 'aria-label': 'Ada göre ara' })
   const tableBox = h('div')
+  const bulkBox = h('div')
   app.replaceChildren(h('div', { class: 'stack' },
-    h('div', {}, h('h1', { text: 'Oyuncular' }), h('p', { class: 'muted', text: 'Satıra tıklayınca bölüm sonuçları ve elmas geçmişi açılır.' })),
+    h('div', {}, h('h1', { text: 'Oyuncular' }), h('p', { class: 'muted', text: me.role === 'admin'
+      ? 'Satıra tıklayınca bölüm sonuçları ve elmas geçmişi açılır. Kutularla birden çok oyuncu seçip birlikte silebilirsin.'
+      : 'Satıra tıklayınca bölüm sonuçları ve elmas geçmişi açılır.' })),
     summaryBox,
     h('div', { class: 'toolbar' }, search),
+    bulkBox,
     tableBox))
+  tableBox.bulkBox = bulkBox
+  tableBox.summaryBox = summaryBox
 
   let timer = null
   search.addEventListener('input', () => {
@@ -157,6 +166,11 @@ async function showList() {
     timer = setTimeout(() => { state.q = search.value.trim(); state.offset = 0; loadTable(tableBox) }, 250)
   })
 
+  loadSummary(summaryBox)
+  loadTable(tableBox)
+}
+
+function loadSummary(summaryBox) {
   api('GET', '/summary').then((s) => {
     summaryBox.replaceChildren(
       stat('Oyuncu', num(s.players)),
@@ -168,7 +182,54 @@ async function showList() {
       integrityStat(s.integrity),
     )
   }).catch(() => {})
-  loadTable(tableBox)
+}
+
+// --- Toplu seçim ---
+
+function bulkBar(box) {
+  const bar = box.bulkBox
+  if (!bar) return
+  bar.replaceChildren()
+  if (me.role !== 'admin' || !selected.size) return
+  const msg = h('span', { class: 'error', role: 'status' })
+  const remove = h('button', {
+    class: 'danger',
+    onclick: async () => {
+      const names = [...selected.values()]
+      const preview = names.slice(0, 8).join(', ') + (names.length > 8 ? ` ve ${num(names.length - 8)} oyuncu daha` : '')
+      if (!confirm(`${num(names.length)} oyuncu silinsin mi?\n\n${preview}\n\nKayıtları, bölüm sonuçları ve hediyeleri silinir. Geri alınamaz.`)) return
+      remove.disabled = true
+      msg.textContent = ''
+      const ids = [...selected.keys()]
+      let deleted = 0
+      let failure = null
+      try {
+        for (let i = 0; i < ids.length; i += BULK_CHUNK) {
+          const part = ids.slice(i, i + BULK_CHUNK)
+          deleted += (await api('POST', '/players/delete', { ids: part })).deleted
+          for (const id of part) selected.delete(id)   // başarılı parça seçimden düşer; kalanlar yeniden denenebilir
+        }
+      } catch (e) {
+        if (e.status === 401) return
+        failure = e.status === 403 ? 'Bu işlem için admin yetkisi gerekir.' : `${num(deleted)} oyuncu silindi, kalanlar silinemedi. Tekrar dene.`
+      }
+      state.offset = 0
+      loadSummary(box.summaryBox)
+      await loadTable(box)
+      if (failure) box.bulkBox.querySelector('[role=status]')?.replaceChildren(failure)
+      else flash(box.bulkBox, `${num(deleted)} oyuncu silindi.`)
+    },
+    text: `Seçilenleri sil (${num(selected.size)})`,
+  })
+  bar.append(h('div', { class: 'bulk' },
+    h('strong', { text: `${num(selected.size)} oyuncu seçili` }),
+    h('button', { class: 'link', onclick: () => { selected.clear(); loadTable(box) }, text: 'Seçimi temizle' }),
+    remove, msg))
+}
+
+function flash(bar, text) {
+  bar.replaceChildren(h('div', { class: 'bulk ok-bar' }, h('span', { class: 'ok', text })))
+  setTimeout(() => { if (bar.firstChild?.classList.contains('ok-bar')) bar.replaceChildren() }, 4000)
 }
 
 async function loadTable(box) {
@@ -179,7 +240,21 @@ async function loadTable(box) {
     if (e.status !== 401) box.replaceChildren(h('p', { class: 'error', text: 'Liste yüklenemedi.' }))
     return
   }
-  const head = h('tr', {}, COLUMNS.map((c) => {
+  const canBulk = me.role === 'admin'
+  // Başlıktaki kutu bu sayfadaki herkesi seçer/bırakır; bir kısmı seçiliyse yarım görünür
+  const pageIds = data.players.map((p) => p.id)
+  const onPage = pageIds.filter((id) => selected.has(id)).length
+  const all = canBulk ? h('input', {
+    type: 'checkbox',
+    'aria-label': 'Bu sayfadaki oyuncuların hepsini seç',
+    disabled: !pageIds.length,
+    onchange: (e) => {
+      for (const p of data.players) e.target.checked ? selected.set(p.id, p.name) : selected.delete(p.id)
+      loadTable(box)
+    },
+  }) : null
+  if (all) { all.checked = pageIds.length > 0 && onPage === pageIds.length; all.indeterminate = onPage > 0 && onPage < pageIds.length }
+  const head = h('tr', {}, canBulk ? h('th', { class: 'pick' }, all) : null, COLUMNS.map((c) => {
     const sorted = c.sort && state.sort === c.sort
     return h('th', {
       class: [c.num && 'num', c.sort && 'sortable', sorted && 'sorted'].filter(Boolean).join(' '),
@@ -193,11 +268,12 @@ async function loadTable(box) {
     }, c.label, sorted ? (state.dir === 'desc' ? ' ↓' : ' ↑') : '')
   }))
   const rows = data.players.map((p) => h('tr', {
-    class: 'click',
+    class: selected.has(p.id) ? 'click picked' : 'click',
     tabindex: '0',
     onclick: () => { location.hash = `#/p/${p.id}` },
-    onkeydown: (e) => { if (e.key === 'Enter') location.hash = `#/p/${p.id}` },
+    onkeydown: (e) => { if (e.key === 'Enter' && e.target === e.currentTarget) location.hash = `#/p/${p.id}` },
   },
+  canBulk ? h('td', { class: 'pick', onclick: (e) => e.stopPropagation() }, pickBox(p, box)) : null,
   h('td', { class: 'num', text: p.rank ?? '—' }),
   h('td', { class: 'name' }, p.name, badges(p)),
   h('td', { class: 'num', text: num(p.total) }),
@@ -219,8 +295,28 @@ async function loadTable(box) {
   box.replaceChildren(
     h('div', { class: 'table-wrap' }, h('table', {},
       h('thead', {}, head),
-      h('tbody', {}, rows.length ? rows : h('tr', {}, h('td', { class: 'empty', colspan: String(COLUMNS.length), text: state.q ? 'Bu adla oyuncu yok.' : 'Henüz oyuncu yok.' }))))),
+      h('tbody', {}, rows.length ? rows : h('tr', {}, h('td', { class: 'empty', colspan: String(COLUMNS.length + (canBulk ? 1 : 0)), text: state.q ? 'Bu adla oyuncu yok.' : 'Henüz oyuncu yok.' }))))),
     h('div', { style: null }, pager))
+  bulkBar(box)
+}
+
+function pickBox(p, box) {
+  const input = h('input', {
+    type: 'checkbox',
+    'aria-label': `${p.name} seç`,
+    onchange: (e) => {
+      e.target.checked ? selected.set(p.id, p.name) : selected.delete(p.id)
+      e.target.closest('tr').classList.toggle('picked', e.target.checked)
+      // Başlık kutusu ve çubuk güncellensin (tabloyu yeniden yüklemeden)
+      const rowsBoxes = [...box.querySelectorAll('tbody td.pick input')]
+      const head = box.querySelector('thead th.pick input')
+      const n = rowsBoxes.filter((b) => b.checked).length
+      if (head) { head.checked = n === rowsBoxes.length; head.indeterminate = n > 0 && n < rowsBoxes.length }
+      bulkBar(box)
+    },
+  })
+  input.checked = selected.has(p.id)
+  return input
 }
 
 // --- Oyuncu ayrıntısı ---
