@@ -52,7 +52,7 @@ Secret'lar (Settings > Secrets and variables > Actions): `DEPLOY_HOST`, `DEPLOY_
 
 Uygulamanın skor tablosu (2026-11-07'den beri Play Games yerine): `https://wordvoya.com/api/v1`. Bağımlılıksız Node 24
 (TypeScript doğrudan çalışır), veritabanı tek SQLite dosyası. Sunucuda `/root/wordvoya-api`, konteyner
-`127.0.0.1:8087`, veri `/root/wordvoya-api/data/wordvoya.db`, günlük yedek `data/backup/` (14 gün, cron 04:20).
+`127.0.0.1:8087`, veri `/root/wordvoya-api/data/wordvoya.db`, günlük yedek `data/backup/wordvoya-GG.db.gz` (gzip, 14 gün, cron 04:20; geri yükleme `src/backup.ts` başında).
 Host nginx'te `location /api/` bu konteynere gider. `master` push'ta `api/` değiştiyse `.github/workflows/api.yml`
 test edip dağıtır; ayağa kalkmazsa `:previous` imaja döner.
 
