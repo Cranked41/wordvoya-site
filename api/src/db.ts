@@ -128,6 +128,15 @@ export class Store {
       CREATE INDEX IF NOT EXISTS players_level ON players (level DESC, created_at);
       CREATE INDEX IF NOT EXISTS players_words ON players (words DESC, created_at);
     `)
+    // 2026-11-15: tablo sırası ve sayfası yalnız indeksten okunsun (hidden + id indekste, satıra inilmez).
+    // 50 bin oyuncuda en alttaki oyuncunun tablo isteği 90-200 ms'den 3-5 ms'ye indi (Node tek iş parçacığı,
+    // her sorgu olay döngüsünü kilitler). Sorgular `hidden = 0` ile başlamalı ki planlayıcı bunları seçsin.
+    this.db.exec(`
+      CREATE INDEX IF NOT EXISTS board_total ON players (total DESC, created_at, id) WHERE hidden = 0;
+      CREATE INDEX IF NOT EXISTS board_weekly ON players (week, weekly DESC, created_at, id) WHERE hidden = 0;
+      CREATE INDEX IF NOT EXISTS board_level ON players (level DESC, created_at, id) WHERE hidden = 0;
+      CREATE INDEX IF NOT EXISTS board_words ON players (words DESC, created_at, id) WHERE hidden = 0;
+    `)
     this.migrateNameKey()
     this.migratePanelData()
   }

@@ -77,8 +77,10 @@ jobs:
               if curl -sf -o /dev/null "http://127.0.0.1:${{ env.APP_PORT }}/api/v1/health"; then ok=1; echo "API $((i*2)). saniyede cevap verdi."; break; fi
             done
             if [ -n "$ok" ]; then
-              # Günlük yedek, 04:20'de (yinelenmesin diye önce eski satır silinir)
-              ( crontab -l 2>/dev/null | grep -v 'wordvoya-api node src/backup.ts' ; echo '20 4 * * * docker exec wordvoya-api node src/backup.ts >> /root/wordvoya-api/backup.log 2>&1' ) | crontab -
+              # Günlük yedek, 04:20'de (yinelenmesin diye önce eski satır silinir). "|| true" şart: crontab boşken grep 1 döner,
+              # set -e alt kabuğu echo'dan önce kapatır ve boş crontab kurulurdu (7-15 Kasım 2026 arası hiç yedek alınmadı)
+              { crontab -l 2>/dev/null | grep -v 'wordvoya-api node src/backup.ts' || true; echo '20 4 * * * docker exec wordvoya-api node src/backup.ts >> /root/wordvoya-api/backup.log 2>&1' ; } | crontab -
+              crontab -l | grep -q 'wordvoya-api node src/backup.ts' || { echo "Yedek cron satırı kurulamadı!"; exit 1; }
               echo "Dağıtım başarılı."
               docker image prune -f >/dev/null
             else
