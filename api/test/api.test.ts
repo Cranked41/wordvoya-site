@@ -6,7 +6,8 @@ import { createApp } from '../src/server.ts'
 import { cleanName, nameKey, parseSnapshot } from '../src/validate.ts'
 
 async function start(now = () => Date.UTC(2026, 10, 6, 12)) {
-  const store = new Store(':memory:', now)
+  // Tablo anlamı denetlenir; önbelleğin tazeliği ve SQL ile birebirliği test/ranking.test.ts'te
+  const store = new Store(':memory:', now, { rankingTtlMs: 0 })
   const server = createApp(store, { now, perMinute: 1000, playersPerHour: 1000 })
   await new Promise<void>((r) => server.listen(0, '127.0.0.1', r))
   const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}/api/v1`

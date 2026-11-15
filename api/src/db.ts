@@ -2,6 +2,7 @@
 import { DatabaseSync } from 'node:sqlite'
 import { createHash, randomBytes, randomUUID } from 'node:crypto'
 import { nameKey } from './validate.ts'
+import { Ranking } from './ranking.ts'
 
 export type Board = 'total' | 'weekly' | 'level' | 'words'
 export const BOARDS: readonly Board[] = ['total', 'weekly', 'level', 'words']
@@ -100,10 +101,13 @@ export class Store {
   /** Yönetim paneli ([AdminStore]) aynı bağlantıyı kullanır. */
   readonly db: DatabaseSync
   readonly now: () => number
+  /** Tabloların bellekteki sıralı görüntüsü (ranking.ts). */
+  readonly ranking: Ranking
 
-  constructor(path: string, now: () => number = Date.now) {
+  constructor(path: string, now: () => number = Date.now, opts: { rankingTtlMs?: number } = {}) {
     this.now = now
     this.db = new DatabaseSync(path)
+    this.ranking = new Ranking(this.db, now, opts.rankingTtlMs)
     this.db.exec(`
       PRAGMA journal_mode = WAL;
       PRAGMA busy_timeout = 3000;
@@ -220,6 +224,7 @@ export class Store {
       this.db.exec('ROLLBACK')
       throw e
     }
+    this.ranking.invalidate()
   }
 
   /** Panelden toplu silme: hepsi tek işlemde (biri bozulursa hiçbiri silinmez). Silinen oyuncu sayısını döner. */
@@ -236,12 +241,15 @@ export class Store {
       this.db.exec('ROLLBACK')
       throw e
     }
+    if (deleted) this.ranking.invalidate()
     return deleted
   }
 
   /** Panelden: uygunsuz adlı oyuncu tablolarda görünmez (kaydı ve puanları durur). */
   setHidden(id: string, hidden: boolean): boolean {
-    return this.db.prepare('UPDATE players SET hidden = ? WHERE id = ?').run(hidden ? 1 : 0, id).changes > 0
+    const changed = this.db.prepare('UPDATE players SET hidden = ? WHERE id = ?').run(hidden ? 1 : 0, id).changes > 0
+    if (changed) this.ranking.invalidate()
+    return changed
   }
 
   /** Oyuncunun henüz almadığı elmas hediyeleri (uygulama skor gönderiminin cevabında alır); teslim anı yazılır. */
@@ -333,34 +341,60 @@ export class Store {
     }
   }
 
-  /** Oyuncunun sırası (1'den); tabloda değilse null. Eşit puanda önce katılan önde. */
-  rankOf(board: Board, id: string): number | null {
+  /** Tablonun bellekteki sıralı görüntüsü ([Ranking]); en çok [Ranking.ttlMs] eski. */
+  private snapshot(board: Board) {
     const col = this.column(board)
     const f = this.filter(board)
-    const me = this.db.prepare(`SELECT * FROM players WHERE id = ? AND ${f.where}`).get(id, ...f.params) as PlayerRow | undefined
-    if (!me) return null
-    const score = me[col as keyof PlayerRow] as number
-    const ahead = this.db.prepare(
-      `SELECT COUNT(*) AS n FROM players WHERE ${f.where} AND (${col} > ? OR (${col} = ? AND (created_at < ? OR (created_at = ? AND id < ?))))`,
-    ).get(...f.params, score, score, me.created_at, me.created_at, me.id) as { n: number }
-    return ahead.n + 1
+    return this.ranking.snapshot(board, board === 'weekly' ? f.params[0] : 0,
+      `SELECT rowid, ${col} AS score, created_at FROM players WHERE ${f.where} ORDER BY ${col} DESC, created_at ASC, id ASC`,
+      f.params)
   }
 
-  /** [offset]'ten başlayan [limit] satır. */
-  page(board: Board, offset: number, limit: number, meId?: string): Row[] {
-    const col = this.column(board)
+  /** Oyuncunun taze satırı (tabloda değilse undefined) ve görüntüdeki taze yeri. */
+  private view(board: Board, id: string | undefined) {
     const f = this.filter(board)
-    const rows = this.db.prepare(
-      `SELECT * FROM players WHERE ${f.where} ORDER BY ${col} DESC, created_at ASC, id ASC LIMIT ? OFFSET ?`,
-    ).all(...f.params, limit, offset) as unknown as PlayerRow[]
-    return rows.map((p, i) => this.toRow(p, board, offset + i + 1, meId))
+    const me = id == null ? undefined : this.db.prepare(`SELECT rowid, * FROM players WHERE id = ? AND ${f.where}`)
+      .get(id, ...f.params) as (PlayerRow & { rowid: number }) | undefined
+    const key = me && { score: me[this.column(board) as keyof PlayerRow] as number, created: me.created_at, rowid: me.rowid, id: me.id }
+    const snap = this.snapshot(board)
+    return { me, snap, view: this.ranking.view(snap, key ?? null) }
+  }
+
+  /** Oyuncunun sırası (1'den); tabloda değilse null. Eşit puanda önce katılan önde. */
+  rankOf(board: Board, id: string): number | null {
+    const { view } = this.view(board, id)
+    return view.mine >= 0 ? view.mine + 1 : null
+  }
+
+  /**
+   * [offset]'ten başlayan [limit] satır. Sıra ve ötekilerin puanı görüntüden (en çok 15 sn eski, kendi içinde
+   * tutarlı); ad ve son bölüm veritabanından taze; isteyen oyuncu ([meId]) taze puanıyla taze yerinde.
+   */
+  page(board: Board, offset: number, limit: number, meId?: string): Row[] {
+    const { me, snap, view } = this.view(board, meId)
+    const end = Math.min(view.size, offset + limit)
+    const slots: (number | 'me')[] = []
+    for (let i = Math.max(0, offset); i < end; i++) slots.push(view.at(i))
+    const rowids = slots.filter((s): s is number => s !== 'me').map((i) => snap.rowids[i])
+    const rows = new Map<number, PlayerRow>()
+    if (rowids.length) {
+      const found = this.db.prepare(`SELECT rowid, * FROM players WHERE rowid IN (${rowids.map(() => '?').join(',')})`)
+        .all(...rowids) as unknown as (PlayerRow & { rowid: number })[]
+      for (const r of found) rows.set(r.rowid, r)
+    }
+    const out: Row[] = []
+    slots.forEach((s, k) => {
+      const rank = Math.max(0, offset) + k + 1
+      if (s === 'me') { out.push(this.toRow(me!, board, rank, meId)); return }
+      const p = rows.get(snap.rowids[s])
+      if (p) out.push({ ...this.toRow(p, board, rank, meId), score: snap.scores[s] })   // bu arada silindiyse atlanır
+    })
+    return out
   }
 
   player(board: Board, id: string): Row | null {
-    const rank = this.rankOf(board, id)
-    if (rank == null) return null
-    const p = this.db.prepare('SELECT * FROM players WHERE id = ?').get(id) as unknown as PlayerRow
-    return this.toRow(p, board, rank, id)
+    const { me, view } = this.view(board, id)
+    return me && view.mine >= 0 ? this.toRow(me, board, view.mine + 1, id) : null
   }
 
   count(): number {

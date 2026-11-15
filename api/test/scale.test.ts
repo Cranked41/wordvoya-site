@@ -1,10 +1,10 @@
-// Ölçek: tablo sorguları satıra inmeden yalnız kısmi indeksten okunmalı (2026-11-15).
-// 50 bin oyuncuda indekssiz istek 90-200 ms sürüyordu; Node tek iş parçacığında bu, saniyede ~5 tablo isteği demek.
+// Ölçek: tablo görüntüsü satıra inmeden, sıralama yapmadan yalnız kısmi board_* indeksinden kurulmalı (2026-11-15).
+// 50 bin oyuncuda indekssiz sıra sayımı 90-200 ms sürüyordu; Node tek iş parçacığında bu, saniyede ~5 tablo isteği demek.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { BOARDS, Store, weekOf } from '../src/db.ts'
 
-test('tablo sırası ve sayfası kapsayan board_* indeksini kullanır', () => {
+test('tablo görüntüsü kapsayan board_* indeksinden kurulur', () => {
   const now = Date.UTC(2026, 10, 15, 12)
   const store = new Store(':memory:', () => now)
   const a = store.createPlayer('Bir')!
@@ -13,7 +13,7 @@ test('tablo sırası ve sayfası kapsayan board_* indeksini kullanır', () => {
   store.saveScores(a.id, snap(300) as any)
   store.saveScores(b.id, snap(200) as any)
 
-  // Store'un gerçekte çalıştırdığı tablo sorgularını yakala, sonra her birinin planına bak
+  // Store'un gerçekte çalıştırdığı görüntü sorgularını yakala, sonra her birinin planına bak
   const seen: string[] = []
   const prepare = store.db.prepare.bind(store.db)
   store.db.prepare = ((sql: string) => { seen.push(sql); return prepare(sql) }) as typeof store.db.prepare
@@ -23,13 +23,12 @@ test('tablo sırası ve sayfası kapsayan board_* indeksini kullanır', () => {
   }
   store.db.prepare = prepare
 
-  const boardSql = [...new Set(seen)].filter((sql) => /COUNT\(\*\)|LIMIT \? OFFSET \?/.test(sql))
-  assert.equal(boardSql.length, BOARDS.length * 2)
-  for (const sql of boardSql) {
+  const snapshotSql = [...new Set(seen)].filter((sql) => sql.startsWith('SELECT rowid,') && sql.includes('ORDER BY'))
+  assert.equal(snapshotSql.length, BOARDS.length, 'tablo başına bir görüntü sorgusu')
+  for (const sql of snapshotSql) {
     const params = Array.from({ length: (sql.match(/\?/g) ?? []).length }, () => 1)
     const plan = (store.db.prepare(`EXPLAIN QUERY PLAN ${sql}`).all(...params) as { detail: string }[]).map((r) => r.detail).join(' | ')
-    assert.match(plan, /USING (COVERING )?INDEX board_/, `${sql}\n→ ${plan}`)
-    if (sql.includes('COUNT(*)')) assert.match(plan, /COVERING INDEX board_/, `sıra sayımı satıra inmemeli\n${sql}\n→ ${plan}`)
+    assert.match(plan, /COVERING INDEX board_/, `satıra inmemeli\n${sql}\n→ ${plan}`)
     assert.doesNotMatch(plan, /TEMP B-TREE/, `sıralama indeksten gelmeli\n${sql}\n→ ${plan}`)
   }
   assert.equal(store.player('total', b.id)?.rank, 2)
