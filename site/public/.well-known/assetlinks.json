@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.cranked.wordvoya",
+      "sha256_cert_fingerprints": [
+        "87:A9:7B:25:1C:30:9E:18:AB:5C:93:6A:78:42:CA:CF:1E:06:FF:18:8F:AA:4D:AE:4C:3A:22:1C:89:42:9E:04",
+        "AE:0E:C7:38:AB:7C:7C:F2:2F:65:53:EB:DD:F4:EE:30:A1:18:70:B4:0E:F8:CF:F1:8B:99:B2:86:31:DE:FA:52"
+      ]
+    }
+  }
+]
