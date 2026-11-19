@@ -50,22 +50,25 @@ export function cleanName(raw: unknown): string | null {
   return name
 }
 
-const MAX_LEVEL = 100_000
+export const MAX_LEVEL = 100_000
 const MAX_WORDS = 5_000_000
 // Bir kelime en çok 10 puan; bonus kelime 5, bölüm başına hız en çok 100 (bkz. GameViewModel.levelScore).
 // Bonus ve hız, bulunan kelime sayısına bağlı değil; bölüm başı kelime en az 3 sayılarak cömert bir üst sınır.
-const maxTotal = (words: number) => words * 10 + words * 5 + Math.ceil(words / 3) * 100 + 1_000
+export const maxTotal = (words: number) => words * 10 + words * 5 + Math.ceil(words / 3) * 100 + 1_000
 
 const int = (v: unknown, max: number): number | null =>
   typeof v === 'number' && Number.isInteger(v) && v >= 0 && v <= max ? v : null
 
-/** Skor gövdesini denetler; uymuyorsa hatanın adı. */
-export function parseSnapshot(body: unknown): Snapshot | string {
+/**
+ * Skor gövdesini denetler; uymuyorsa hatanın adı. [bonus]: panelden bu oyuncuya eklenmiş puan (PlayerRow.adj_bonus);
+ * toplamın kelime sayısına bağlı üst sınırı o kadar genişler (yoksa hediye puan alan oyuncunun skoru reddedilirdi).
+ */
+export function parseSnapshot(body: unknown, bonus = 0): Snapshot | string {
   if (typeof body !== 'object' || body === null) return 'body'
   const b = body as Record<string, unknown>
   const words = int(b.words, MAX_WORDS)
   if (words == null) return 'words'
-  const total = int(b.total, maxTotal(words))
+  const total = int(b.total, maxTotal(words) + bonus)
   if (total == null) return 'total'
   const weekly = int(b.weekly, total)
   if (weekly == null) return 'weekly'
@@ -92,7 +95,14 @@ export function parseSnapshot(body: unknown): Snapshot | string {
       levels.push(r)
     }
   }
-  return { total, weekly, week, level, words, last, diamonds, levels }
+  // Cihaza işlenmiş son düzeltmenin kimliği (bkz. db.ts Adjust); eski sürümler göndermez
+  let adj = 0
+  if (b.adj != null) {
+    const a = int(b.adj, Number.MAX_SAFE_INTEGER)
+    if (a == null) return 'adj'
+    adj = a
+  }
+  return { total, weekly, week, level, words, last, diamonds, levels, adj }
 }
 
 const MAX_DIAMONDS = 100_000_000

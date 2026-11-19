@@ -112,8 +112,17 @@ tbody tr.picked { background: var(--row-hover); }
 .pager { display: flex; gap: 10px; align-items: center; justify-content: flex-end; }
 
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+/* Geniş tablo kendi kartında kaysın; yanındaki formu sıkıştırmasın */
+.grid2 > * { min-width: 0; }
+td.state { white-space: normal; min-width: 150px; }
 @media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
 .grant-form { display: grid; grid-template-columns: 120px 1fr auto; gap: 8px; }
 @media (max-width: 520px) { .grant-form { grid-template-columns: 1fr; } }
+.adjust-form { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 12px; align-items: start; max-width: 640px; }
+.adjust-form label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+.adjust-form .hint { font-size: 12px; }
+.adjust-form .wide { grid-column: 1 / -1; }
+.adjust-form button { grid-column: 1 / -1; justify-self: start; }
+@media (max-width: 520px) { .adjust-form { grid-template-columns: 1fr; } }
 .back { margin-bottom: 12px; }
 .empty { padding: 20px; text-align: center; color: var(--muted); }

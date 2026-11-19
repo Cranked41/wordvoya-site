@@ -1,5 +1,5 @@
 // Yönetim paneli: yönetici hesapları, oturumlar ve oyuncu verisi. Panel sayfası /api/admin/, uçları /api/v1/admin/.
-// Roller: admin (görür, elmas verir), viewer (yalnız görür). Hesaplar sunucuda admin-cli.ts ile açılır.
+// Roller: admin (görür, elmas verir, puan/bölüm ayarlar), viewer (yalnız görür). Hesaplar sunucuda admin-cli.ts ile açılır.
 import { randomBytes, scrypt, timingSafeEqual } from 'node:crypto'
 import { promisify } from 'node:util'
 import { hashToken, type PlayerRow, type Store, weekOf, BOARDS } from './db.ts'
@@ -179,7 +179,12 @@ export class AdminStore {
     const grants = this.db.prepare(
       'SELECT id, amount, note, admin, created_at, delivered_at, claimed_at FROM grants WHERE player_id = ? ORDER BY id DESC',
     ).all(id)
-    return { player: { ...this.publicPlayer(p), ranks }, levels, grants }
+    // Puan/bölüm düzeltmeleri (Store.adjust): *_to boşsa o alan değişmedi
+    const adjustments = this.db.prepare(`
+      SELECT id, total_from, total_to, weekly_from, weekly_to, level_from, level_to, note, admin,
+        created_at, delivered_at, applied_at
+      FROM adjustments WHERE player_id = ? ORDER BY id DESC`).all(id)
+    return { player: { ...this.publicPlayer(p), ranks }, levels, grants, adjustments }
   }
 
   /** Oyuncuya elmas hediye eder; uygulama bir sonraki senkronda alır. */

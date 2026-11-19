@@ -61,7 +61,7 @@ test edip dağıtır; ayağa kalkmazsa `:previous` imaja döner.
 | `POST /players {name}` | Yeni oyuncu: `{id, token, name}`. Belirteç yalnız cihazda; sunucuda SHA-256 özeti |
 | `PATCH /players/me {name}` | Ad değiştir (Bearer belirteç) |
 | `DELETE /players/me` | Kaydı tümüyle sil (uygulamada "Tablodan çık"; Play'in hesap silme şartı) |
-| `PUT /players/me/scores {total, weekly, week, level, words, last?}` | Cihazdaki toplamlar; her tablo en iyiyi tutar |
+| `PUT /players/me/scores {total, weekly, week, level, words, last?, adj?}` | Cihazdaki toplamlar; her tablo en iyiyi tutar. Cevapta bekleyen hediyeler (`grants`) ve panelden yapılmış puan/bölüm düzeltmesi (`adjust`) |
 | `GET /boards/{total,weekly,level,words}?scope=near` | İlk 25 ya da oyuncunun çevresi (11 satır) + `player` |
 
 Ad 2-20 karakter, harf/rakam/boşluk/`._'-`, kaba söz listesi `src/validate.ts`. Hileli oyuncuyu gizlemek:
@@ -74,7 +74,7 @@ Oyuncular, puanları, bölüm sonuçları ve elmas bakiyeleri; admin rolü oyunc
 senkronda alır, uygulamada "Sana hediye!" penceresi çıkar). Sayfa API ile birlikte kurulur (`api/admin/`), nginx
 ayarı gerekmez.
 
-- Roller: `admin` (görür, elmas verir/geri alır), `viewer` (yalnız görür).
+- Roller: `admin` (görür, elmas verir/geri alır, puan ve bölüm ayarlar), `viewer` (yalnız görür).
 - Şifreler scrypt özetiyle saklanır; oturum çerezi HttpOnly + SameSite=Strict, 7 gün. Girişte IP başına 15 dakikada 10 deneme.
 - Hesaplar sunucuda açılır (şifre ekrana yazılmaz):
 
@@ -87,6 +87,16 @@ docker exec -it wordvoya-api node src/admin-cli.ts list
 ```
 
 Elmas bakiyesi ve bölüm ayrıntısı uygulamanın 1.3.15 sürümünden itibaren gelir; eski sürümler yalnız toplamları gönderir.
+
+**Puan ve bölüm ayarı (2026-11-19):** oyuncu sayfasındaki "Puan ve bölüm ayarla" kartı toplam puanı, bu haftaki puanı ve
+bitirdiği son bölümü istenen değere getirir (`POST /api/v1/admin/players/{id}/adjust {total?, weekly?, level?, note?}`,
+yalnız admin; haftalık toplamı aşamaz). Tablolara hemen yansır. Puanlar cihazda tutulduğu için sunucu farkı kaydeder
+(`adjustments`): cihaz düzeltmeyi işleyene dek gönderdiği sayılara eklenir. Uygulamanın 1.3.21 ve sonraki sürümleri
+düzeltmeyi skor gönderiminin cevabında (`adjust`) alır, oyun ekranı kapalıyken kendi sayılarını sunucudakine getirir
+(oyuncu bir sonraki bölümden devam eder; not yazıldıysa "Hesabın güncellendi" penceresi çıkar) ve sonraki gönderimde
+kimliğini `adj` olarak bildirir; fark o andan sonra eklenmez. Daha eski sürümler düzeltmeyi bilmez: yalnız tablodaki
+değer değişir, oyuncu oynadıkça kazandıkları üstüne eklenir (cihazdaki bölümü değişmez). Geri almak için eski değerler
+yeniden yazılır. Panelden eklenen puan kadar, cihazın gönderebileceği toplamın üst sınırı da genişler (`adj_bonus`).
 
 ### Güvenlik (2026-11-08 incelemesi)
 
@@ -103,7 +113,7 @@ Elmas bakiyesi ve bölüm ayrıntısı uygulamanın 1.3.15 sürümünden itibare
   30 giriş, aynı anda en çok 4 scrypt; CSRF için Origin + JSON şartı; sıkı CSP.
 - **Konteyner:** salt okunur dosya sistemi, yetkiler kapalı, `no-new-privileges`, süreç ve günlük sınırı; `.dockerignore`
   veritabanını ve anahtarı imaja sokmaz. CI'daki üçüncü taraf eylemler commit özetine sabit.
-- `npm run security`: 72 saldırı denemesi (yetki, IDOR, hile, enjeksiyon, CSRF, kaba kuvvet, sınırlar) bellekteki kopyaya.
+- `npm run security`: 85 saldırı denemesi (yetki, IDOR, hile, enjeksiyon, CSRF, kaba kuvvet, sınırlar, puan ayarı) bellekteki kopyaya.
 - `postman/`: koleksiyon + ortam. Run collection ile baştan sona; deneme oyuncularını panel açar, sonda hepsi silinir.
 
 **Play Integrity'yi açmak (bir kez):**

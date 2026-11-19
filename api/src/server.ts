@@ -2,8 +2,8 @@
 // Oyuncu kendi seçtiği adla görünür; kimlik cihazda üretilen gizli belirteçtir (sunucuda yalnız özeti tutulur).
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http'
 import { readFileSync } from 'node:fs'
-import { BOARDS, type Board, Store } from './db.ts'
-import { cleanName, parseSnapshot } from './validate.ts'
+import { type AdjustTarget, BOARDS, type Board, MAX_ADJUST_TOTAL, Store } from './db.ts'
+import { cleanName, MAX_LEVEL, parseSnapshot } from './validate.ts'
 import { type Admin, AdminStore, isSort } from './admin.ts'
 import { createIntegrityChecker, failClosedChecker, INTEGRITY_MODES, type IntegrityChecker, type IntegrityMode } from './integrity.ts'
 
@@ -222,10 +222,11 @@ export function createApp(
 
     if (path === '/api/v1/players/me/scores' && method === 'PUT') {
       const me = auth(req, true)!
-      const snapshot = parseSnapshot(await readJson(req))
+      const snapshot = parseSnapshot(await readJson(req), me.adj_bonus ?? 0)
       if (typeof snapshot === 'string') throw new HttpError(422, snapshot)
-      store.saveScores(me.id, snapshot)
-      return send(res, 200, { ok: true, grants: store.pendingGrants(me.id) })
+      const { adjust } = store.saveScores(me.id, snapshot)
+      // adjust: panelden yapılmış, cihaza henüz işlenmemiş puan/bölüm düzeltmesi (yoksa alan gelmez)
+      return send(res, 200, { ok: true, grants: store.pendingGrants(me.id), ...(adjust ? { adjust } : {}) })
     }
 
     if (path === '/api/v1/players/me/grants/ack' && method === 'POST') {
@@ -361,6 +362,27 @@ export function createApp(
       const id = admins.grant(grant[1], amount, note, admin)
       if (id == null) throw new HttpError(404, 'player')
       return send(res, 201, { id })
+    }
+
+    // Puan ve/veya bölüm ayarı: gövdede yalnız değişecek alanlar (total, weekly, level). Tablolara hemen yansır;
+    // cihaza uygulamanın bir sonraki skor gönderiminde işlenir (bkz. Store.adjust).
+    const adjust = path.match(/^\/players\/([0-9a-f-]{36})\/adjust$/)
+    if (adjust && method === 'POST') {
+      requireAdmin()
+      const body = (await readJson(req)) as Json
+      const target: AdjustTarget = {}
+      for (const [field, max] of [['total', MAX_ADJUST_TOTAL], ['weekly', MAX_ADJUST_TOTAL], ['level', MAX_LEVEL]] as const) {
+        const value = body[field]
+        if (value == null) continue
+        if (typeof value !== 'number' || !Number.isInteger(value) || value < 0 || value > max) throw new HttpError(422, field)
+        target[field] = value
+      }
+      const note = typeof body.note === 'string' ? body.note.replace(/\s+/g, ' ').trim().slice(0, NOTE_MAX) : ''
+      const result = store.adjust(adjust[1], target, note, admin.username)
+      if (result == null) throw new HttpError(404, 'player')
+      if (typeof result === 'string') throw new HttpError(422, result)
+      console.log(`admin ${admin.username}: puan/bölüm ayarı ${adjust[1]} ${JSON.stringify(target)}`)
+      return send(res, 201, result)
     }
 
     const revoke = path.match(/^\/grants\/(\d+)$/)

@@ -347,6 +347,8 @@ async function showPlayer(id) {
       h('p', { class: 'muted', text: `Katıldı ${date(p.createdAt)} · son görülme ${ago(p.seenAt)}` })),
     stats,
     h('div', { class: 'grid2' }, grantCard(p, data.grants), grantHistory(data.grants, id)),
+    adjustCard(p),
+    adjustHistory(data.adjustments || []),
     levelsCard(data.levels, p),
     manageCard(p)))
 }
@@ -444,6 +446,105 @@ function grantHistory(grants, playerId) {
           },
           text: 'Geri al',
         }) : ''))))))))
+  return card
+}
+
+// --- Puan ve bölüm ayarı ---
+
+// Sunucudaki sınırlarla aynı (db.ts MAX_ADJUST_TOTAL, validate.ts MAX_LEVEL)
+const ADJUST_FIELDS = [
+  { key: 'total', label: 'Toplam puan', max: 1000000000 },
+  { key: 'weekly', label: 'Bu haftaki puan', max: 1000000000 },
+  { key: 'level', label: 'Bitirdiği son bölüm', max: 100000 },
+]
+
+function adjustCard(p) {
+  const card = h('div', { class: 'card' }, h('h2', { text: 'Puan ve bölüm ayarla' }))
+  if (me.role !== 'admin') {
+    card.append(h('p', { class: 'muted', text: 'Puan ve bölüm ayarlamak için admin yetkisi gerekir.' }))
+    return card
+  }
+  const inputs = {}
+  const hint = h('span', { class: 'hint' })
+  const showHint = () => {
+    const n = Number(inputs.level.value)
+    hint.textContent = Number.isInteger(n) && n >= 0 ? `Oyuncu ${num(n + 1)}. bölümden devam eder` : ''
+  }
+  const fields = ADJUST_FIELDS.map((f) => {
+    inputs[f.key] = h('input', { type: 'number', min: '0', max: String(f.max), step: '1', value: String(p[f.key]), required: true, 'aria-label': f.label })
+    return h('label', {}, f.label, inputs[f.key], f.key === 'level' ? hint : null)
+  })
+  inputs.level.addEventListener('input', showHint)
+  showHint()
+  const note = h('input', { class: 'wide', maxlength: '120', placeholder: 'Not (yazarsan oyuncuya bildirim olarak gösterilir)', 'aria-label': 'Not' })
+  const submit = h('button', { class: 'primary', type: 'submit', text: 'Kaydet' })
+  const msg = h('p', { class: 'error', role: 'status' })
+  const form = h('form', {
+    class: 'adjust-form',
+    onsubmit: async (e) => {
+      e.preventDefault()
+      msg.textContent = ''
+      // Yalnız değişen alanlar gider: sayfa açıkken oyuncu ilerlediyse dokunulmayan alan ezilmez
+      const body = {}
+      const changes = []
+      for (const f of ADJUST_FIELDS) {
+        const n = Number(inputs[f.key].value)
+        if (inputs[f.key].value.trim() === '' || !Number.isInteger(n) || n < 0 || n > f.max) {
+          msg.textContent = `${f.label} 0 ile ${num(f.max)} arasında tam sayı olmalı.`
+          return
+        }
+        if (n !== p[f.key]) { body[f.key] = n; changes.push(`${f.label}: ${num(p[f.key])} → ${num(n)}`) }
+      }
+      if (!changes.length) { msg.textContent = 'Değişen bir değer yok.'; return }
+      const total = body.total ?? p.total
+      if (body.weekly != null && body.weekly > total) { msg.textContent = 'Bu haftaki puan toplam puanı aşamaz.'; return }
+      // Toplam haftalığın altına indiyse sunucu haftalığı da indirir
+      if (body.weekly == null && p.weekly > total) changes.push(`Bu haftaki puan: ${num(p.weekly)} → ${num(total)} (toplamı aşamaz)`)
+      if (!confirm(`${p.name}\n\n${changes.join('\n')}\n\nKaydedilsin mi?`)) return
+      if (note.value.trim()) body.note = note.value
+      submit.disabled = true
+      try {
+        await api('POST', `/players/${p.id}/adjust`, body)
+        showPlayer(p.id)
+      } catch (err) {
+        if (err.status === 401) return
+        msg.textContent = err.status === 403 ? 'Bu işlem için admin yetkisi gerekir.'
+          : err.code === 'weekly' ? 'Bu haftaki puan toplam puanı aşamaz.'
+          : err.code === 'nothing' ? 'Değişen bir değer yok (oyuncu bu arada aynı değere ulaşmış olabilir).'
+          : 'Kaydedilemedi, tekrar dene.'
+        submit.disabled = false
+      }
+    },
+  }, fields, note, submit)
+  card.append(form, msg,
+    h('p', { class: 'muted', text: 'Tablolara hemen yansır. Oyuncunun cihazına, uygulamanın 1.3.21 ve sonraki sürümlerinde bir sonraki açılışta ya da oyun ekranından çıkınca işlenir. Daha eski sürümlerde yalnız tablodaki değer değişir; oyuncu oynadıkça kazandıkları bunun üstüne eklenir.' }))
+  return card
+}
+
+function adjustHistory(list) {
+  if (!list.length) return null   // hiç ayar yapılmadıysa kart da yok
+  const card = h('div', { class: 'card' }, h('h2', { text: 'Puan ve bölüm geçmişi' }))
+  const changes = (a) => [
+    a.total_to != null ? `Toplam ${num(a.total_from)} → ${num(a.total_to)}` : null,
+    a.weekly_to != null ? `Bu hafta ${num(a.weekly_from)} → ${num(a.weekly_to)}` : null,
+    a.level_to != null ? `Bölüm ${num(a.level_from)} → ${num(a.level_to)}` : null,
+  ].filter(Boolean).map((text) => h('div', { text }))
+  const status = (a) => a.applied_at
+    ? h('span', { title: date(a.applied_at), text: `Cihaza işlendi ${ago(a.applied_at)}` })
+    : a.delivered_at
+    ? h('span', {
+      title: 'Uygulamanın 1.3.21 öncesi sürümleri ayarı cihaza işlemez (tablodaki değer geçerlidir). Yeni sürümlerde oyun ekranı kapanınca işlenir.',
+      text: `Uygulamaya gitti ${ago(a.delivered_at)}, cihaza işlenmedi`,
+    })
+    : h('span', { text: 'Bekliyor (uygulama açılınca gider)' })
+  card.append(h('div', { class: 'table-wrap' }, h('table', {},
+    h('thead', {}, h('tr', {}, h('th', { text: 'Değişiklik' }), h('th', { text: 'Not' }), h('th', { text: 'Yapan' }), h('th', { text: 'Tarih' }), h('th', { text: 'Durum' }))),
+    h('tbody', {}, list.map((a) => h('tr', {},
+      h('td', {}, changes(a)),
+      h('td', { class: 'name', text: a.note || '—' }),
+      h('td', { text: a.admin }),
+      h('td', { title: date(a.created_at), text: ago(a.created_at) }),
+      h('td', { class: 'state' }, status(a))))))))
   return card
 }
 

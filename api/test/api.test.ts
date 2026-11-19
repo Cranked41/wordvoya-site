@@ -135,7 +135,18 @@ test('skor sınırları', () => {
   assert.equal(parseSnapshot({ total: 100, weekly: 200, week: 1, level: 1, words: 50 }), 'weekly')
   assert.equal(parseSnapshot({ total: 1.5, weekly: 0, week: 1, level: 1, words: 50 }), 'total')
   assert.deepEqual(parseSnapshot({ total: 100, weekly: 50, week: 1, level: 3, words: 50 }),
-    { total: 100, weekly: 50, week: 1, level: 3, words: 50, last: null, diamonds: null, levels: [] })
+    { total: 100, weekly: 50, week: 1, level: 3, words: 50, last: null, diamonds: null, levels: [], adj: 0 })
+  // Cihaza işlenmiş düzeltmenin kimliği: isteğe bağlı, negatif ya da kesirli olamaz
+  const base = { total: 100, weekly: 50, week: 1, level: 3, words: 50 }
+  assert.equal((parseSnapshot({ ...base, adj: 7 }) as any).adj, 7)
+  assert.equal(parseSnapshot({ ...base, adj: -1 }), 'adj')
+  assert.equal(parseSnapshot({ ...base, adj: 1.5 }), 'adj')
+  assert.equal(parseSnapshot({ ...base, adj: '7' }), 'adj')
+  // Toplamın kelime sayısına bağlı üst sınırı, panelden eklenen puan kadar genişler
+  const max = 50 * 15 + Math.ceil(50 / 3) * 100 + 1000
+  assert.equal(parseSnapshot({ ...base, total: max + 1 }), 'total')
+  assert.equal((parseSnapshot({ ...base, total: max + 500 }, 500) as any).total, max + 500)
+  assert.equal(parseSnapshot({ ...base, total: max + 501 }, 500), 'total')
 })
 
 test('aynı adda iki oyuncu olmaz', async () => {
