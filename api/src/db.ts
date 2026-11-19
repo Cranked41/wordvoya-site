@@ -1,7 +1,7 @@
 // Skor tablosunun veritabanı: tek SQLite dosyası (oyuncu sayısı binlerle sınırlıyken yeterli ve bakımsız).
 import { DatabaseSync } from 'node:sqlite'
 import { createHash, randomBytes, randomUUID } from 'node:crypto'
-import { nameKey } from './validate.ts'
+import { maxTotal, nameKey } from './validate.ts'
 import { Ranking } from './ranking.ts'
 
 export type Board = 'total' | 'weekly' | 'level' | 'words'
@@ -20,9 +20,37 @@ export interface Snapshot {
   diamonds: number | null
   /** Son gönderimden beri biten bölümler (eski sürümler göndermez; o zaman yalnız [last] kaydedilir). */
   levels: Last[]
+  /** Uygulamanın cihaza işlediği son düzeltmenin kimliği ([Adjust.id]; eski sürümler göndermez: 0). */
+  adj: number
 }
 
 export interface Grant { id: number; amount: number; note: string }
+
+/**
+ * Panelden yapılan puan/bölüm düzeltmesinin cihaza giden hali (skor gönderiminin cevabında). Alanlar sunucudaki
+ * güncel değerlerdir (düzeltme + cihazın o gönderimde bildirdiği ilerleme); düzeltilmeyen alan gelmez.
+ * Uygulama kendi sayılarını bunlara getirir ve sonraki gönderimde [id]'yi `adj` olarak bildirir.
+ */
+export interface Adjust { id: number; week: number; total?: number; weekly?: number; level?: number; note: string }
+
+/** Panelden istenen yeni değerler (verilmeyen alan değişmez). */
+export interface AdjustTarget { total?: number; weekly?: number; level?: number }
+
+/** Panelden ayarlanabilecek en yüksek toplam puan (uygulamada Long, burada güvenli tam sayı). */
+export const MAX_ADJUST_TOTAL = 1_000_000_000
+
+interface AdjustmentRow {
+  id: number
+  d_total: number
+  d_weekly: number
+  week: number
+  d_level: number
+  total_to: number | null
+  weekly_to: number | null
+  level_to: number | null
+  note: string
+  delivered_at: number | null
+}
 
 export interface Row {
   rank: number
@@ -43,6 +71,8 @@ export interface PlayerRow {
   seen_at: number | null
   flags: number
   flagged_at: number | null
+  /** Panelden eklenen puanların toplamı: cihazın gönderebileceği toplamın üst sınırı bu kadar genişler (validate.ts). */
+  adj_bonus: number | null
   total: number
   weekly: number
   week: number
@@ -85,6 +115,9 @@ export function growthLimit(p: Pick<PlayerRow, 'words' | 'level' | 'total' | 'se
 }
 
 export const hashToken = (token: string) => createHash('sha256').update(token).digest('hex')
+
+/** Oyuncuya bağlı satırların tabloları: oyuncu silinince bunlar da silinir. */
+const PLAYER_TABLES = ['level_results', 'grants', 'adjustments'] as const
 
 /** Benzersizlik kısıtına takılırsa false; eşzamanlı iki kayıtta da doğru sonuç verir. */
 function unique(write: () => unknown): boolean {
@@ -148,7 +181,7 @@ export class Store {
   /** 2026-11-08: yönetim paneli için elmas bakiyesi, bölüm sonuçları ve elmas hediyeleri. */
   private migratePanelData() {
     const cols = new Set((this.db.prepare('PRAGMA table_info(players)').all() as { name: string }[]).map((c) => c.name))
-    for (const col of ['diamonds', 'diamonds_at', 'seen_at', 'flags', 'flagged_at']) {
+    for (const col of ['diamonds', 'diamonds_at', 'seen_at', 'flags', 'flagged_at', 'adj_bonus']) {
       if (!cols.has(col)) this.db.exec(`ALTER TABLE players ADD COLUMN ${col} INTEGER`)
     }
     this.db.exec(`
@@ -175,6 +208,30 @@ export class Store {
     // 2026-11-08: uygulamaya teslim edilen hediye artık geri alınamaz (oyuncu elmasları almış olabilir)
     const grantCols = (this.db.prepare('PRAGMA table_info(grants)').all() as { name: string }[]).map((c) => c.name)
     if (!grantCols.includes('delivered_at')) this.db.exec('ALTER TABLE grants ADD COLUMN delivered_at INTEGER')
+    // 2026-11-19: panelden puan/bölüm düzeltmesi. Fark (d_*) cihaz düzeltmeyi işleyene dek gönderdiği sayılara
+    // eklenir; *_from / *_to panelde görünen kayıttır (*_to boşsa o alan değişmedi). d_weekly yalnız [week] haftasında geçer.
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS adjustments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        player_id TEXT NOT NULL,
+        d_total INTEGER NOT NULL,
+        d_weekly INTEGER NOT NULL,
+        week INTEGER NOT NULL,
+        d_level INTEGER NOT NULL,
+        total_from INTEGER NOT NULL,
+        total_to INTEGER,
+        weekly_from INTEGER NOT NULL,
+        weekly_to INTEGER,
+        level_from INTEGER NOT NULL,
+        level_to INTEGER,
+        note TEXT NOT NULL DEFAULT '',
+        admin TEXT NOT NULL,
+        created_at INTEGER NOT NULL,
+        delivered_at INTEGER,
+        applied_at INTEGER
+      );
+      CREATE INDEX IF NOT EXISTS adjustments_player ON adjustments (player_id, applied_at);
+    `)
   }
 
   /** 2026-11-07: aynı adda iki oyuncu olmasın. Eski satırlara anahtar yazılır; çakışan sonrakiler kimlikle ayrılır. */
@@ -217,7 +274,7 @@ export class Store {
   deletePlayer(id: string) {
     this.db.exec('BEGIN')
     try {
-      for (const table of ['level_results', 'grants']) this.db.prepare(`DELETE FROM ${table} WHERE player_id = ?`).run(id)
+      for (const table of PLAYER_TABLES) this.db.prepare(`DELETE FROM ${table} WHERE player_id = ?`).run(id)
       this.db.prepare('DELETE FROM players WHERE id = ?').run(id)
       this.db.exec('COMMIT')
     } catch (e) {
@@ -233,7 +290,7 @@ export class Store {
     this.db.exec('BEGIN')
     try {
       for (const id of ids) {
-        for (const table of ['level_results', 'grants']) this.db.prepare(`DELETE FROM ${table} WHERE player_id = ?`).run(id)
+        for (const table of PLAYER_TABLES) this.db.prepare(`DELETE FROM ${table} WHERE player_id = ?`).run(id)
         deleted += Number(this.db.prepare('DELETE FROM players WHERE id = ?').run(id).changes)
       }
       this.db.exec('COMMIT')
@@ -276,23 +333,98 @@ export class Store {
   }
 
   /**
-   * Cihazdaki toplamları kaydeder. Her tablo oyuncunun en iyisini tutar (Play Games gibi): ilerlemesini sıfırlayan
-   * oyuncu tablodan düşmez. Haftalık puan yalnız sunucunun haftasıyla aynıysa sayılır.
+   * Panelden puan ve/veya bölüm ayarlar ([target]'ta verilmeyen alan değişmez). Tablolara hemen yansır. Cihaz kendi
+   * sayılarını göndermeyi sürdürdüğü için fark kaydedilir: uygulama düzeltmeyi cihaza işleyene dek gönderdiği
+   * sayılara eklenir ([saveScores]); düzeltmeyi bilmeyen eski sürümlerde (1.3.21 öncesi) hep eklenir, yani oyuncu
+   * oynadıkça puanı ayarlanan değerin üstüne biner. Toplam haftalığın altına inerse haftalık da iner.
+   * Oyuncu yoksa null; değişen bir şey yoksa 'nothing'; istenen haftalık toplamı aşıyorsa 'weekly'.
    */
-  saveScores(id: string, s: Snapshot): { clamped: boolean } {
+  adjust(id: string, target: AdjustTarget, note: string, admin: string): { id: number } | 'nothing' | 'weekly' | null {
     const p = this.db.prepare('SELECT * FROM players WHERE id = ?').get(id) as PlayerRow | undefined
-    if (!p) return { clamped: false }   // bu arada silindi
+    if (!p) return null
     const t = this.now()
     const current = weekOf(t)
+    const weeklyNow = p.week === current ? p.weekly : 0
+    const total = target.total ?? p.total
+    if (target.weekly != null && target.weekly > total) return 'weekly'
+    const weekly = target.weekly ?? Math.min(weeklyNow, total)
+    const level = target.level ?? p.level
+    const dTotal = total - p.total
+    const dWeekly = weekly - weeklyNow
+    const dLevel = level - p.level
+    if (!dTotal && !dWeekly && !dLevel) return 'nothing'
+    this.db.exec('BEGIN')
+    try {
+      const row = this.db.prepare(`
+        INSERT INTO adjustments (player_id, d_total, d_weekly, week, d_level,
+          total_from, total_to, weekly_from, weekly_to, level_from, level_to, note, admin, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
+        id, dTotal, dWeekly, current, dLevel,
+        p.total, dTotal ? total : null, weeklyNow, dWeekly ? weekly : null, p.level, dLevel ? level : null,
+        note, admin, t,
+      )
+      // Haftalık değişmediyse satırdaki hafta ve puan olduğu gibi kalır (eski haftanın puanı zaten sayılmıyor)
+      this.db.prepare(
+        'UPDATE players SET total = ?, level = ?, weekly = ?, week = ?, adj_bonus = COALESCE(adj_bonus, 0) + ? WHERE id = ?',
+      ).run(total, level, dWeekly ? weekly : p.weekly, dWeekly ? current : p.week, Math.max(0, dTotal), id)
+      this.db.exec('COMMIT')
+      this.ranking.invalidate()
+      return { id: Number(row.lastInsertRowid) }
+    } catch (e) {
+      this.db.exec('ROLLBACK')
+      throw e
+    }
+  }
+
+  /**
+   * Cihaza henüz işlenmemiş düzeltmeler. Uygulama kendisine verilen kimliği ([applied]) geri bildirdiyse o ve
+   * öncekiler kapanır: gönderdiği sayılar artık onları içeriyor. Uygulamaya hiç gitmemiş düzeltme kapanmaz
+   * (uydurma bir kimlik ileride yapılacak düzeltmeyi peşinen kapatamasın).
+   */
+  private pendingAdjustments(id: string, applied: number, t: number): AdjustmentRow[] {
+    let rows = this.db.prepare(`
+      SELECT id, d_total, d_weekly, week, d_level, total_to, weekly_to, level_to, note, delivered_at
+      FROM adjustments WHERE player_id = ? AND applied_at IS NULL ORDER BY id`).all(id) as unknown as AdjustmentRow[]
+    if (rows.some((a) => a.id === applied && a.delivered_at != null)) {
+      this.db.prepare(`
+        UPDATE adjustments SET applied_at = ?
+        WHERE player_id = ? AND id <= ? AND applied_at IS NULL AND delivered_at IS NOT NULL`).run(t, id, applied)
+      rows = rows.filter((a) => a.id > applied || a.delivered_at == null)
+    }
+    return rows
+  }
+
+  /**
+   * Cihazdaki toplamları kaydeder. Her tablo oyuncunun en iyisini tutar (Play Games gibi): ilerlemesini sıfırlayan
+   * oyuncu tablodan düşmez. Haftalık puan yalnız sunucunun haftasıyla aynıysa sayılır. Panelden yapılmış, cihaza
+   * henüz işlenmemiş düzeltme varsa farkı gönderilen sayılara eklenir ve düzeltme cevapta cihaza gider ([Adjust]).
+   */
+  saveScores(id: string, s: Snapshot): { clamped: boolean; adjust: Adjust | null } {
+    const p = this.db.prepare('SELECT * FROM players WHERE id = ?').get(id) as PlayerRow | undefined
+    if (!p) return { clamped: false, adjust: null }   // bu arada silindi
+    const t = this.now()
+    const current = weekOf(t)
+    const pending = this.pendingAdjustments(id, s.adj, t)
+    let offTotal = 0
+    let offWeekly = 0
+    let offLevel = 0
+    for (const a of pending) {
+      offTotal += a.d_total
+      offLevel += a.d_level
+      if (a.week === current) offWeekly += a.d_weekly
+    }
+    const sTotal = Math.max(0, s.total + offTotal)
+    const sWeekly = Math.max(0, s.weekly + offWeekly)
+    const sLevel = Math.max(0, s.level + offLevel)
     const limit = growthLimit(p, t)
     const words = Math.min(Math.max(p.words, s.words), limit.words)
-    const level = Math.min(Math.max(p.level, s.level), limit.level)
-    const total = Math.min(Math.max(p.total, s.total), limit.total)
-    const clamped = s.words > words || s.level > level || s.total > total
+    const level = Math.min(Math.max(p.level, sLevel), limit.level)
+    const total = Math.min(Math.max(p.total, sTotal), limit.total)
+    const clamped = s.words > words || sLevel > level || sTotal > total
     let week = p.week
     let weekly = p.week === current ? p.weekly : 0
     if (p.week !== current) week = current
-    if (s.week === current) weekly = Math.min(Math.max(weekly, s.weekly), weekly + (total - p.total) + (p.week === current ? 0 : total))
+    if (s.week === current) weekly = Math.min(Math.max(weekly, sWeekly), weekly + (total - p.total) + (p.week === current ? 0 : total))
     weekly = Math.min(weekly, total)
     const improved = total > p.total
     const last = improved && s.last ? s.last : null
@@ -316,7 +448,27 @@ export class Store {
         score = MAX(score, excluded.score)`)
     const results = (s.levels.length ? s.levels : s.last ? [s.last] : []).filter((r) => r.level <= level)
     for (const r of results) upsert.run(id, r.level, r.score, r.seconds, t, t)
-    return { clamped }
+    if (!pending.length) return { clamped, adjust: null }
+    // Cihaza işlenecek düzeltme: düzeltilmiş alanların sunucudaki güncel değeri
+    const adjust: Adjust = {
+      id: pending[pending.length - 1].id,
+      week: current,
+      note: pending.findLast((a) => a.note)?.note ?? '',
+    }
+    if (pending.some((a) => a.total_to != null)) {
+      adjust.total = total
+      // Cihaz toplamını bu değere getirecek. Cihaz sunucunun gerisindeyse (eski yedekten dönmüş) kelime sayısına
+      // bağlı üst sınır buna yetmeyebilir: sonraki gönderimi reddedilmesin diye izin o kadar genişler
+      const needed = total - maxTotal(s.words)
+      if (needed > (p.adj_bonus ?? 0)) this.db.prepare('UPDATE players SET adj_bonus = ? WHERE id = ?').run(needed, id)
+    }
+    if (pending.some((a) => a.weekly_to != null && a.week === current)) adjust.weekly = weekly
+    if (pending.some((a) => a.level_to != null)) adjust.level = level
+    if (pending.some((a) => a.delivered_at == null)) {
+      this.db.prepare('UPDATE adjustments SET delivered_at = ? WHERE player_id = ? AND applied_at IS NULL AND delivered_at IS NULL')
+        .run(t, id)
+    }
+    return { clamped, adjust }
   }
 
   private column(board: Board): string {

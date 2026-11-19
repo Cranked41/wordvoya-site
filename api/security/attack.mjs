@@ -167,6 +167,26 @@ check('Hediye', 'Başkasının hediyesi bana gelmez', aGrants.length === 0)
 r = await json('POST', `/api/v1/admin/players/${b.id}/grants`, { amount: 100_001 }, { cookie: adm.cookie })
 check('Hediye', 'Sınır üstü hediye (100.001)', r.status === 422, `${r.status}`)
 
+// --- Puan/bölüm ayarı (panelden; cihaz işleyene dek "bekleyen düzeltme") ---
+const scoresOf = (p, obj) => json('PUT', '/api/v1/players/me/scores', obj, bearer(p.token))
+await scoresOf(b, { total: 300, weekly: 300, week, level: 5, words: 40 })
+const fix = await json('POST', `/api/v1/admin/players/${b.id}/adjust`, { total: 2000 }, { cookie: adm.cookie })
+await scoresOf(b, { total: 300, weekly: 300, week, level: 5, words: 40 })   // düzeltme B'nin uygulamasına gitti
+r = await scoresOf(a, { total: 0, weekly: 0, week, level: 0, words: 0, adj: fix.json.id })
+const bPending = async () => (await scoresOf(b, { total: 300, weekly: 300, week, level: 5, words: 40 })).json.adjust
+check('Ayar', 'Başkasının düzeltmesi bana gelmez', r.json.adjust === undefined)
+check('Ayar', 'Başkasının düzeltmesini kimliğiyle kapatma', (await bPending())?.id === fix.json.id, 'B hâlâ bekliyor')
+r = await scoresOf(b, { total: 300, weekly: 300, week, level: 5, words: 40, adj: 2 ** 40 })
+check('Ayar', 'Uydurma kimlikle düzeltmeyi kapatma', r.json.adjust?.id === fix.json.id && r.json.adjust.total === 2000, `toplam ${r.json.adjust?.total}`)
+r = await scoresOf(b, { total: 300, weekly: 300, week, level: 5, words: 40, adj: -1 })
+check('Ayar', 'Eksi düzeltme kimliği', r.status === 422, `${r.status}`)
+r = await json('POST', `/api/v1/admin/players/${b.id}/adjust`, { total: 999_999 }, bearer(a.token))
+check('Ayar', 'Oyuncu jetonuyla puan ayarı', r.status === 401, `${r.status}`)
+for (const bad of [{ total: -5 }, { total: 1e12 }, { level: 1e9 }, { total: '9999' }, { weekly: 5000 }, { total: 5.5 }]) {
+  r = await json('POST', `/api/v1/admin/players/${b.id}/adjust`, bad, { cookie: adm.cookie })
+  check('Ayar', `Sınır dışı ayar ${JSON.stringify(bad)}`, r.status === 422, `${r.status}`)
+}
+
 // --- Panel: oturum, roller, CSRF, enjeksiyon ---
 check('Panel', 'Çerez HttpOnly + SameSite=Strict + Path=/api', /HttpOnly/.test(adm.setCookie) && /SameSite=Strict/.test(adm.setCookie) && /Path=\/api/.test(adm.setCookie), adm.setCookie.replace(/wv_admin=[^;]+/, 'wv_admin=…'))
 r = await raw('GET', '/api/v1/admin/me', { headers: { cookie: 'wv_admin=' + 'A'.repeat(43) } })
@@ -176,6 +196,10 @@ check('Panel', 'Bozulmuş oturum çerezi', r.status === 401, `${r.status}`)
 const viewer = await adminLogin('izleyici', pw)
 r = await json('POST', `/api/v1/admin/players/${b.id}/grants`, { amount: 5 }, { cookie: viewer.cookie })
 check('Panel', 'İzleyici elmas veremez', r.status === 403, `${r.status}`)
+r = await json('POST', `/api/v1/admin/players/${b.id}/adjust`, { total: 5 }, { cookie: viewer.cookie })
+check('Panel', 'İzleyici puan/bölüm ayarlayamaz', r.status === 403, `${r.status}`)
+r = await json('POST', `/api/v1/admin/players/${b.id}/adjust`, { total: 5 }, { cookie: adm.cookie, origin: 'https://kotu.example' })
+check('Panel', 'CSRF: başka kaynaktan puan ayarı', r.status === 403, `${r.status}`)
 r = await json('DELETE', `/api/v1/admin/players/${b.id}`, {}, { cookie: viewer.cookie })
 check('Panel', 'İzleyici oyuncu silemez', r.status === 403, `${r.status}`)
 r = await json('POST', '/api/v1/admin/test-players', { name: 'İzleyici Deneme' }, { cookie: viewer.cookie })

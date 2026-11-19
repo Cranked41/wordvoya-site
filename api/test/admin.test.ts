@@ -7,8 +7,7 @@ import { AdminStore, verifyPassword } from '../src/admin.ts'
 
 const ORIGIN = 'http://panel.test'
 
-async function start() {
-  const now = () => Date.UTC(2026, 10, 8, 12)
+async function start(now: () => number = () => Date.UTC(2026, 10, 8, 12)) {
   const store = new Store(':memory:', now)
   const admins = new AdminStore(store)
   await admins.addAdmin('riza', 'dogru-sifre-123', 'admin')
@@ -196,6 +195,7 @@ test('toplu silme: yalnız admin, hepsi tek işlemde, bozuk istek reddedilir', a
     const admin = (await login('riza', 'dogru-sifre-123')).cookie
     const viewer = (await login('izleyici', 'izleyici-sifre-1')).cookie
     await call('POST', `/api/v1/admin/players/${ps[0].id}/grants`, { amount: 10 }, { cookie: admin })
+    await call('POST', `/api/v1/admin/players/${ps[0].id}/adjust`, { total: 80 }, { cookie: admin })
     const path = '/api/v1/admin/players/delete'
 
     assert.equal((await call('POST', path, { ids: [ps[0].id] }, { cookie: viewer })).status, 403)
@@ -211,12 +211,200 @@ test('toplu silme: yalnız admin, hepsi tek işlemde, bozuk istek reddedilir', a
     assert.deepEqual([r.status, r.body], [200, { deleted: 2 }])
     const list = (await call('GET', '/api/v1/admin/players?sort=name&dir=asc', undefined, { cookie: viewer })).body
     assert.deepEqual(list.players.map((p: any) => p.name).sort(), ['Dört', 'Üç'])
-    // Silinenin bölüm sonuçları ve hediyeleri de gider; jetonu artık geçmez
+    // Silinenin bölüm sonuçları, hediyeleri ve düzeltmeleri de gider; jetonu artık geçmez
     assert.equal((await call('GET', `/api/v1/admin/players/${ps[0].id}`, undefined, { cookie: admin })).status, 404)
     assert.equal((await call('PUT', '/api/v1/players/me/scores', { total: 60, weekly: 60, week, level: 2, words: 6 }, { token: ps[0].token })).status, 401)
     const db = (admins as any).store.db
-    for (const table of ['level_results', 'grants']) {
+    for (const table of ['level_results', 'grants', 'adjustments']) {
       assert.equal(db.prepare(`SELECT COUNT(*) AS n FROM ${table} WHERE player_id = ?`).get(ps[0].id).n, 0, table)
     }
+  } finally { await stop() }
+})
+
+// --- Puan ve bölüm ayarı (POST admin/players/{id}/adjust) ---
+
+const SCORES = '/api/v1/players/me/scores'
+
+test('puan/bölüm ayarı: yalnız admin; bozuk, boş ve tutarsız istek reddedilir', async () => {
+  const { call, login, stop, week } = await start()
+  try {
+    const p = (await call('POST', '/api/v1/players', { name: 'Elif' })).body
+    await call('PUT', SCORES, { total: 400, weekly: 150, week, level: 12, words: 60 }, { token: p.token })
+    const admin = (await login('riza', 'dogru-sifre-123')).cookie
+    const viewer = (await login('izleyici', 'izleyici-sifre-1')).cookie
+    const path = `/api/v1/admin/players/${p.id}/adjust`
+
+    assert.equal((await call('POST', path, { total: 500 }, { cookie: viewer })).status, 403)
+    assert.equal((await call('POST', path, { total: 500 })).status, 401)
+    assert.equal((await call('POST', path, { total: 500 }, { cookie: admin, origin: 'https://kotu.example' })).status, 403)
+    assert.equal((await call('POST', path, { total: 500 }, { token: p.token })).status, 401)   // oyuncu jetonu yönetici sayılmaz
+    for (const [bad, error] of [
+      [{ total: -1 }, 'total'], [{ total: 1.5 }, 'total'], [{ total: '500' }, 'total'], [{ total: 1_000_000_001 }, 'total'],
+      [{ weekly: -1 }, 'weekly'], [{ level: 100_001 }, 'level'], [{ level: 2.5 }, 'level'], [{ level: [3] }, 'level'],
+      [{}, 'nothing'], [{ total: 400, weekly: 150, level: 12 }, 'nothing'], [{ note: 'yalnız not' }, 'nothing'],
+      [{ weekly: 401 }, 'weekly'], [{ total: 100, weekly: 150 }, 'weekly'],
+    ] as const) {
+      const r = await call('POST', path, bad, { cookie: admin })
+      assert.deepEqual([r.status, r.body.error], [422, error], JSON.stringify(bad))
+    }
+    const missing = '00000000-0000-0000-0000-000000000000'
+    assert.equal((await call('POST', `/api/v1/admin/players/${missing}/adjust`, { total: 5 }, { cookie: admin })).status, 404)
+    // Reddedilen isteklerin hiçbiri kayıt bırakmadı
+    const detail = (await call('GET', `/api/v1/admin/players/${p.id}`, undefined, { cookie: viewer })).body
+    assert.deepEqual([detail.player.total, detail.player.weekly, detail.player.level, detail.adjustments], [400, 150, 12, []])
+  } finally { await stop() }
+})
+
+test('puan/bölüm ayarı tabloya hemen yansır; düzeltmeyi bilmeyen eski uygulamada oynadıkça üstüne eklenir', async () => {
+  const { call, login, stop, week } = await start()
+  try {
+    const p = (await call('POST', '/api/v1/players', { name: 'Elif' })).body
+    const other = (await call('POST', '/api/v1/players', { name: 'Mert' })).body
+    await call('PUT', SCORES, { total: 400, weekly: 150, week, level: 12, words: 60 }, { token: p.token })
+    await call('PUT', SCORES, { total: 900, weekly: 900, week, level: 30, words: 90 }, { token: other.token })
+    const admin = (await login('riza', 'dogru-sifre-123')).cookie
+    const detail = async () => (await call('GET', `/api/v1/admin/players/${p.id}`, undefined, { cookie: admin })).body
+
+    const made = await call('POST', `/api/v1/admin/players/${p.id}/adjust`, { total: 5000, level: 100, note: '  Turnuva   ödülü ' }, { cookie: admin })
+    assert.equal(made.status, 201)
+    let d = await detail()
+    assert.deepEqual([d.player.total, d.player.weekly, d.player.level, d.player.ranks.total], [5000, 150, 100, 1])
+    assert.deepEqual(d.adjustments.map((a: any) => [a.id, a.total_from, a.total_to, a.weekly_to, a.level_from, a.level_to, a.note, a.admin, a.delivered_at, a.applied_at]),
+      [[made.body.id, 400, 5000, null, 12, 100, 'Turnuva ödülü', 'riza', null, null]])
+    // Öbür oyuncu tabloda onu hemen birinci görür (sıra görüntüsü yenilenir)
+    const board = (await call('GET', '/api/v1/boards/total', undefined, { token: other.token })).body
+    assert.deepEqual(board.entries.map((e: any) => [e.rank, e.name, e.score]), [[1, 'Elif', 5000], [2, 'Mert', 900]])
+
+    // Eski uygulama kendi sayılarını gönderir: fark eklenir, ayar korunur; düzeltme cevapta gelir
+    const first = await call('PUT', SCORES, { total: 400, weekly: 150, week, level: 12, words: 60 }, { token: p.token })
+    assert.deepEqual(first.body.adjust, { id: made.body.id, week, note: 'Turnuva ödülü', total: 5000, level: 100 })
+    d = await detail()
+    assert.deepEqual([d.player.total, d.player.weekly, d.player.level, d.player.flags], [5000, 150, 100, 0])
+    assert.ok(d.adjustments[0].delivered_at)
+    assert.equal(d.adjustments[0].applied_at, null)
+    // Oynadı: +120 puan, bir bölüm. Tabloya ayarın üstüne eklenir
+    const second = await call('PUT', SCORES, { total: 520, weekly: 270, week, level: 13, words: 72 }, { token: p.token })
+    assert.deepEqual([second.body.adjust.total, second.body.adjust.level], [5120, 101])
+    d = await detail()
+    assert.deepEqual([d.player.total, d.player.weekly, d.player.level, d.player.flags], [5120, 270, 101, 0])
+  } finally { await stop() }
+})
+
+test('yeni uygulama düzeltmeyi cihaza işleyip kimliğini bildirince fark bir daha eklenmez', async () => {
+  const { call, login, stop, week } = await start()
+  try {
+    const p = (await call('POST', '/api/v1/players', { name: 'Elif' })).body
+    const plain = (await call('POST', '/api/v1/players', { name: 'Mert' })).body
+    await call('PUT', SCORES, { total: 400, weekly: 150, week, level: 12, words: 60 }, { token: p.token })
+    const admin = (await login('riza', 'dogru-sifre-123')).cookie
+    const detail = async () => (await call('GET', `/api/v1/admin/players/${p.id}`, undefined, { cookie: admin })).body
+    const adjust = (body: unknown) => call('POST', `/api/v1/admin/players/${p.id}/adjust`, body, { cookie: admin })
+    const one = (await adjust({ total: 5000, level: 100 })).body.id
+
+    // Uygulamaya hiç gitmemiş düzeltme (kimliği tutsa bile) kapanmaz; uydurma kimlik de kapatmaz
+    const guess = await call('PUT', SCORES, { total: 400, weekly: 150, week, level: 12, words: 60, adj: one }, { token: p.token })
+    assert.equal(guess.body.adjust.total, 5000)
+    assert.equal((await call('PUT', SCORES, { total: 400, weekly: 150, week, level: 12, words: 60, adj: 999_999 }, { token: p.token })).body.adjust.id, one)
+    assert.equal((await detail()).adjustments[0].applied_at, null)
+
+    // Uygulama sayılarını sunucudakine getirdi (5000 puan, 100. bölüm) ve kimliği bildirdi
+    const applied = await call('PUT', SCORES, { total: 5000, weekly: 150, week, level: 100, words: 60, adj: one }, { token: p.token })
+    assert.equal(applied.status, 200)   // 60 kelimeyle 5000 puan: panelden eklenen puan kadar izin var
+    assert.equal(applied.body.adjust, undefined)
+    let d = await detail()
+    assert.deepEqual([d.player.total, d.player.level, d.player.flags], [5000, 100, 0])   // 9600 değil
+    assert.ok(d.adjustments[0].applied_at)
+    // Panelden puan almamış oyuncu aynı sayıları gönderemez
+    assert.equal((await call('PUT', SCORES, { total: 5000, weekly: 150, week, level: 100, words: 60 }, { token: plain.token })).status, 422)
+
+    // Art arda düzeltmeler: ikincisi cihaza işlenmiş, onayı gitmeden üçüncüsü yapılmış
+    const two = (await adjust({ total: 6000 })).body.id
+    await call('PUT', SCORES, { total: 5000, weekly: 150, week, level: 100, words: 60, adj: one }, { token: p.token })
+    const three = (await adjust({ total: 6500 })).body.id
+    const mid = await call('PUT', SCORES, { total: 6000, weekly: 150, week, level: 100, words: 60, adj: two }, { token: p.token })
+    assert.deepEqual(mid.body.adjust, { id: three, week, note: '', total: 6500 })   // yalnız üçüncünün farkı (+500) eklenir
+    const done = await call('PUT', SCORES, { total: 6500, weekly: 150, week, level: 100, words: 60, adj: three }, { token: p.token })
+    assert.equal(done.body.adjust, undefined)
+    d = await detail()
+    assert.deepEqual([d.player.total, d.player.flags], [6500, 0])
+    assert.ok(d.adjustments.every((a: any) => a.applied_at))
+    // Oyun sürer: yeni puan doğrudan sayılır
+    await call('PUT', SCORES, { total: 6620, weekly: 270, week, level: 101, words: 72, adj: three }, { token: p.token })
+    d = await detail()
+    assert.deepEqual([d.player.total, d.player.weekly, d.player.level], [6620, 270, 101])
+  } finally { await stop() }
+})
+
+test('puan ve bölüm düşürme: eski değer geri gelmez, haftalık toplamı aşmaz', async () => {
+  const { call, login, stop, week } = await start()
+  try {
+    const p = (await call('POST', '/api/v1/players', { name: 'Elif' })).body
+    const raw = { total: 3000, weekly: 800, week, level: 40, words: 250 }
+    await call('PUT', SCORES, raw, { token: p.token })
+    const admin = (await login('riza', 'dogru-sifre-123')).cookie
+    const detail = async () => (await call('GET', `/api/v1/admin/players/${p.id}`, undefined, { cookie: admin })).body
+
+    const made = await call('POST', `/api/v1/admin/players/${p.id}/adjust`, { total: 500, level: 10 }, { cookie: admin })
+    let d = await detail()
+    assert.deepEqual([d.player.total, d.player.weekly, d.player.level], [500, 500, 10])
+    assert.deepEqual([d.adjustments[0].weekly_from, d.adjustments[0].weekly_to], [800, 500])   // haftalık kendiliğinden indi
+    // Cihaz eski (yüksek) sayılarını göndermeyi sürdürür: tablo ayarda kalır, şüpheli de sayılmaz
+    const put = await call('PUT', SCORES, raw, { token: p.token })
+    assert.deepEqual(put.body.adjust, { id: made.body.id, week, note: '', total: 500, weekly: 500, level: 10 })
+    d = await detail()
+    assert.deepEqual([d.player.total, d.player.weekly, d.player.level, d.player.flags], [500, 500, 10, 0])
+    // Uygulama cihaza işledi
+    await call('PUT', SCORES, { total: 500, weekly: 500, week, level: 10, words: 250, adj: made.body.id }, { token: p.token })
+    d = await detail()
+    assert.deepEqual([d.player.total, d.player.weekly, d.player.level, d.player.flags], [500, 500, 10, 0])
+  } finally { await stop() }
+})
+
+test('cihaz sunucunun gerisindeyse (yedekten dönmüş) düzeltme cihazı sunucudaki değere getirir', async () => {
+  const { call, login, stop, week } = await start()
+  try {
+    const p = (await call('POST', '/api/v1/players', { name: 'Elif' })).body
+    await call('PUT', SCORES, { total: 3000, weekly: 0, week, level: 40, words: 250 }, { token: p.token })
+    const admin = (await login('riza', 'dogru-sifre-123')).cookie
+    await call('POST', `/api/v1/admin/players/${p.id}/adjust`, { total: 4000, level: 60 }, { cookie: admin })
+    // Cihazda eski bir yedek: 1000 puan, 5. bölüm, 30 kelime. Fark eklenince 2000 / 25 eder; tablo en iyiyi (ayarı) tutar
+    const put = await call('PUT', SCORES, { total: 1000, weekly: 0, week, level: 5, words: 30 }, { token: p.token })
+    assert.deepEqual([put.body.adjust.total, put.body.adjust.level], [4000, 60])
+    // Cihaz sayılarını sunucudakine getirdi: 30 kelimeyle 4000 puan (panelden eklenen 1000'den fazlası) reddedilmez
+    const applied = await call('PUT', SCORES, { total: 4000, weekly: 0, week, level: 60, words: 30, adj: put.body.adjust.id }, { token: p.token })
+    assert.deepEqual([applied.status, applied.body.adjust], [200, undefined])
+    const d = (await call('GET', `/api/v1/admin/players/${p.id}`, undefined, { cookie: admin })).body
+    assert.deepEqual([d.player.total, d.player.level, d.player.words, d.player.flags], [4000, 60, 250, 0])
+  } finally { await stop() }
+})
+
+test('haftalık puan ayarı yalnız yapıldığı haftada geçer', async () => {
+  const clock = { t: Date.UTC(2026, 10, 8, 12) }
+  const { call, login, stop } = await start(() => clock.t)
+  try {
+    const week = weekOf(clock.t)
+    const p = (await call('POST', '/api/v1/players', { name: 'Elif' })).body
+    await call('PUT', SCORES, { total: 1000, weekly: 200, week, level: 10, words: 100 }, { token: p.token })
+    const admin = (await login('riza', 'dogru-sifre-123')).cookie
+    const detail = async () => (await call('GET', `/api/v1/admin/players/${p.id}`, undefined, { cookie: admin })).body
+    const made = await call('POST', `/api/v1/admin/players/${p.id}/adjust`, { weekly: 900 }, { cookie: admin })
+    let d = await detail()
+    assert.deepEqual([d.player.weekly, d.player.total], [900, 1000])
+    const same = await call('PUT', SCORES, { total: 1000, weekly: 200, week, level: 10, words: 100 }, { token: p.token })
+    assert.deepEqual(same.body.adjust, { id: made.body.id, week, note: '', weekly: 900 })
+    assert.equal((await detail()).player.weekly, 900)
+
+    // Hafta döndü (pazar 07:00 UTC): cihazın yeni haftadaki puanına eski haftanın farkı eklenmez
+    clock.t += 6 * 86_400_000 + 20 * 3_600_000
+    const next = weekOf(clock.t)
+    assert.equal(next, week + 1)
+    const later = await call('PUT', SCORES, { total: 1150, weekly: 150, week: next, level: 11, words: 110 }, { token: p.token })
+    assert.deepEqual(later.body.adjust, { id: made.body.id, week: next, note: '' })   // işlenecek alan kalmadı; kimlik kapanış için gider
+    d = await detail()
+    assert.deepEqual([d.player.total, d.player.weekly], [1150, 150])
+    // Uygulama kimliği bildirir, düzeltme kapanır
+    const closed = await call('PUT', SCORES, { total: 1150, weekly: 150, week: next, level: 11, words: 110, adj: made.body.id }, { token: p.token })
+    assert.equal(closed.body.adjust, undefined)
+    assert.ok((await detail()).adjustments[0].applied_at)
   } finally { await stop() }
 })
